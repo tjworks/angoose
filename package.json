@@ -1,0 +1,43 @@
+{
+  "name": "angoose",
+  "version": "0.1.0",
+  "description": "angoose",
+  "main": "lib/angoose",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjworks/angoose.git"
+  },
+  "keywords": [
+    "mongoose",
+    "angular",
+    "frontend",
+    "model",
+    "rpc",
+    "rmi"
+  ],
+  "devDependencies": {
+    "jasmine-node": "*",
+    "grunt": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-cli": "*",
+    "grunt-contrib-jshint": "~0.7.2",
+    "grunt-jasmine-node": "~0.1.0",
+    "grunt-shell": "~0.6.1",
+    "request":"*"
+  },
+  "dependencies": {
+    "underscore": "*",
+    "mongoose": "*",
+    "q": "*",
+    "express":"*",
+    "log4js":"*"
+  },
+  "author": "tjworks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjworks/angoose/issues"
+  }
+}
