@@ -1,7 +1,7 @@
 {
   "name": "angoose",
-  "version": "0.1.0",
-  "description": "angoose",
+  "version": "0.1.11",
+  "description": "Angoose allows you to seamlessly reuse the server side model(Mongoose model) in Angular",
   "main": "lib/angoose",
   "scripts": {
     "test": "test"
