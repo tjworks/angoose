@@ -1,6 +1,6 @@
 {
   "name": "angoose",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Angoose allows you to seamlessly reuse the server side model(Mongoose model) in Angular",
   "main": "lib/angoose",
   "scripts": {
@@ -26,14 +26,14 @@
     "grunt-contrib-jshint": "~0.7.2",
     "grunt-jasmine-node": "~0.1.0",
     "grunt-shell": "~0.6.1",
-    "request":"*"
+    "request": "*"
   },
   "dependencies": {
     "underscore": "*",
     "mongoose": "*",
     "q": "*",
-    "express":"*",
-    "log4js":"*"
+    "express": "*",
+    "log4js": "*"
   },
   "author": "tjworks",
   "license": "MIT",
