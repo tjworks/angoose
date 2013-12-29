@@ -15,7 +15,8 @@ if(fs.exists(clientfile))
 var configs = {
     modelDir: ROOT+'/models',
     clientFile: clientfile,
-    urlPrefix: '/angoose-prefix'
+    urlPrefix: '/angoose-prefix',
+    httpPort: 12345
 };
 var app = startApp();    
 var AngooseServer = require(ROOT+ "/lib/angoose");
@@ -73,7 +74,7 @@ describe("Angoose Server Tests", function(){
 function startApp(){
     var app = express();
     app.configure(function() {
-        app.set('port', 17029);
+        app.set('port', configs.httpPort);
         app.use(express.bodyParser());
         /* manage sessions */
         app.use(express.cookieParser());
@@ -90,8 +91,8 @@ function startApp(){
         app.use(express.methodOverride());
         app.use(express.static(path.join(__dirname, 'public')));
     });
-    http.createServer(app).listen(17029, function(){
-        console.log("Listening on port " , 17029);    
+    http.createServer(app).listen( configs.httpPort, function(){
+        console.log("Listening on port " ,  configs.httpPort);    
     });
     return app;   
 }
