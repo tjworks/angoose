@@ -51,11 +51,7 @@ You can use the sample model `SampleUser` which comes with the Angoose installat
 	    },
 	    { collection:'SampleUsers',  discriminatorKey: 'type' }
 	);
-	SampleSchema.methods.getFullname= function portable(){
-	    //_instance_portable
-	    console.log("getFullname", this);
-	    return  (this.firstname ? this.firstname +" ": "") + (this.lastname || "");
-	}
+	
 	SampleSchema.methods.setFullname= function(fullname){
 	    //_instance_remote
 	    var names = (fullname || "").split(/\s+/);
@@ -65,13 +61,10 @@ You can use the sample model `SampleUser` which comes with the Angoose installat
 	}
 	SampleSchema.statics.getSample = function(){
 	    //_static_remote
-	    require("fs");  // do a server side operation to demonstrates this works only in the server side.
-	    var instance = new this( { 
-		    firstname:'Gaelyn',  lastname:'Hurd', status:'active'
-		}); // this refers to the model class in a static methods
-	    return instance;
+	    return this.findOne({firstname:'Gaelyn'});  // note .exec() will be called by Angoose before return value to client side.
 	}
-	module.exports = mongoose.model('SampleUser', SampleSchema);   // notice the exports format, this is required for Angoose to recognize
+	// notice the exports return, it is a Mongoose Model type
+	module.exports = mongoose.model('SampleUser', SampleSchema);   
 
 
 #### 4. In your client code(HTML), add following after angular script tag:
@@ -90,11 +83,40 @@ Note the `/angoose/angoose-client.js` route is wired by Angoose in the backend. 
 All the models will be readily available for injection, just delcare them in the controller function:
 
 	angular.module('myapp').controller('UserCtrl', function($scope, SampleUser) {
-		$scope.user = SampleUser.getSample({});  // calling static method on model class
-		setTimeout(function(){
-			console.log( user.getFullname() ); // calling instance method, print out "Gaelyn Hurd"
-			console.log(user.status); // print out "active"
-		},1000);
+	
+		// calling static method on model class, the return value is an instance of SampleUser. 
+		// No callback is required, you can use `{{ sampleUser.firstname }}` in the template and 
+		// it will be updated once the call is complete.   
+		$scope.sampleUser = SampleUser.findById('xxxx');   //  
+		
+		$scope.sampleUser.firstname = 'Mr. '+ $scope.sampleUser.firstname;
+		$scope.save(function(err, result)){
+			// check for error. note result will be undefined in successful case.
+		});
+		
+		// alternatively, you may use Q's promise
+		$scope.save().done(function(result){ 
+			//note result will be undefined in successful case.
+		}, function(err){
+			// handle error
+		});
+		
+		// create new instance and validations		
+		var newUser = new SampleUser({
+			firstname:'xxx',
+			lastname:'yyy',
+			email:'xxx@asd',
+			status:'active'
+		});
+		newUser.save(function(err, result){
+			console.log(err);  // print out: 'email' is invalid
+		});
+		newUser.email = 'test@google.com';
+		newUser.save(function(err, result){
+			console.log(err); // print out: undefined
+			console.log(newUser._id);  // print out: _id value
+			newUser.remove(); // remove this user from database
+		});
 	});
 	
 ## What Now?

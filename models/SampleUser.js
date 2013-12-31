@@ -1,10 +1,10 @@
 var mongoose = require('mongoose');
 var SampleSchema = mongoose.Schema({
-        email:  {type: String, required: true, match: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, index:true},
+        email:  {type: String, required: true, match: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, unique:true},
         firstname: {type: String, required:true },
         lastname: {type: String, required:true },
         status: {type: String, enum: ['inactive', 'active', 'disabled', 'archived'], required:true, def:'inactive' },
-        password: { type:String, required:true },
+        password: { type:String },
     },
     {
         collection:'SampleUsers', 
@@ -14,7 +14,8 @@ var SampleSchema = mongoose.Schema({
 var sampleUserData = { 
     firstname:'Gaelyn', 
     lastname:'Hurd',
-    status:'active'
+    status:'active',
+    email: 'gaelyn@hurd.com'
 };
 
 SampleSchema.methods.getFullname= function portable(){

@@ -16,7 +16,7 @@ var configs = {
     modelDir: ROOT+'/models',
     clientFile: clientfile,
     urlPrefix: '/angoose-prefix',
-    httpPort: 12345
+    httpPort: 9988
 };
 var app = startApp();    
 var AngooseServer = require(ROOT+ "/lib/angoose");
@@ -24,7 +24,8 @@ AngooseServer.init(app, configs);
 var userdata = { 
     firstname:'Gaelyn', 
     lastname:'Hurd',
-    status:'active'
+    status:'active',
+    email:'gaelyn@hurd.com'
 };
 var clientSource = fs.readFileSync( clientfile, 'ascii') ; 
 describe("Angoose Server Tests", function(){
@@ -43,7 +44,7 @@ describe("Angoose Server Tests", function(){
              });
     });
     it("Load client file from http", function(done){
-       request('http://localhost:17029' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
+       request('http://localhost:9988' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
             eval(body);
             var SampleUser = AngooseClient.model("SampleUser");
             var suser = new SampleUser( userdata);
@@ -70,6 +71,83 @@ describe("Angoose Server Tests", function(){
             done();
         });
     });
+    it("Sample User Find", function(done){
+        var SSU = require(ROOT+ "/models/SampleUser");
+        
+       
+        eval(clientSource);
+        var SampleUser = AngooseClient.model("SampleUser");
+        
+        expect(SampleUser.save).not.toBeTruthy()
+        expect(SampleUser.find).toBeTruthy()
+        expect(SampleUser.findOne).toBeTruthy()
+        
+        var suser = new SampleUser( userdata);
+        expect(suser.remove).toBeTruthy()
+        suser.save().done(function(res){
+                console.log("Expecting save OK: ", res);
+                
+                SSU.findById( suser._id ).exec(function(err, obj){
+                    console.log("server object find",err,  obj);
+                    
+                    SampleUser.findById( suser._id ).done(function(su){
+                        console.log("Expecting findById OK: ", su);
+                        done();
+                    }, function(err){
+                        console.log("Failed to find ", err);
+                        expect(err).toBe("OK");
+                        done();
+                    })
+                });
+                
+                // now trying to find one
+                //SampleUser.find()
+        })
+    });
+    it("Sample User Save", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.model("SampleUser");
+        
+        expect(SampleUser.save).not.toBeTruthy()
+        expect(SampleUser.find).toBeTruthy()
+        expect(SampleUser.findOne).toBeTruthy()
+        
+        var suser = new SampleUser( userdata);
+        expect(suser.remove).toBeTruthy()
+        suser.email = 'john@'
+        suser.save(function(err, res){  // can either user callback for promise
+            console.log("Expecting error: ", err);
+            expect(err).toBeTruthy();
+            expect(err.indexOf('email')).toBeGreaterThan(0);
+            expect(err.indexOf('invalid')).toBeGreaterThan(0);
+            suser = new SampleUser( userdata);
+            suser.save().done(function(res){
+                console.log("Expecting save OK: ", res);
+                
+                SampleUser.find({email:suser.email}).done(function(su){
+                    console.log("Expecting find OK: ", su);
+                    expect(su && su.length).toBe(1)
+                    su && su.length&& su[0].remove().done(function(res){
+                        console.log("Expecting remove() to be OK:", res);
+                        done();
+                    }, function(er){
+                        console.log("Failed to remove", er);
+                        expect(err).toBe("OK");                        
+                    });    
+                }, function(err){
+                    console.log("Failed to find ", err);
+                    expect(err).toBe("OK");
+                    done();
+                })
+                // now trying to find one
+                //SampleUser.find()
+                
+                
+            }, function(er){
+                console.log("Unexpected error: ", er);
+            })
+        })
+    });
 });
 function startApp(){
     var app = express();
@@ -95,4 +173,8 @@ function startApp(){
         console.log("Listening on port " ,  configs.httpPort);    
     });
     return app;   
+}
+
+exports = {
+    clientcode: clientSource
 }
