@@ -7,7 +7,7 @@ var request = require('request');
 var clientfile =  './build/generated-client.js';
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
-logger.setLevel(logging.levels.DEBUG);
+logger.setLevel(logging.levels.TRACE);
 
 console.log("Deleting ", clientfile);
 if(fs.exists(clientfile))
@@ -29,20 +29,7 @@ var userdata = {
 };
 var clientSource = fs.readFileSync( clientfile, 'ascii') ; 
 describe("Angoose Server Tests", function(){
-    it("Load client file from file", function(done){
-            eval(clientSource);
-            expect(typeof(AngooseClient)).not.toBe("undefined");
-            expect(AngooseClient.schemas.SampleUser).toBeTruthy();
-            
-            var SampleUser = AngooseClient.model("SampleUser");
-            var suser = new SampleUser( userdata);
-            expect(suser.getFullname()).toBe("Gaelyn Hurd");
-            suser.setFullname("John Babara").done(function(res){
-                    console.log("setFullname call complete", res)
-                    expect(suser.getFullname()).toBe("John Babara");
-                    done(); 
-             });
-    });
+    
     it("Load client file from http", function(done){
        request('http://localhost:9988' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
             eval(body);
@@ -52,7 +39,17 @@ describe("Angoose Server Tests", function(){
             done();
        });
     });
-    
+    it("Dependency injection", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.model("SampleUser");
+        var suser = new SampleUser( userdata);
+        suser.setPassword('abc').done(function(res){
+            console.log("setpassword done", arguments);
+            expect(suser.password).toBe("abcsalt123");
+            expect(res).toBe("Password changed");
+            done();
+        });
+    }); 
     it("Static method", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.model("SampleUser");

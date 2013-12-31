@@ -23,20 +23,13 @@ SampleSchema.methods.getFullname= function portable(){
     console.log("getFullname", this);
     return  (this.firstname ? this.firstname +" ": "") + (this.lastname || "");
 }
-SampleSchema.methods.setFullname= function(fullname){
-    //_instance_remote
-    console.log("in setFullname", this, fullname);
-    var names = (fullname || "").split(/\s+/);
-    if(names.length!=2) return;
-    this.firstname = names[0];
-    this.lastname = names[1];
-}
-SampleSchema.statics.checkExists = function(email){
-    //_static_remote
-    console.log("in checkExists",email);
-    require("fs");  // do a server side operation to ensure this can only be done in the server side.
-    if(email && email.indexOf('new')>=0) return false;
-    return true;
+SampleSchema.methods.setPassword= function(newPassword, $context, $callback){
+    // instance method, reset user's password.
+    if(!$callback ) throw "$callback not injected";
+    //var cryptor = require("crypto"); // require node module crypto
+    //this.password = cryptor.encrypt("salt", newPassword);
+    this.password  = newPassword +"salt123"; // fake code
+    $callback(false, "Password changed");
 }
 SampleSchema.statics.getSample = function(){
     // this should refer to the model class
@@ -45,5 +38,13 @@ SampleSchema.statics.getSample = function(){
     return instance;
     
 }
+SampleSchema.statics.checkExists = function(email){
+    //_static_remote
+    console.log("in checkExists",email);
+    require("fs");  // do a server side operation to ensure this can only be done in the server side.
+    if(email && email.indexOf('new')>=0) return false;
+    return true;
+}
 var SampleUser = mongoose.model('SampleUser', SampleSchema);
 module.exports = SampleUser;
+

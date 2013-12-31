@@ -52,15 +52,14 @@ You can use the sample model `SampleUser` which comes with the Angoose installat
 	    { collection:'SampleUsers',  discriminatorKey: 'type' }
 	);
 	
-	SampleSchema.methods.setFullname= function(fullname){
-	    //_instance_remote
-	    var names = (fullname || "").split(/\s+/);
-	    if(names.length!=2) return;
-	    this.firstname = names[0];
-	    this.lastname = names[1];
+	SampleSchema.methods.setPassword= function(newPassword, $callback){
+	    // instance method, reset user's password
+	    var cryptor = require("crypto"); // require node module crypto
+	    this.password = cryptor.encrypt("salt", newPassword);
+	    this.save($callback);
 	}
 	SampleSchema.statics.getSample = function(){
-	    //_static_remote
+	    // static method
 	    return this.findOne({firstname:'Gaelyn'});  // note .exec() will be called by Angoose before return value to client side.
 	}
 	// notice the exports return, it is a Mongoose Model type
@@ -89,18 +88,6 @@ All the models will be readily available for injection, just delcare them in the
 		// it will be updated once the call is complete.   
 		$scope.sampleUser = SampleUser.findById('xxxx');   //  
 		
-		$scope.sampleUser.firstname = 'Mr. '+ $scope.sampleUser.firstname;
-		$scope.save(function(err, result)){
-			// check for error. note result will be undefined in successful case.
-		});
-		
-		// alternatively, you may use Q's promise
-		$scope.save().done(function(result){ 
-			//note result will be undefined in successful case.
-		}, function(err){
-			// handle error
-		});
-		
 		// create new instance and validations		
 		var newUser = new SampleUser({
 			firstname:'xxx',
@@ -111,11 +98,15 @@ All the models will be readily available for injection, just delcare them in the
 		newUser.save(function(err, result){
 			console.log(err);  // print out: 'email' is invalid
 		});
+
 		newUser.email = 'test@google.com';
-		newUser.save(function(err, result){
-			console.log(err); // print out: undefined
+		// here we are using Q's promise, an alternate to callback function
+		newUser.save().done(function(result){
+			// result is undefined since Mongoose model.save() does not return 
 			console.log(newUser._id);  // print out: _id value
 			newUser.remove(); // remove this user from database
+		}, function(err){
+			// if something went wrong
 		});
 	});
 	
