@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "underscore": "*",
-    "mongoose": "*",
+    "mongoose": "3.8.3",
     "q": "*",
     "express": "*",
     "log4js": "*"
