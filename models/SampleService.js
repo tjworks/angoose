@@ -1,9 +1,13 @@
-var mongoose = require('mongoose') 
-var SampleServiceSchema = mongoose.Schema({
-});
+var angoose = require("../lib/angoose");
 
-SampleServiceSchema.statics.listFavoriteDestinations = function(){
-    // return a list of users]
-    return ["Paris", "Virgin Islands", "Antarctic"]
+var service = {
+    listFavoriteDestinations: function(){
+        return ["Paris", "Virgin Islands", "Antarctic"]
+    },
+    testExecutionContext: function remote(){
+        var req = this.getContext().getRequest();
+        return req.path;
+    }
 }
-module.exports = mongoose.model('SampleService', SampleServiceSchema);
+var SampleService = angoose.Service.extend( service, { name:'SampleService' });
+module.exports = SampleService;

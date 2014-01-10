@@ -26,14 +26,16 @@
     "grunt-contrib-jshint": "~0.7.2",
     "grunt-jasmine-node": "~0.1.0",
     "grunt-shell": "~0.6.1",
-    "request": "*"
+    "request": "*",
+    "jasmine-custom-message": "~0.1.2"
   },
   "dependencies": {
     "underscore": "*",
     "mongoose": "3.8.3",
     "q": "*",
     "express": "*",
-    "log4js": "*"
+    "log4js": "*",
+    "continuation-local-storage": "~3.0.0"
   },
   "author": "tjworks",
   "license": "MIT",

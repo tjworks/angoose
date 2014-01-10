@@ -5,6 +5,7 @@ var SampleSchema = mongoose.Schema({
         lastname: {type: String, required:true },
         status: {type: String, enum: ['inactive', 'active', 'disabled', 'archived'], required:true, def:'inactive' },
         password: { type:String },
+        groupRef: {type: mongoose.Schema.Types.ObjectId, ref: 'SampeUserGroup'}
     },
     {
         collection:'SampleUsers', 

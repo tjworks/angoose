@@ -9,6 +9,9 @@ var logging = require("log4js");
 var logger = logging.getLogger('angoose');
 logger.setLevel(logging.levels.TRACE);
 
+require("jasmine-custom-message");
+var Actual = jasmine.customMessage.Actual;
+
 console.log("Deleting ", clientfile);
 if(fs.exists(clientfile))
     fs.unlinkSync(clientfile);
@@ -33,7 +36,7 @@ describe("Angoose Server Tests", function(){
      it("Load client file from http", function(done){
        request('http://localhost:9988' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
             eval(body);
-            var SampleUser = AngooseClient.model("SampleUser");
+            var SampleUser = AngooseClient.getClass("SampleUser");
             var suser = new SampleUser( userdata);
             expect(suser.getFullname()).toBe("Gaelyn Hurd");
             done();
@@ -41,7 +44,7 @@ describe("Angoose Server Tests", function(){
     });
      it("Dependency injection", function(done){
         eval(clientSource);
-        var SampleUser = AngooseClient.model("SampleUser");
+        var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
         suser.setPassword('abc').done(function(res){
             console.log("setpassword done", arguments);
@@ -52,27 +55,54 @@ describe("Angoose Server Tests", function(){
     }); 
      it("Static method", function(done){
         eval(clientSource);
-        var SampleUser = AngooseClient.model("SampleUser");
+        var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
             console.log("Done done", arguments);
             expect(exists).toBe(false);
             done();
         });
     }); 
-     it("Sample Service", function(done){
+    it("Sample Service", function(done){
         eval(clientSource);
-        var SampleService = AngooseClient.model("SampleService");
-        SampleService.listFavoriteDestinations().done(function(places){
+        var SampleService = AngooseClient.getClass("SampleService");
+        new SampleService().listFavoriteDestinations().done(function(places){
             console.log("Places", places);
             expect(places[0]).toBe("Paris");
             done();
         });
     });
+    it("Sample User Groups", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass("SampleUser");
+        var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
+        var group = new SampleUserGroup({
+            name:'testgroup'
+        });
+        group.save(function(err, res){
+            //console.log("save group", err, group);
+            SampleUserGroup.find({"name":"testgroup"}, function(err, grps){
+                 var suser = new SampleUser( userdata);
+                 suser.email = new Date().getTime() + suser.email;
+                 suser.groupRef = grps[0];
+                 suser.save(function(err, res){
+                     console.log("Save user", err, res)
+                     expect(err).toBeUndefined()
+                     suser.remove(function(reError, reRes){
+                        console.log("Remove user", reError, reRes)
+                        expect(reError).toBeUndefined();
+                        done();    
+                     })
+                     
+                 })   
+            })
+             
+        })
+    });
      it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
         eval(clientSource);
-        var SampleUser = AngooseClient.model("SampleUser");
+        var SampleUser = AngooseClient.getClass("SampleUser");
         
         expect(SampleUser.save).not.toBeTruthy()
         expect(SampleUser.find).toBeTruthy()
@@ -102,7 +132,7 @@ describe("Angoose Server Tests", function(){
     });
     it("Sample User Save", function(done){
         eval(clientSource);
-        var SampleUser = AngooseClient.model("SampleUser");
+        var SampleUser = AngooseClient.getClass("SampleUser");
         
         expect(SampleUser.save).not.toBeTruthy()
         
@@ -148,6 +178,19 @@ describe("Angoose Server Tests", function(){
             }, function(er){
                 console.log("Unexpected error: ", er);
             })
+        })
+    });
+    
+    it("Execution Context", function(done){
+        console.log("Execution context test");
+        eval(clientSource);
+        var SampleService = AngooseClient.getClass("SampleService");
+        new SampleService().testExecutionContext().done(function(data){
+            console.log("Got context path", data)
+            expect(new Actual(data), "Execution context expecting /angoose/xxx but got: "+ data).toBeTruthy();
+            done();
+        }, function(err){
+            
         })
     });
 });
