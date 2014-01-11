@@ -19,12 +19,10 @@ module.exports = function(grunt) {
             }
     },
      shell:{
-         'git-pull': {
-             command: "git pull;npm install"
-         },
-         'restart-app': {
+         'test-server': {
              command: "./kick"
          }
+         
      }
   });
 
@@ -44,7 +42,12 @@ module.exports = function(grunt) {
         pattern && grunt.config.set("jasmine_node.match" ,  ".*" + pattern + ".*");
         grunt.task.run('jasmine_node');
     });
-      
+    
+    grunt.registerTask("server", "Run test server on port 9988", function(argPattern){
+        // change NODE_ENV to unittest 
+        grunt.log.writeln("Starting test server");
+        require("./test/server").startServer();
+    });
   
 };
 

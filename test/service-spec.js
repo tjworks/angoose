@@ -17,5 +17,12 @@ describe("Angoose Model Tests", function(){
         expect(new Actual(places[0], "SampleService.listFavoriteDestination failed")).toBe("Paris");
         done();
     });
+     it("Create service class", function(){
+       var obj = angoose.service('Testie', {
+           testme: function(){ return 'hello' }
+       });
+       var clz = angoose.getClass('Testie');
+       expect( new Actual(new clz().testme(), "class should be Service, but got "+ clz)).toBe("hello"); 
+    });
      
 }); 

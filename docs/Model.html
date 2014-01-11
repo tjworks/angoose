@@ -102,7 +102,12 @@ and export the Mongoose model class like below:  </p>
      lastname: {type: String, required:true },
  })
  module.exports = mongoose.model(&#39;SampleUser&#39;, SampleSchema);</code></pre>
-<p>Note this model/schema file must be located under one of the <code>modelDir</code> directories.</p>
+<p>Requirements for creating models:</p>
+<ul>
+<li>Model/schema file must be located under one of the <code>modelDir</code> directories.</li>
+<li>Each file defines one model</li>
+<li><code>module.exports</code> must be set to the return value of <code>mongoose.model(&#39;name&#39;, schema)</code> call.</li>
+</ul>
 
             </div>
             

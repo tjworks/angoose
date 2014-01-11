@@ -94,8 +94,13 @@
 are not necessarily tied to database models.</p>
 <p>To create an angoose Service, you just need to extend from this class:</p>
 <pre><code> var angoose = require(&quot;angoose&quot;);
- var subclassSchema = { ... }
- module.exports= angoose.Service.extend( subclassSchema );</code></pre>
+ var service = {
+     geoEncode: function(stringAddress){
+             /** call google API */
+             return coordinates
+     }    
+ }
+ module.export = angoose.service(&#39;GeoService&#39;, service);</code></pre>
 <p>The Service class file must be located under one of the <code>modelDir</code> or <code>serviceDir</code> directories.</p>
 
             </div>

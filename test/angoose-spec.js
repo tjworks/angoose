@@ -18,19 +18,20 @@ if(fs.exists(clientfile))
 var configs = {
     modelDir: ROOT+'/models',
     clientFile: clientfile,
-    urlPrefix: '/angoose-prefix',
+    urlPrefix: '/angoose',
     httpPort: 9988
 };
-var app = startApp();    
-var AngooseServer = require(ROOT+ "/lib/angoose");
-AngooseServer.init(app, configs);
+
+require("./server"); //.startServer(configs);
+ 
+var angoose = require("../lib/angoose"); 
 var userdata = { 
     firstname:'Gaelyn', 
     lastname:'Hurd',
     status:'active',
     email:'gaelyn@hurd.com'
 };
-var clientSource = fs.readFileSync( clientfile, 'ascii') ; 
+var clientSource = angoose.generateClient(); //fs.readFileSync( clientfile, 'ascii') ; 
 describe("Angoose Server Tests", function(){
     
      it("Load client file from http", function(done){

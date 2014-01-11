@@ -146,7 +146,8 @@ angoose.Service = require(<span class="string">"./Service"</span>);</pre></div><
     harvestBeans(options);
     
     <span class="comment">/** build client side schemas */</span>
-    buildClientSchemas(options);
+    generateClient();
+    
     <span class="comment">/** configure the routes for handling RMI and client loading*/</span>
     configureRoutes(app, options);   
     
@@ -303,10 +304,6 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
         <span class="keyword">else</span>
             <span class="keyword">continue</span>;    
         <span class="keyword">switch</span>(declaredArguments[i]){
-            <span class="keyword">case</span> <span class="string">'$context'</span>:
-                logger.debug(<span class="string">"Injecting context dependency"</span>);
-                args[i] = ctx;
-                <span class="keyword">break</span>;        
             <span class="keyword">case</span> <span class="string">'$callback'</span>:
                 logger.debug(<span class="string">"Injecting callback handler"</span>);
                 args[i] = callback;
@@ -321,7 +318,7 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
 
 <span class="function"><span class="keyword">function</span> <span class="title">rmiServer</span><span class="params">(req,res)</span>{</span>
         <span class="comment">/** setting execution context */</span>
-        <span class="keyword">var</span> ctx = <span class="keyword">new</span> angoose.Context({request:req, response:res});
+        <span class="keyword">var</span> ctx = <span class="keyword">new</span> angoose.Context({request:req, response:res, session:req.session});
         <span class="keyword">var</span> excutionStorage = storageFactory.createNamespace(<span class="string">"angoose"</span>);
         excutionStorage.run(<span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
             logger.debug(<span class="string">"Setting execution context"</span>);
@@ -523,9 +520,23 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
                  logger.debug(<span class="string">"Skipping file "</span>, filename, <span class="string">".js due to error: "</span>, ex);
             }
     });   
-};
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p><strong> geneateClient() </strong></p>
+<p>Generates the client file to be served as the contents of resource <code>/angoose/angoose-client.js</code> </p>
 
-<span class="function"><span class="keyword">function</span> <span class="title">buildClientSchemas</span><span class="params">(options)</span>{</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">generateClient</span><span class="params">()</span>{</span>
     <span class="keyword">var</span> schemas = <span class="string">''</span>
     <span class="comment">/** generate client side schemas*/</span>
     _.each(beans, <span class="function"><span class="keyword">function</span><span class="params">(model, modelName)</span>{</span>
@@ -545,9 +556,9 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
     content += fs.readFileSync(clientModuleFile, <span class="string">'ascii'</span>);
     clientModuleFile = require(<span class="string">"path"</span>).resolve(__dirname , <span class="string">"client/angoose-node.js"</span>);
     content += fs.readFileSync(clientModuleFile, <span class="string">'ascii'</span>);
-    
     fs.writeFileSync(output, content);
-    logger.debug(<span class="string">"Generated the client file: "</span>+ options.clientFile);       
+    logger.debug(<span class="string">"Generated the client file: "</span>+ options.clientFile);
+    <span class="keyword">return</span> content;       
 }
 <span class="function"><span class="keyword">function</span> <span class="title">connectMongo</span><span class="params">(options)</span>{</span>
     <span class="keyword">try</span>{
@@ -567,12 +578,19 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
     logger.trace(<span class="string">"Dummy Model.on() error handler"</span>, err, obj);
 }
 
+<span class="function"><span class="keyword">function</span> <span class="title">service</span><span class="params">(nameOpts, proto)</span>{</span>
+    logger.debug(<span class="string">"creating service "</span>, nameOpts);
+    <span class="keyword">var</span> opts = <span class="keyword">typeof</span>(nameOpts) == <span class="string">'string'</span>? {name: nameOpts}: nameOpts; 
+    angoose.Service.extend(proto, opts );
+}
 <span class="function"><span class="keyword">function</span> <span class="title">noop</span><span class="params">()</span>{</span>};
 
 angoose.init = init;
 angoose.getClass = getClass;
 angoose.getContext = getContext;
 angoose.registerClass  = registerClass;
+angoose.generateClient = generateClient;
+angoose.service = service;
 module.exports =  angoose;</pre></div></div>
             
         </li>
