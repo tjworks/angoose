@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Principal.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="Context.html">
+                Context.js
+              </a>
+            
+              
+              <a class="source" href="Model.html">
+                Model.js
+              </a>
+            
+              
+              <a class="source" href="Principal.html">
+                Principal.js
+              </a>
+            
+              
+              <a class="source" href="Remotable.html">
+                Remotable.js
+              </a>
+            
+              
+              <a class="source" href="Schema.html">
+                Schema.js
+              </a>
+            
+              
+              <a class="source" href="Service.html">
+                Service.js
+              </a>
+            
+              
+              <a class="source" href="angoose.html">
+                angoose.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Principal.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> logger = require(<span class="string">"log4js"</span>).getLogger(<span class="string">"angoose"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h1 id="principal">Principal</h1>
+<p>This class encapsulates authenticated user information. 
+To obtain an instance of this object, you may use <code>getContext</code> method
+defined on the Model/Service class or instance:</p>
+<pre><code>MySchema.methods.updateStatus = function(){
+     var user = this.getContext().getPrincipal();
+     console.log(&quot;User is &quot;, user.getUsername());     
+}</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span>  Principal = <span class="function"><span class="keyword">function</span><span class="params">(userId, username, roles)</span>{</span>
+    <span class="keyword">var</span> user = {
+        _id: userId,
+        username: username,
+        roles:roles
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><strong> getUsername() </strong></p>
+<p>get current logged in user&#39;s name/login</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.getUsername = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span> <span class="keyword">return</span> user.username};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><strong> getRoles </strong></p>
+<p>get current logged in user&#39;s roles</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.getRoles = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span> <span class="keyword">return</span> user.roles};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><strong> getUserId </strong></p>
+<p>get current logged in user&#39;s ID</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.getUserId = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span> <span class="keyword">return</span> user.userId};
+};
+
+module.exports = Principal;</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

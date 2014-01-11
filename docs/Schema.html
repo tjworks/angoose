@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Schema.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="Context.html">
+                Context.js
+              </a>
+            
+              
+              <a class="source" href="Model.html">
+                Model.js
+              </a>
+            
+              
+              <a class="source" href="Principal.html">
+                Principal.js
+              </a>
+            
+              
+              <a class="source" href="Remotable.html">
+                Remotable.js
+              </a>
+            
+              
+              <a class="source" href="Schema.html">
+                Schema.js
+              </a>
+            
+              
+              <a class="source" href="Service.html">
+                Service.js
+              </a>
+            
+              
+              <a class="source" href="angoose.html">
+                angoose.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Schema.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h5 id="function-name-annotations">Function Name Annotations</h5>
+<p>Function name defined on the models and services is of particular interest to Angoose. 
+To facilitate the exporting of methods to the remote client, Angoose relies on the function name to hint it which methods should be 
+exported and which ones should not. In general the function name is not required when you define the methods on Mongoose schema
+or on a Service class because the function would be assigned to a property of the container object. Example for a Mongoose model shcema:</p>
+<pre><code>{
+   methods: {
+       updateStatus: function(){
+           // body
+       }
+   }
+}  </code></pre>
+<p>Angoose hence uses the unused function name as a way to annotate the function for the purpose of RMI. For instance, to indicate a method
+can be exported to the remote client, you would write the function like this:</p>
+<pre><code>{
+   methods: {
+       updateStatus: function remote(){
+           // body
+       }
+   }
+}</code></pre>
+<p>Following are a list of keywords that can be used to annotate the function. You may use more than one keywords, just join them using 
+underscore, i.e., static_remote </p>
+<p><strong> remote </strong>
+This indicates the method can be exported to remote client. By default all the methods will be considered this type</p>
+<p><strong> portable </strong>
+This indicates the method can be &quot;ported&quot; to remote client and executed on the client side without even contacting server. An example of
+this usage is some helper method that only operates on the instance object and has no other dependencies. i.e., a method to concatenate the names
+to return a full name:</p>
+<pre><code>{
+  methods: {
+      getFullname: function portable{
+          return (this.firstname || &quot;&quot;) + &quot; &quot; 
+                     + (this.lastname || &quot;&quot;);
+      }
+  }
+} </code></pre>
+<p><strong> static </strong>
+Indicates this is a static method and can be invoked on the class/function level. Note in Mongoose model, you should use the <code>statics</code> property to
+define the static methods. This is mostly useful for Service classes.$</p>
+<p><strong> instance </strong>
+This is the default value so usually you don&#39;t need to use it. It&#39;s here only for documentation purpose. </p>
+<p><strong> local </strong>
+This indicates the method should NOT be exported. It can only be invoked on the server side, locally. </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> logger = require(<span class="string">"log4js"</span>).getLogger(<span class="string">"angoose"</span>);
+<span class="keyword">var</span> _ =require(<span class="string">"underscore"</span>);
+
+<span class="keyword">var</span> FunctionNamePattern = <span class="regexp">/^function\s+(remote|server|portable)/i</span>;
+
+<span class="keyword">var</span> parseDeclaredArguments = <span class="function"><span class="keyword">function</span><span class="params">(funcBody)</span>{</span>
+    <span class="keyword">if</span>(<span class="keyword">typeof</span> funcBody === <span class="string">'function'</span>) funcBody = funcBody.toString();
+    <span class="keyword">if</span>(funcBody &amp;&amp; <span class="keyword">typeof</span> funcBody === <span class="string">"string"</span>  &amp;&amp; funcBody.substr(<span class="number">0</span>,<span class="number">8</span>) == <span class="string">"function"</span>) {
+        <span class="keyword">var</span> startArgs = funcBody.indexOf(<span class="string">'('</span>) + <span class="number">1</span>;
+        <span class="keyword">var</span> endArgs = funcBody.indexOf(<span class="string">')'</span>);
+        <span class="keyword">return</span>  funcBody.substring(startArgs, endArgs)
+    }
+    <span class="keyword">return</span> <span class="string">""</span>;
+}
+
+<span class="keyword">var</span> constructProxyFunc=<span class="function"><span class="keyword">function</span><span class="params">(funcName, args, funcType)</span>{</span>
+    <span class="keyword">var</span> proxyBody =  <span class="string">"function "</span> + funcType +<span class="string">"("</span> + args+<span class="string">")"</span>;
+    proxyBody+= <span class="string">"{return this.angoose$(this,'"</span>+ funcName +<span class="string">"', arguments)}"</span>;
+    <span class="keyword">return</span> proxyBody; 
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">decorateMongooseSchema</span><span class="params">(model, schema)</span>{</span>
+    <span class="keyword">if</span>(getSchemaType(schema) != <span class="string">'mongoose'</span>) <span class="keyword">return</span>;
+    
+    <span class="keyword">var</span> instanceMethods = <span class="string">"save,remove,populate"</span>;
+    instanceMethods.split(<span class="string">","</span>).forEach(<span class="function"><span class="keyword">function</span><span class="params">(m)</span>{</span>
+        m = m.replace(<span class="regexp">/\s+/g</span>, <span class="string">''</span>);
+        <span class="keyword">if</span>(!schema.methods[m]) 
+            schema.methods[m]= <span class="function"><span class="keyword">function</span> <span class="title">remote</span><span class="params">()</span>{</span>};     
+    });
+    <span class="keyword">var</span> staticMethods = <span class="string">"populate,find,findOne,findById,findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate,update,remove"</span>;
+    staticMethods.split(<span class="string">","</span>).forEach(<span class="function"><span class="keyword">function</span><span class="params">(m)</span>{</span>
+        m = m.replace(<span class="regexp">/\s+/g</span>, <span class="string">''</span>);
+        schema.statics[m] || (schema.statics[m]= <span class="function"><span class="keyword">function</span> <span class="title">remote</span><span class="params">()</span>{</span>} );     
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>@todo: remove the methods
+console.log(&quot;##### methods&quot;, schema.methods)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>}
+<span class="keyword">var</span> getSchemaType = <span class="function"><span class="keyword">function</span><span class="params">(schema)</span>{</span>
+    <span class="keyword">if</span>(schema.paths)
+        <span class="keyword">return</span> <span class="string">'mongoose'</span>;
+    <span class="keyword">return</span> <span class="string">'service'</span>
+}
+
+<span class="keyword">var</span> getFunctionType = <span class="function"><span class="keyword">function</span><span class="params">(schema, funcName, funcBody)</span>{</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>console.log(&quot;<strong><strong><strong><strong><em>*</em></strong></strong></strong></strong>&quot;, funcName, &quot; <strong><strong><strong>*</strong></strong></strong>&quot;)
+we only deal with delared methods</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span>(!  schema.methods[funcName] &amp;&amp; !  schema.statics[funcName] ) <span class="keyword">return</span>; 
+        <span class="keyword">var</span> ftype = <span class="string">'_'</span>;
+        <span class="keyword">if</span>(schema.methods[funcName]) ftype+=<span class="string">'instance'</span>;
+        <span class="keyword">if</span>(schema.statics[funcName]) ftype+=<span class="string">'static'</span>;
+        ftype+=<span class="string">"_"</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p> instance, static
+ angoose: remote, server, portable, default is remote</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> matcher = FunctionNamePattern.exec(funcBody);
+        ftype+= matcher? matcher[<span class="number">1</span>]: <span class="string">'remote'</span>; <span class="comment">//default is remote</span>
+        <span class="keyword">return</span> ftype;
+}    
+
+<span class="keyword">var</span> stringify = <span class="function"><span class="keyword">function</span><span class="params">(modelName, model)</span>{</span>
+    <span class="keyword">var</span> funcs = {};
+    <span class="keyword">var</span> schemaObj =  model.schema || model.getSchema();
+    <span class="keyword">var</span> funcStringifier = <span class="function"><span class="keyword">function</span> <span class="params">(key, value)</span> {</span>
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> value !== <span class="string">'function'</span>) <span class="keyword">return</span> value;
+        <span class="keyword">var</span> body =  value.toString();
+        <span class="keyword">var</span> funcType = getFunctionType(schemaObj, key, body);
+        <span class="keyword">if</span>(!funcType) <span class="keyword">return</span>; <span class="comment">//'not-available';</span>
+        logger.trace(<span class="string">"Stringify function"</span>,key, funcType);
+        <span class="keyword">if</span>(funcType.indexOf(<span class="string">"server"</span>)&gt;<span class="number">0</span>) <span class="keyword">return</span> <span class="string">'available-serverside-only'</span>;
+        
+        <span class="keyword">var</span> args = parseDeclaredArguments(body);
+        
+        <span class="keyword">if</span>(funcType.indexOf(<span class="string">"portable"</span>)&gt;<span class="number">0</span>){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>the function can be executed client side</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            body = body.replace(<span class="regexp">/function\s+portable/i</span>, <span class="string">"function "</span>+ funcType);
+        }
+        <span class="keyword">else</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>stub the function</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            body = constructProxyFunc(key,args, funcType)
+        }
+        <span class="keyword">var</span> lookupKey = _.uniqueId(<span class="string">"FUNCTION-NUMBER-"</span>);
+        funcs[lookupKey] = body; 
+        <span class="keyword">return</span> lookupKey;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>add Monggose model methods</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> original = {methods: schemaObj.methods, statics: schemaObj.statics };
+    schemaObj.methods = _.clone( schemaObj.methods );
+    schemaObj.statics = _.clone( schemaObj.statics);
+    <span class="keyword">try</span>{
+        decorateMongooseSchema(model, schemaObj);
+        <span class="keyword">var</span> ret = JSON.stringify( schemaObj,  funcStringifier, <span class="string">"\t"</span>  );
+        <span class="keyword">for</span>(<span class="keyword">var</span> lookupKey <span class="keyword">in</span> funcs){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>we do this so that the function body acturally appears as a function, instead of a string</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            ret = ret.replace( <span class="string">'"'</span>+  lookupKey + <span class="string">'"'</span>, funcs[lookupKey]);
+        }
+    }   
+    <span class="keyword">finally</span>{
+        schemaObj.methods = original.methods;
+        schemaObj.statics = original.statics;
+    } 
+    <span class="keyword">return</span> ret;
+}    
+
+module.exports = {
+    getFunctionType:getFunctionType,
+    stringify: stringify,
+    parseDeclaredArguments:parseDeclaredArguments
+}</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

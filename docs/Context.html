@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Context.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="Context.html">
+                Context.js
+              </a>
+            
+              
+              <a class="source" href="Model.html">
+                Model.js
+              </a>
+            
+              
+              <a class="source" href="Principal.html">
+                Principal.js
+              </a>
+            
+              
+              <a class="source" href="Remotable.html">
+                Remotable.js
+              </a>
+            
+              
+              <a class="source" href="Schema.html">
+                Schema.js
+              </a>
+            
+              
+              <a class="source" href="Service.html">
+                Service.js
+              </a>
+            
+              
+              <a class="source" href="angoose.html">
+                angoose.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Context.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Principal = require(<span class="string">"./Principal"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h1 id="context">Context</h1>
+<p>Angoose supports an execution context feature that allows you to access some contextual state from any part of the code,
+as long as the code execution was originated by Angoose RMI handler. </p>
+<p>All the Model/Service classes come with an instance method <code>getContext</code> to obtain the Context object. You may also
+call <code>angoose.getContext</code> to do the same. </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">Context</span><span class="params">(properties)</span>{</span>
+    <span class="keyword">var</span> props = properties;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><strong> getRequest() </strong> </p>
+<p>Returns the express request object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.getRequest = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
+        <span class="keyword">return</span> props.request;
+    }
+    <span class="keyword">this</span>.getResponse = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
+        <span class="keyword">return</span> props.response;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><strong> getPrincipal </strong> </p>
+<p>Returns the <a href="Principal.html">Principal</a> object representing currently logged in user</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.getPrincipal = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
+        <span class="keyword">if</span>(props.principal) <span class="keyword">return</span> props.principal;
+        <span class="comment">/** construct it from request */</span>
+        <span class="keyword">if</span>(props.request &amp;&amp; props.request.session &amp;&amp; props.request.session.user){
+             <span class="comment">/**@todo: hacking for epf */</span>
+            <span class="keyword">var</span> user = props.request.session.user;
+            props.principal = <span class="keyword">new</span> Principal(user._id, user.email, user.type);
+        }
+        <span class="keyword">return</span> props.principal;   
+    }
+}
+
+module.exports = Context;</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
