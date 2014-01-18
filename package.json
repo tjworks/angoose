@@ -27,7 +27,9 @@
     "grunt-jasmine-node": "~0.1.0",
     "grunt-shell": "~0.6.1",
     "request": "*",
-    "jasmine-custom-message": "~0.1.2"
+    "jasmine-custom-message": "~0.1.2",
+    "node-mocks-http": "*",
+    "grunt-contrib-watch": "~0.5.3"
   },
   "dependencies": {
     "underscore": "*",

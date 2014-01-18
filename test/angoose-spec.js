@@ -4,37 +4,20 @@ var http = require("http");
 var fs = require("fs");
 var express = require("express");
 var request = require('request');
-var clientfile =  './build/generated-client.js';
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
-logger.setLevel(logging.levels.TRACE);
-
 require("jasmine-custom-message");
 var Actual = jasmine.customMessage.Actual;
 
-console.log("Deleting ", clientfile);
-if(fs.exists(clientfile))
-    fs.unlinkSync(clientfile);
-var configs = {
-    modelDir: ROOT+'/models',
-    clientFile: clientfile,
-    urlPrefix: '/angoose',
-    httpPort: 9988
-};
+var util = require("./test-util");
+var angoose = util.initAngoose();
+//require("./server"); //.startServer(configs);
+var userdata =  util.testuser;
 
-require("./server"); //.startServer(configs);
- 
-var angoose = require("../lib/angoose"); 
-var userdata = { 
-    firstname:'Gaelyn', 
-    lastname:'Hurd',
-    status:'active',
-    email:'gaelyn@hurd.com'
-};
-var clientSource = angoose.generateClient(); //fs.readFileSync( clientfile, 'ascii') ; 
+var clientSource = util.clientSource();
 describe("Angoose Server Tests", function(){
     
-     it("Load client file from http", function(done){
+     xit("Load client file from http", function(done){
        request('http://localhost:9988' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
             eval(body);
             var SampleUser = AngooseClient.getClass("SampleUser");
@@ -80,15 +63,22 @@ describe("Angoose Server Tests", function(){
             name:'testgroup'
         });
         group.save(function(err, res){
-            //console.log("save group", err, group);
-            SampleUserGroup.find({"name":"testgroup"}, function(err, grps){
+            console.log("save group", err, group);
+            if(err && err.indexOf("duplicate")<0){
+                expect(err).toBeUndefined();
+                done()
+            }
+            else SampleUserGroup.find({"name":"testgroup"}, function(err, grps){
                  var suser = new SampleUser( userdata);
                  suser.email = new Date().getTime() + suser.email;
-                 suser.groupRef = grps[0];
+                 suser.groupRef = grps[0]._id;
+                 
+                 console.log("Saving user with group", grps[0], grps[0].find);
                  suser.save(function(err, res){
-                     console.log("Save user", err, res)
+                     console.log("Saved user", err, res)
                      expect(err).toBeUndefined()
-                     suser.remove(function(reError, reRes){
+                     if(err) done();
+                     else suser.remove(function(reError, reRes){
                         console.log("Remove user", reError, reRes)
                         expect(reError).toBeUndefined();
                         done();    
@@ -188,39 +178,12 @@ describe("Angoose Server Tests", function(){
         var SampleService = AngooseClient.getClass("SampleService");
         new SampleService().testExecutionContext().done(function(data){
             console.log("Got context path", data)
-            expect(new Actual(data), "Execution context expecting /angoose/xxx but got: "+ data).toBeTruthy();
+            expect(new Actual(data), "Execution context expecting 'testExecutionContext'  but got: "+ data).toBe('testExecutionContext');
             done();
         }, function(err){
             
         })
     });
 });
-function startApp(){
-    var app = express();
-    app.configure(function() {
-        app.set('port', configs.httpPort);
-        app.use(express.bodyParser());
-        /* manage sessions */
-        app.use(express.cookieParser());
-        app.use(express.session({secret: '1234567890QWERTY'}));
-        app.use(app.router);
-        app.use(function(err, req, res, next){
-            console.log("In error handling", err)
-            if (err.message == 'APIAuthError') {
-                res.send(401, {success:false, msg:"Authorization Error"});
-            } else {
-                res.send(500, 'Something broke!');
-            };
-        });
-        app.use(express.methodOverride());
-        app.use(express.static(path.join(__dirname, 'public')));
-    });
-    http.createServer(app).listen( configs.httpPort, function(){
-        console.log("Listening on port " ,  configs.httpPort);    
-    });
-    return app;   
-}
 
-exports = {
-    clientcode: clientSource
-}
+ 

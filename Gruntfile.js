@@ -4,7 +4,12 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     watch: {
-        files: "lib/**/*.js"
+        scripts:{
+            files: ["lib/**/*.js", "test/**/*.js"],
+            tasks:['test:model'],
+            options: { debounceDelay: 250 }    
+        }
+        
     },
     jasmine_node: {
             specNameMatcher: "spec", // load only specs containing specNameMatcher
@@ -29,6 +34,8 @@ module.exports = function(grunt) {
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-shell');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+
     grunt.registerTask('combine',['concat', 'import-modules'] );
   
     // Default task(s).

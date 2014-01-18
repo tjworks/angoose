@@ -28,6 +28,7 @@ SampleSchema.methods.getFullname= function portable(){
 SampleSchema.methods.setPassword= function(newPassword, $context, $callback){
     // instance method, reset user's password.
     if(!$callback ) throw "$callback not injected";
+    if(!$context) throw "$context not injected";
     //var cryptor = require("crypto"); // require node module crypto
     //this.password = cryptor.encrypt("salt", newPassword);
     this.password  = newPassword +"salt123"; // fake code

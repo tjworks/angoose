@@ -6,7 +6,7 @@ var service = {
     },
     testExecutionContext: function remote(){
         var req = this.getContext().getRequest();
-        return req.path;
+        return req.params['method'];
     }
 }
 var SampleService = angoose.Service.extend( service, { name:'SampleService' });
