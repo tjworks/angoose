@@ -115,8 +115,74 @@ and export the Mongoose model class like below:  </p>
 
 Model.getSchema = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
     <span class="keyword">return</span> <span class="keyword">this</span>.schema;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h3 id="api-references">API References</h3>
+<p><strong> getData(doc, path) </strong></p>
+<p>This static method allow you to get the data by path, i.e., </p>
+<pre><code> var userObj = SampleUser.findOne(); /** psuedo code */
+ SampleUser.getData(userObj, &#39;address.city&#39;); </code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Model.getData = getData;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><em>* setData(doc, path, value) </em>/</p>
+<p>This static method allow you to set the data by path, i.e., </p>
+<pre><code> var userObj = SampleUser.findOne(); /** psuedo code */
+ SampleUser.setData(userObj, &#39;address.city&#39;, &#39;San Francisco&#39;); </code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Model.setData = setData;
+
+ 
+module.exports = Model;
+
+<span class="function"><span class="keyword">function</span> <span class="title">getData</span><span class="params">(doc, path)</span>{</span>
+    <span class="keyword">if</span>(!path || !doc) <span class="keyword">return</span> <span class="literal">undefined</span>;
+     <span class="keyword">var</span>   pieces = path.split(<span class="string">'.'</span>);
+      <span class="keyword">var</span> obj = doc;
+      <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, l = pieces.length; i &lt; l; i++) {
+        obj = <span class="literal">undefined</span> === obj || <span class="literal">null</span> === obj
+          ? <span class="literal">undefined</span>
+          : obj[pieces[i]];
+      }
+      <span class="keyword">return</span> obj;
 }
-module.exports = Model;</pre></div></div>
+
+<span class="function"><span class="keyword">function</span> <span class="title">setData</span><span class="params">(doc, path, val)</span>{</span>
+    <span class="keyword">if</span>(!path || !doc ) <span class="keyword">return</span>;
+     <span class="keyword">var</span>   pieces = path.split(<span class="string">'.'</span>);
+      <span class="keyword">var</span> obj = doc;
+      <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, len = pieces.length; i &lt; len; i++) {
+          <span class="keyword">if</span>(i+<span class="number">1</span>  == len ) <span class="comment">// last one</span>
+          {
+              obj[ pieces[i]] = val;
+              <span class="keyword">return</span>;
+          }
+          obj[pieces[i]] = obj[pieces[i]] || {};
+          obj = obj[pieces[i]] || {};
+      }
+}</pre></div></div>
             
         </li>
         

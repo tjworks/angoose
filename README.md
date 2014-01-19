@@ -1,15 +1,17 @@
-## What is it?
+## 1.What is it?
+==============
 The motive for Angoose project is to do away with the dual model declarations(server and client side) if we are building a rich model based SPA application 
-using modern framework such as Angular and node.js.  
+using modern Javascript framework such as Angular and node.js.  With both front end and backend using Javascript, Angoose allows the server side models and services
+to be used effortlessly in the front end.  
 
 Angoose depends on following frameworks and assumes you have basic familarities with these frameworks
 
-* angular
 * mongoose
-* express
+* express 
+* angular (optional)
 
-## Get Started
-
+## 2. Get Started
+==============
 
 #### 1. npm install angoose
 
@@ -31,21 +33,20 @@ Assuming you already have an express server/app file, you just need to add follo
 
 Here we assume your Mongoose model files are defined under `models` sub directory relative to the current dir where you start your app. 
 
-#### 3 Restart app. 
+Restart your server. 
 
-Restart the server side app. We will use the `SampleUser` model come with Angoose for demo purpose so no need to create a Mongoose model just yet. 
 
-#### 4. In your HTML file where angular library is included, add after angular script tag:
+#### 3. In your HTML file where angular library is included, add after angular script tag:
 
      <script src="/angoose/angoose-client.js"></script>
      
 Note the `/angoose/angoose-client.js` route will be handled by Angoose in the backend.  
 
-#### 5. In your main angular app, add `angoose-client` to your app module dependencies. For example:
+#### 4. In your main angular app, add `angoose-client` to your app module dependencies. For example:
 
     var myapp = angular.module('myapp', ['ngRoute', 'ui.bootstrap', 'angoose.client']);
 
-#### 6. You are ready to go!
+#### 5. You are ready to go!
 
 All the models defined in the `./models` folder will be auto-loaded and readily available for injection into your controller/service/directives etc, 
 just delcare them in the function argument list(We're using `SampleUser` as example here): 
@@ -86,81 +87,217 @@ just delcare them in the function argument list(We're using `SampleUser` as exam
 		});
 	});
 	
+#### 6. If you are not using Angular
 
-Contents of the SampleModel.js for quick reference, you can find it under angoose's models/ directory: 
+If you don't use angular, then you just need to include jQuery before the angoose-client.js. Then instead of step 5 & 6, you could simple do:
 
-	var mongoose = require('mongoose');
-	var SampleSchema = mongoose.Schema({
-	        email:  {type: String, required: true, match: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, index:true},
-	        firstname: {type: String, required:true },
-	        lastname: {type: String, required:true },
-	        status: {type: String, enum: ['inactive', 'active', 'disabled', 'archived'], required:true, def:'inactive' },
-	        password: { type:String, required:true },
-	    },
-	    { collection:'SampleUsers',  discriminatorKey: 'type' }
-	);
-	
-	SampleSchema.methods.setPassword= function(newPassword, $callback){
-	    // instance method, reset user's password
-	    var cryptor = require("crypto"); // require node module crypto
-	    this.password = cryptor.encrypt("salt", newPassword);
-	    this.save($callback);
-	}
-	SampleSchema.statics.getSample = function(){
-	    // static method
-	    return this.findOne({firstname:'Gaelyn'});  // note .exec() will be called by Angoose before return value to client side.
-	}
-	// notice the exports return, it is a Mongoose Model type
-	module.exports = mongoose.model('SampleUser', SampleSchema);   
-	
-## References
+ 		var SampleUser = AngooseClient.getClass('SampleUser');
+		var sampleUser = SampleUser.findOne({'email':'xxx@yyy.com'}, function(err, user ){   // get one user
+			sampleUser.firstname='Gaelyn';
+			sampleUser.save(function(err){
+				if(err)  console.log("Success!);
+				else alert("Something wrong: " + err);
+			});
+		});    
+  
+## 3. How It Works?
+================
+The core of the Angoose is its Remote Method Invocation, or RMI, that bridges the gap between server side and front end. With this technique, the server side modules, such as
+Mongoose models and custom defined service modules will be transparently made available to the client side. No need for REST api or route setup. Just call the method! See diagram below
+for a depiction of the RMI process. 
 
-There're additional documentation under `angoose/docs` folder. This library is in its early alpha stage however we're using it in our product. Expect it to be actively maintained. Here 
-are some random things you need to know if you want to try it out
+![Angoose Remote Method Invocation](https://www.lucidchart.com/publicSegments/view/52dbe203-1508-4b43-b6cb-5c020a00d361/image.png)
+	 
 
-#### Supported Mongoose Model Methods 
+## 4. Models and Services
+========================
+Wah, you say, so I can use every NPM module out there in my front end? 
 
-Note not all Mongoose model functionalities are supported yet. Following are a list of methods you can use today:
+Unfortunately, no. Server side modules will not be automatically become avaialbe to the client side. Not until you register your module as one of the `Model` or `Service` class. 
+Note by saying "class" it really is a constructor function in Javascript.
 
-** Instance methods **
+- A `Model` currently means a Mongoose model(not Mongoose schema, but the return value of `mongoose.model()` call). Mongoose models are automatically registered as Angoose Model. 
 
+- A `Service` is just a plain constructor function.  You must call `angoose.service('ServiceName', serviceFunc)` to register with Angoose.  
+
+All the model or service files must be located under one of the directories specified by `modeldir` option used when init Angoose. `modirDir` accepts string or array of directory names. 
+
+There are a couple of exmaples under `angoose/models` directory for reference. 
+
+#### About Mongoose Models
+
+Note not all Mongoose model functionalities are exported yet. Following are a list of methods you can invoke on a Mongoose model from client side: 
+
+**Instance methods**
 - save
-- remove
-- populate (this is Angoose addition)
+- remove 
 
-** Static methods **
-
+**Static methods**
 - populate
 - find
 - findOne
 - findXXX (all other find methods)
 - update
 - remove
+
+Some notes about using these Mongoose API:
+- Most of the Mongoose model methods accepts a callback function with two arguments: err and result, you can continue to use this. 
+- If no callback function provided, then a [Q promise](https://github.com/kriskowal/q) is returned on which you can call the success handler and error handler using its `done` API. 
+- Mongoose `query` is NOT supported in the client side. i.e., if you do not provide callback, the `exec` will still be automatically called for you and return the results via the Q promise. 
+In Mongoose it will return a `query` object with with which you can chain your requests. This may be supported in the future.  
+
+
+
+
+In addition, following are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
+a reference to the empty object/list. The empty object/list will be automatically populated(and view updated accordingly) once server side returns.
+  
 - $get (Angoose addition)
 - $query (Angoose addition)
 
-All of these methods will return a Q promise, or you may pass in a callback as last argument. Whichever way you prefer. 
+ 
 
-#### Custom Methods
+**Custom Methods on Mongoose Models**
+Any methods you defined in the Mongoose schema(whether static or instance) will be automatically made available to the client. 
 
-Any custom method you defined in the Mongoose schema will be made available to the client. 
+#### About Services
 
-You may be able to define some simple helper methods on the model that do not have external dependencies as `portable` method. A portable method can be 
-executed entirely on client side without server interaction. Please see [Schema](http://tjworks.github.io/angoose/docs/Schema.html) for more details regarding to the
-method types using method name annotation.
+See [Service](http://tjworks.github.io/angoose/docs/Service.html)
+
+
+## 5. Writting a Remotable Method
+==============================  
+
+A few things to note when write a remotable method(methods invokable from client side).
+
+#### Handle Return Values and Errors in your Model or Service classes. 
+When you define custom methods on your Model or Service class, you must adhere to following conventions:
+
+
+**Method has no async call**
+
+If your method has no asynchronous call and returns the data directly at the end of the execution, no special handling is required. Just use normal `return xxx`.
+
+Or if there is no data to return, just skip the `return` statement.
+
+If there is error during the method, you may simply throw an exception:
+
+		if(!require("fs").existsSync(filename))
+			throw "File "+ filename+" does not exit.";
+
+**Method has async call** 
+
+When you have async call in your method, you can no longer directly return the results or report an error if it occurred from callback handler.  In this case, you must use
+one of the `$callback`, an injected callback handler or by using Q promise.
+
+Example of using `$callback`: 
+
+	/** MyService is an Angoose Service */
+	MyService.geocoding = function(address, $callback){ 
+		/** note 2nd argument $callback, angoose will inject this callback handler, you can you provide yourself if called from server side */
+		var googleApi = require("google-geo-api");
+		googleApi.lookup( address, function( err, matchedAddresses){
+			if(err)  $callback(err);
+			else $callback(false, matchedAddresses[0]); /** $callback takes two arguments: err, result */
+		});
+	} 
+
+Example of using Q promise:
+
+	/** MyService is an Angoose Service */
+	MyService.geocoding = function(address){  
+		var googleApi = require("google-geo-api");
+		var deferred = require('angoose').defer(); /** convenience wrapper for Q.defer() */ 
+		googleApi.lookup( address, function( err, matchedAddresses){
+			if(err)  deferred.reject(err);
+			else deferred.resolve(matchedAddresses[0]); 
+		});
+		return deferred;
+	} 
+
+
+
+#### Specifying Method Type
+
+**This is optional feature.**
+
+You may use method annotation to indicate whether method should be exposed to the client side or only executed on the local/server side. Angoose recognizes following
+method types:
+
+- remote
+- local
+- portable
+
+Method annotation is optional and all the methods you defined on your Model or Service (whether static or instance) are considered `remote` method, as long as you properly handled errors
+and return values accordingly. 
+ 
+Angoose relies on the function name to indicate which type of method it is.   In general the function name is not required when you define the methods on Mongoose schema
+or on a Service class because the method would be assigned to a property of the container object. Example for a Mongoose model shcema:
+ 
+     new Schema({
+        methods: {
+            updateStatus: function(){ // notice function is annonymous
+                // body
+            }
+        }
+     })  
+  
+ Angoose hence uses the unused function name as a way to annotate the method for the purpose of RMI. For instance, to indicate a method
+ can be exported to the remote client, you would write the function like this:
+ 
+     {
+        methods: {
+            updateStatus: function remote(){ // function name is 'remote'
+                // body
+            }
+        }
+     }
+
+The function name can be any of following:     
+  
+**remote**
+ This indicates the method should be exported to client side with a stub. Actual execution occurs on the server side. This is the default type.
+ 
+**portable**
+ This indicates the method should be "ported" to  client side. The actual execution will happen in client side only if
+ it is invoked by client code. You can still invoke this method in the server side in which case the execution is done on the server side.
+ 
+ An example of this usage is some helper method that only operates on the instance object and has no other dependencies. i.e., a method to concatenate the names
+ to return a full name:
+ 
+     {
+       methods: {
+           getFullname: function portable{
+               return (this.firstname || "") + " " + (this.lastname || "");
+           }
+       }
+     } 
+ 
+ 
+ 
+**local**
+ This indicates the method should NOT be exported. It can only be invoked on the server side, locally. 
+    
 
 #### Angoose Context
+ 
+Angoose supports an execution context feature that allows you to access some contextual state from any part of the code,
+as long as the code execution was originated by Angoose RMI handler. This is made possible by  npm module `continuation-local-storage` 
 
-Within all of your custom methods, you have access to an object `Angoose Context` which would give you the reference to the current request, response, session
-and authenticated user object(TBD). Please see [Context](http://tjworks.github.io/angoose/docs/Context.html) for additional info.
+For each Angoose RMI invocation request, an unique Context object is created when Angoose starts handling. The context contains the request
+and response objects, as well as session and authenticated user info(TBD). The context can then be accessed by all the subsequent code paths, including in async callback functions.
 
+To obtain the context, you may use any of the following method:
+- `angoose.getContext()`
+- `MyModel.getContext()`
+- `myModelInstance.getContext()`  
 
-#### Service Classes
+See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for detailed API.  
 
-Not all logic is centered around persistence models. You may need to define service functionalities and expose to the client. Angoose allows you to create a Service class 
-to define business logic that either does not deal with data models or deals with multiple data models.  See [Service](http://tjworks.github.io/angoose/docs/Service.html) for
-additional information
-
-
-
+## 6. References
+=====================  
+- [Angoose](http://tjworks.github.io/angoose/docs/angoose.html)
+- [Model](http://tjworks.github.io/angoose/docs/Model.html)
+- [Service](http://tjworks.github.io/angoose/docs/Service.html)
+- [Context](http://tjworks.github.io/angoose/docs/Context.html)
 

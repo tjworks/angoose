@@ -73,10 +73,13 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              
+              <h3 id="api-references">API References</h3>
+
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Principal = require(<span class="string">"./Principal"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Principal = require(<span class="string">"./Principal"</span>);
+<span class="function"><span class="keyword">function</span> <span class="title">Context</span><span class="params">(properties)</span>{</span>
+    <span class="keyword">var</span> props = properties;</pre></div></div>
             
         </li>
         
@@ -86,29 +89,6 @@
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
-              </div>
-              <h1 id="context">Context</h1>
-<p>Angoose supports an execution context feature that allows you to access some contextual state from any part of the code,
-as long as the code execution was originated by Angoose RMI handler. This is made possible by  npm module <code>continuation-local-storage</code> </p>
-<p>For each HTTP request, an unique Context object is created upon the start of the Angoose handling of the request. The context contains the request
-and response objects, as well as session and authenticated user info(TBD). The context can then be obtained via the <code>getContext</code> method from
-anywhere in the application, as long as the code path was originated from the Angoose. </p>
-<p>The <code>getContext</code>  method is available on all Angoose enhanced Model or Service classes as well as instances.  You may also
-call <code>angoose.getContext</code> to do the same. </p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">Context</span><span class="params">(properties)</span>{</span>
-    <span class="keyword">var</span> props = properties;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p><strong> getRequest() </strong> </p>
 <p>Returns the express request object</p>
@@ -122,11 +102,11 @@ call <code>angoose.getContext</code> to do the same. </p>
         </li>
         
         
-        <li id="section-4">
+        <li id="section-3">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p><strong> getResponse </strong></p>
 <p>Returns the express response object</p>
@@ -140,11 +120,11 @@ call <code>angoose.getContext</code> to do the same. </p>
         </li>
         
         
-        <li id="section-5">
+        <li id="section-4">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p><strong> getSession </strong></p>
 <p>Returns the current session object</p>
@@ -158,11 +138,11 @@ call <code>angoose.getContext</code> to do the same. </p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p><strong> getPrincipal </strong> </p>
 <p>Returns the <a href="Principal.html">Principal</a> object representing currently logged in user</p>

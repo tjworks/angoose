@@ -73,7 +73,9 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h2 id="angoose-core">Angoose Core</h2>
+              <p>Angoose main module</p>
+<pre><code> var angoose = require(&quot;angoose&quot;);
+ angoose.init(expressApp, { })</code></pre>
 
             </div>
             
@@ -117,15 +119,16 @@ angoose.Service = require(<span class="string">"./Service"</span>);</pre></div><
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p><strong> init(app, options) </strong></p>
-<p>Initialize Angoose. This function should be called in the express app,</p>
+              <h3 id="api-references">API References</h3>
+<p><strong> init(app, options) </strong></p>
+<p>Initialize Angoose. This function should be called in the express app</p>
 <ul>
 <li>@app: Express app, for now</li>
 <li>@options: Angoose settings:<ul>
 <li>modelDir, optional, default to ./models</li>
 <li>serviceDir, optional, default to ./services</li>
 <li>urlPrefix, optional, default to /angoose</li>
-<li>mongo_opts, optional </li>
+<li>mongo_opts, optional. Provide this if you want Angoose to make the connection </li>
 </ul>
 </li>
 </ul>
@@ -134,10 +137,11 @@ angoose.Service = require(<span class="string">"./Service"</span>);</pre></div><
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">init</span><span class="params">(app, conf)</span> {</span>
     <span class="comment">/**@todo: middleware*/</span>
-    logger.debug(<span class="string">"Initializing Angoose "</span>, options);
     
     <span class="comment">/** overrite default configurations */</span> 
     _.extend(options, conf );
+    
+    logger.debug(<span class="string">"Initializing Angoose "</span>, options);
     
     <span class="comment">/** connect to Mongo if necessary */</span>
     connectMongo(options);
@@ -184,10 +188,50 @@ angoose.Service = require(<span class="string">"./Service"</span>);</pre></div><
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
+              <p><strong> getContext() </strong></p>
+<p>Returns the current execution context. </p>
+<p>This methods returns a Context object which allows you to get a reference to the current request object 
+and/or login user&#39;s Principal object. If the callee isn&#39;t inside Angoose execution context, an error will 
+be thrown. See <a href="Context.html">Context</a> for more.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">getContext</span><span class="params">()</span>{</span>
+    <span class="keyword">var</span> storage = storageFactory.getNamespace(<span class="string">'angoose'</span>);
+    <span class="keyword">var</span> ctx = storage.get(<span class="string">"context"</span>);
+    <span class="keyword">if</span>(!ctx) <span class="keyword">throw</span> <span class="string">"Context is not available. This may happen if the execution was not orginated by Angoose"</span>
+    <span class="keyword">return</span> ctx;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><strong> defer() </strong></p>
+<p>Convenience wrapper for <code>Q.defer()</code>, returns a deferred object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">defer</span><span class="params">()</span>{</span>
+    <span class="keyword">return</span> Q.defer();
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
               <p><strong> registerClass(className, claz) </strong></p>
-<p>Register a Remotable class with Angoose. You do not have to call this method if you created
-Model or Service class using the <code>$extend</code> function.  Mongoose models are also automatically registered
-upon initialization  </p>
+<p>Register a Remotable class with Angoose. Used internally</p>
 <p>Parameters:</p>
 <ul>
 <li>className: name to register the class under</li>
@@ -208,47 +252,21 @@ upon initialization  </p>
     <span class="keyword">else</span>{
         <span class="keyword">throw</span> <span class="string">"Invalid class: must be a Model or Service class: "</span> + claz;
     }
-}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <p><strong> getContext() </strong></p>
-<p>Returns the current execution context. </p>
-<p>This methods returns a Context object which allows you to get a reference to the current request object 
-and/or login user&#39;s Principal object. If the callee isn&#39;t inside Angoose execution context, an error will 
-be thrown. See <a href="Context.html">Context</a> for more.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">getContext</span><span class="params">()</span>{</span>
-    <span class="keyword">var</span> storage = storageFactory.getNamespace(<span class="string">'angoose'</span>);
-    <span class="keyword">var</span> ctx = storage.get(<span class="string">"context"</span>);
-    <span class="keyword">if</span>(!ctx) <span class="keyword">throw</span> <span class="string">"Context is not available. This may happen if the execution was not orginated by Angoose"</span>
-    <span class="keyword">return</span> ctx;
 }
-
-
 <span class="function"><span class="keyword">function</span> <span class="title">configureRoutes</span><span class="params">(app, options)</span>{</span>
     <span class="keyword">if</span>(!app){
         logger.warn(<span class="string">"app not provided, RMI functionality is disabled"</span>);   
         <span class="keyword">return</span>;
     }
     <span class="comment">/** this is the main RMI endpoint */</span>
-    app.post(options.urlPrefix+<span class="string">"/rmi/:model/:method"</span>, rmiServer);
+    app.post(options.urlPrefix+<span class="string">"/rmi/:model/:method"</span>, rmiAccept);
     <span class="comment">/** @todo: use static serving to enable cache //app.get("/angoose/AngooseClient.js", express.static(options.clientFile)); */</span>
     app.get(options.urlPrefix+<span class="string">"/angoose-client.js"</span>, <span class="function"><span class="keyword">function</span><span class="params">(req, res)</span>{</span>
         logger.debug(<span class="string">"Handling AngooseClinet.js load request"</span>);
         <span class="keyword">var</span> filename = options.clientFile ;  
         <span class="keyword">var</span> content = fs.readFileSync(filename , <span class="string">'ascii'</span>);
         res.set(<span class="string">'Content-Type'</span>, <span class="string">'application/javascript'</span>);
-        res.send(  content );  
+        res.send(<span class="number">200</span>,   content );  
     });
 }
 
@@ -286,16 +304,16 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
     }
     <span class="keyword">return</span> <span class="string">'object'</span>;
 }
-<span class="function"><span class="keyword">function</span> <span class="title">sendError</span> <span class="params">(ex, seqnumber,res)</span>{</span>
-    logger.debug(<span class="string">"====== RMI Erro Result #"</span>, seqnumber,  ex);
-    res.send(<span class="number">200</span>, {success:<span class="literal">false</span>, exception:ex, seqnumber: seqnumber });
+<span class="function"><span class="keyword">function</span> <span class="title">formatError</span> <span class="params">(ex, seqnumber)</span>{</span>
+    logger.debug(<span class="string">"====== END RMI with Error  #"</span>, seqnumber,  ex);
+    <span class="keyword">return</span> {success:<span class="literal">false</span>, exception:ex, seqnumber: seqnumber };
 }
 
 <span class="function"><span class="keyword">function</span> <span class="title">injectDependencies</span><span class="params">(func, args, ctx, callback )</span>{</span>
     
     <span class="keyword">var</span> declaredArguments = schemaUtil.parseDeclaredArguments(func);
     declaredArguments = declaredArguments.replace(<span class="regexp">/\s+/g</span>, <span class="string">""</span>).split(<span class="string">","</span>);
-    logger.trace(<span class="string">"injectDependencies() declaredArguments: "</span>, declaredArguments);
+    logger.trace(<span class="string">"injectDependencies() declaredArguments: "</span>, declaredArguments, <span class="string">"provided args:"</span>, args);
     <span class="keyword">var</span> useCallback = <span class="literal">false</span>;
     <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;declaredArguments.length;i++){
         <span class="comment">/** if client did not provide enough number of arguments, we fill it with null*/</span>
@@ -309,30 +327,54 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
                 args[i] = callback;
                 useCallback = <span class="literal">true</span>;
                 <span class="keyword">break</span>;
-             <span class="keyword">default</span>: 
+             <span class="keyword">case</span> <span class="string">'$context'</span>:
+                logger.debug(<span class="string">"Injecting context"</span>);
+                args[i] = ctx;
                 <span class="keyword">break</span>;
+             <span class="keyword">default</span>:
+                <span class="keyword">break</span>; 
         } 
     }
     <span class="keyword">return</span> useCallback;
 }
 
-<span class="function"><span class="keyword">function</span> <span class="title">rmiServer</span><span class="params">(req,res)</span>{</span>
+<span class="function"><span class="keyword">function</span> <span class="title">rmiAccept</span><span class="params">(req,res)</span>{</span>
+    
+        <span class="keyword">var</span> invocation = decode(req.body);
+        invocation.method = req.params.method;  <span class="comment">/** method must be part of the path for routes permission etc */</span>
         <span class="comment">/** setting execution context */</span>
         <span class="keyword">var</span> ctx = <span class="keyword">new</span> angoose.Context({request:req, response:res, session:req.session});
         <span class="keyword">var</span> excutionStorage = storageFactory.createNamespace(<span class="string">"angoose"</span>);
         excutionStorage.run(<span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
             logger.debug(<span class="string">"Setting execution context"</span>);
+            <span class="keyword">var</span> sent = <span class="literal">false</span>;
             excutionStorage.set(<span class="string">"context"</span>, ctx);
-            processRMI(req, res, ctx); 
-        });
+            <span class="keyword">try</span> {
+                processInvocation(invocation, ctx, <span class="function"><span class="keyword">function</span><span class="params">(ex, data)</span>{</span>
+                    <span class="keyword">if</span>(ex)
+                        data = data || formatError({message:ex.toString(), value:ex, code:<span class="number">500</span>}, invocation.seqnumber ) ;
+                    res.send(<span class="number">200</span>, data);
+                    sent = <span class="literal">true</span>;
+                });    
+            }
+            <span class="keyword">catch</span>(err){
+                res.send(<span class="number">200</span>, formatError( {message: err.toString(), value:err, code:<span class="number">500</span> }, invocation.seqnumber ));
+                sent = <span class="literal">true</span>;
+            }
+            <span class="comment">/** catch the strayed handling, returns error in 5 seconds if response not sent */</span>
+           setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
+               <span class="keyword">if</span>(sent) <span class="keyword">return</span>;
+               <span class="keyword">var</span> msg =<span class="string">"Timeout occurred when processing call "</span>+invocation.clazz +<span class="string">"."</span> + invocation.method;
+               logger.error(msg, invocation.seqnumber);
+               res.send(<span class="number">200</span>, formatError( {message: msg, value: msg, code:<span class="number">500</span> }, invocation.seqnumber ));
+           }, options.request_timeout || <span class="number">5000</span>);
+        });<span class="comment">/** end context closure */</span>
 }
-<span class="function"><span class="keyword">function</span> <span class="title">processRMI</span><span class="params">(req, res, ctx)</span>{</span>         
-        <span class="keyword">var</span> invocation = decode(req.body);
-        <span class="keyword">var</span> modelName = req.params[<span class="string">'model'</span>];
-        <span class="comment">/** method may be specified as part of the data object*/</span>
-        <span class="keyword">var</span> method = req.params[<span class="string">'method'</span>] || invocation.method;  
+<span class="function"><span class="keyword">function</span> <span class="title">processInvocation</span><span class="params">(invocation, ctx, sendResponse)</span>{</span>         
+        <span class="keyword">var</span> modelName = invocation.clazz;
+        <span class="keyword">var</span> method =  invocation.method;  
         <span class="keyword">var</span> seqnum = invocation.seqnumber;
-        logger.debug(<span class="string">"====== RMI Invocation #"</span>, seqnum, modelName, invocation );
+        logger.debug(<span class="string">"====== BEGIN RMI #"</span>, seqnum, modelName, invocation );
         
         
         <span class="keyword">var</span> callbackDeferred= Q.defer();
@@ -354,51 +396,17 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
         <span class="keyword">var</span> modelClass = getClass(modelName);
         <span class="keyword">var</span> modelError = <span class="literal">null</span>;
         
-        <span class="keyword">var</span> targetLoader = Q.defer();
+        prepareTarget(invocation, <span class="function"><span class="keyword">function</span><span class="params">(target)</span>{</span>
+            <span class="keyword">if</span>(<span class="keyword">typeof</span>(target) == <span class="string">'string'</span>) <span class="comment">/** error */</span>
+                <span class="keyword">return</span> sendResponse( formatError( {message: err.toString(), value:err, code:<span class="number">500</span> }, seqnum ) );
+            invokeMethod(target);
+        })
         
-        <span class="keyword">if</span>(invocation.static)
-            invokeMethod(modelClass)
-        <span class="keyword">else</span>{
-            
-            <span class="comment">/**@todo hacking depopulate for save method*/</span>
-            <span class="keyword">if</span>(method === <span class="string">'save'</span>){
-                <span class="comment">/** depopulate the instance if necessary, otherwise Mongoose will complain*/</span>
-                Object.keys(modelClass.schema.paths).forEach(<span class="function"><span class="keyword">function</span><span class="params">(path)</span>{</span>
-                    <span class="keyword">var</span> schemaData = modelClass.schema.paths[path];
-                    
-                    <span class="keyword">if</span>(schemaData.instance == <span class="string">'ObjectID'</span> &amp;&amp; schemaData.options.ref){
-                        <span class="keyword">if</span>(invocation.instance[path]  &amp;&amp; invocation.instance[path]._id){
-                            console.log(<span class="string">"#### setting "</span>, path, invocation.instance[path])
-                            invocation.instance[path] = invocation.instance[path]._id;
-                        }
-                    }
-                })    
-            }
-            <span class="keyword">var</span> _id = invocation.instance._id;
-            <span class="keyword">if</span>(_id){
-                    modelClass.findById(_id, <span class="function"><span class="keyword">function</span><span class="params">(err, pristineInstance)</span>{</span>
-                       <span class="keyword">if</span>(err || !pristineInstance){
-                           logger.error(<span class="string">"Failed to load model by id"</span>, _id);
-                           <span class="keyword">return</span> targetLoader.reject(err);
-                       }
-                       <span class="comment">/**@todo: Ref handling?*/</span>
-                       Object.keys(invocation.instance).forEach(<span class="function"><span class="keyword">function</span><span class="params">(key)</span>{</span>
-                            <span class="keyword">if</span>(key.indexOf(<span class="string">"_"</span>)==<span class="number">0</span> || <span class="keyword">typeof</span> (invocation.instance[key]) == <span class="string">'function'</span>) <span class="keyword">return</span>;
-                            <span class="comment">/**logger.trace("seting key", key, "to", invocation.instance[key]) */</span> 
-                             pristineInstance.set(key , invocation.instance[key], <span class="literal">true</span>);
-                       });
-                       logger.debug(<span class="string">"Loaded model and updated value "</span>, pristineInstance);
-                       invokeMethod(pristineInstance)
-                    });
-            }
-            <span class="keyword">else</span>
-                invokeMethod(<span class="keyword">new</span> modelClass(invocation.instance))
-       }
            
        <span class="function"><span class="keyword">function</span> <span class="title">invokeMethod</span><span class="params">(target)</span>{</span>
             <span class="keyword">try</span>{
                 useCallback = useCallback || injectDependencies(target[method], args, ctx, callbackHandler);
-                logger.trace(<span class="string">"invoking method "</span>,  method.toUpperCase() , <span class="string">" with arguments"</span>, args)
+                logger.trace(<span class="string">"invoking method "</span>,  method.toUpperCase() , <span class="string">" with arguments"</span>, args, <span class="string">" on target "</span>, target)
               
                 <span class="keyword">var</span> ret = target[method].apply(target,  args);
                 <span class="keyword">if</span>(ret &amp;&amp; ret.exec){ <span class="comment">// mongoose promise</span>
@@ -423,7 +431,7 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
                     ret = Q(ret); 
                 }
                     
-                <span class="function"><span class="keyword">function</span> <span class="title">checkForModelError</span><span class="params">(result, target, res)</span>{</span>
+                <span class="function"><span class="keyword">function</span> <span class="title">checkForModelError</span><span class="params">(result, target )</span>{</span>
                     <span class="keyword">var</span> err = ( target &amp;&amp; target.errors) || (result &amp;&amp; result.errors);
                     <span class="keyword">if</span>(err)
                     { 
@@ -438,8 +446,8 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
                 }
                 
                 ret.done(<span class="function"><span class="keyword">function</span><span class="params">(result)</span>{</span>
-                    <span class="keyword">var</span> ex = checkForModelError(result, (invocation.isStaitc?<span class="literal">null</span>:target), res);
-                    <span class="keyword">if</span>(ex) <span class="keyword">return</span> sendError( ex, seqnum , res );
+                    <span class="keyword">var</span> ex = checkForModelError(result, (invocation.isStaitc?<span class="literal">null</span>:target) );
+                    <span class="keyword">if</span>(ex) <span class="keyword">return</span> sendResponse ( ex );
                     <span class="keyword">var</span> valueType = getValueType(result);  <span class="comment">/** model, models, object, string*/</span>
                     <span class="keyword">var</span> retdata = { success:<span class="literal">true</span>, 
                                     exception:<span class="literal">null</span>, 
@@ -451,21 +459,68 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
                     {
                         <span class="comment">/** return the instance data if it has changed */</span>                        
                         retdata.instance = target.toJSON();
-                        logger.trace(<span class="string">"Changed items"</span>, target.toJSON())
                     }
-                    res.send(<span class="number">200</span>, retdata);
-                    logger.debug(<span class="string">"====== RMI Success Result #"</span>, seqnum, <span class="string">" DONE: "</span>, retdata);
+                    sendResponse(<span class="literal">false</span>, retdata);
+                    logger.debug(<span class="string">"====== END RMI Success Result #"</span>, seqnum, <span class="string">" DONE: "</span>, retdata);
                 }, <span class="function"><span class="keyword">function</span><span class="params">(err)</span>{</span>
-                    sendError( {message: err.toString(), value:err, code:<span class="number">500</span> }, seqnum  ,res);
+                    sendResponse(  err );
                 });    
             }
             <span class="keyword">catch</span>(err){
                 logger.error(<span class="string">"Unhandled server error"</span>, err)
-                sendError(   {message: err.toString(), value:err, code:<span class="number">501</span> },  seqnum ,res);
+                sendResponse(<span class="literal">true</span>, formatError(   {message: err.toString(), value:err, code:<span class="number">501</span> },  seqnum ));
             }
         };
-}; <span class="comment">/**  end rmiServe */</span>
+}; <span class="comment">/**  end processRMI */</span>
 
+
+<span class="function"><span class="keyword">function</span> <span class="title">prepareTarget</span><span class="params">(invocation, targetCallback)</span>{</span>
+    logger.debug(<span class="string">"Preparing target from JSON"</span>);
+    <span class="keyword">var</span> modelClass = getClass( invocation.clazz );
+    <span class="keyword">if</span>(invocation.static)
+        <span class="keyword">return</span> targetCallback(modelClass);
+    <span class="keyword">if</span>( <span class="keyword">typeof</span>(invocation.instance) != <span class="string">'object'</span>) 
+        <span class="keyword">return</span> targetCallback(  <span class="string">"Missing invocation instance property"</span> );
+    
+    <span class="keyword">if</span>(modelClass <span class="keyword">instanceof</span> angoose.Service || !invocation.instance._id)
+       <span class="keyword">return</span> targetCallback(<span class="keyword">new</span> modelClass(invocation.instance));
+        
+    <span class="keyword">var</span> _id = invocation.instance._id;
+    logger.debug(<span class="string">"Loading pristine instance as base"</span>,invocation.clazz, _id)    
+    modelClass.findById(_id, <span class="function"><span class="keyword">function</span><span class="params">(err, pristineInstance)</span>{</span>
+       <span class="keyword">if</span>(err || !pristineInstance){
+           logger.error(<span class="string">"Failed to load model by id"</span>, _id);
+           <span class="keyword">return</span> targetCallback(err);
+       }
+       <span class="keyword">var</span> pristineObject = pristineInstance.toObject();
+       <span class="keyword">var</span> schema = modelClass.schema;
+       Object.keys(schema.paths).forEach(<span class="function"><span class="keyword">function</span><span class="params">(path)</span>{</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>var pathSchema = schema.paths[path];
+var ref = schemaUtil.getReference(pathSchema);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>           <span class="keyword">var</span> newVal = modelClass.getData(invocation.instance, path);
+           <span class="keyword">var</span> oldVal  =  modelClass.getData(pristineObject, path); 
+           <span class="keyword">if</span>(!_.isEqual(oldVal, newVal)){
+                pristineInstance.set(path,newVal);
+                logger.trace(<span class="string">"seting"</span>, path, <span class="string">": "</span>,oldVal, <span class="string">" --&gt; "</span>, newVal, <span class="string">" NOW dirty? "</span>,  pristineInstance.isModified(path));
+           }
+       });
+       targetCallback(pristineInstance);
+    });
+         
+}
 
 <span class="function"><span class="keyword">function</span> <span class="title">scanModelFiles</span><span class="params">(dirs)</span>{</span>
     <span class="keyword">var</span> dirs = _.isArray(dirs)? dirs: [dirs];
@@ -490,7 +545,6 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
 
 <span class="function"><span class="keyword">function</span> <span class="title">harvestBeans</span><span class="params">(options)</span>{</span>
     logger.debug(<span class="string">"Initialzing models"</span>)
-    <span class="comment">/**@todo: modelDir can be array, use path()*/</span>
     <span class="keyword">var</span> files =  scanModelFiles( options.modelDir);
     files.forEach(<span class="function"><span class="keyword">function</span><span class="params">(file)</span> {</span>
             <span class="keyword">var</span> filename = file.replace(<span class="regexp">/.*[\/\\]([a-z0-9_]+)\.js/i</span>, <span class="string">"$1"</span>);
@@ -525,11 +579,11 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p><strong> geneateClient() </strong></p>
 <p>Generates the client file to be served as the contents of resource <code>/angoose/angoose-client.js</code> </p>
@@ -554,6 +608,8 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
     <span class="comment">/**  include client specific extensions*/</span>
     <span class="keyword">var</span> clientModuleFile = require(<span class="string">"path"</span>).resolve(__dirname , <span class="string">"client/angoose-angular.js"</span>);
     content += fs.readFileSync(clientModuleFile, <span class="string">'ascii'</span>);
+    clientModuleFile = require(<span class="string">"path"</span>).resolve(__dirname , <span class="string">"client/angoose-jquery.js"</span>);
+    content += fs.readFileSync(clientModuleFile, <span class="string">'ascii'</span>);
     clientModuleFile = require(<span class="string">"path"</span>).resolve(__dirname , <span class="string">"client/angoose-node.js"</span>);
     content += fs.readFileSync(clientModuleFile, <span class="string">'ascii'</span>);
     fs.writeFileSync(output, content);
@@ -561,9 +617,9 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
     <span class="keyword">return</span> content;       
 }
 <span class="function"><span class="keyword">function</span> <span class="title">connectMongo</span><span class="params">(options)</span>{</span>
+    <span class="keyword">var</span> mongoose = getMongoose();
     <span class="keyword">try</span>{
         logger.debug(<span class="string">"Connecting to mongodb"</span>, options.mongo_opts)
-        <span class="keyword">var</span> mongoose = options.mongoose || require(<span class="string">"mongoose"</span>);
         mongoose.connect( options.mongo_opts , <span class="function"><span class="keyword">function</span><span class="params">(err)</span>{</span>
             logger.debug(<span class="string">"Mongoose connection"</span>, arguments);
         }); <span class="comment">/**@todo: handle complex connection options*/</span>
@@ -580,8 +636,14 @@ be thrown. See <a href="Context.html">Context</a> for more.</p>
 
 <span class="function"><span class="keyword">function</span> <span class="title">service</span><span class="params">(nameOpts, proto)</span>{</span>
     logger.debug(<span class="string">"creating service "</span>, nameOpts);
-    <span class="keyword">var</span> opts = <span class="keyword">typeof</span>(nameOpts) == <span class="string">'string'</span>? {name: nameOpts}: nameOpts; 
-    angoose.Service.extend(proto, opts );
+    <span class="keyword">var</span> opts = <span class="keyword">typeof</span>(nameOpts) == <span class="string">'string'</span>? {name: nameOpts}: nameOpts;
+    <span class="keyword">if</span>(!opts.name) <span class="keyword">throw</span> <span class="string">"Service name must be provided."</span>;
+    proto = proto || {}; 
+    <span class="keyword">return</span> angoose.Service.extend(proto, opts );
+}
+<span class="function"><span class="keyword">function</span> <span class="title">getMongoose</span><span class="params">()</span>{</span>
+    angoose.mongoose = angoose.mongoose || options.mongoose || require(<span class="string">"mongoose"</span>);
+    <span class="keyword">return</span> angoose.mongoose;
 }
 <span class="function"><span class="keyword">function</span> <span class="title">noop</span><span class="params">()</span>{</span>};
 
@@ -591,6 +653,9 @@ angoose.getContext = getContext;
 angoose.registerClass  = registerClass;
 angoose.generateClient = generateClient;
 angoose.service = service;
+angoose.getMongoose = getMongoose;
+angoose.rmiAccept = rmiAccept; <span class="comment">/** for unit test purpose*/</span>
+angoose.defer = defer;
 module.exports =  angoose;</pre></div></div>
             
         </li>

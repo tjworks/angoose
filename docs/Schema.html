@@ -73,58 +73,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h5 id="method-name-annotations">Method Name Annotations</h5>
-<p>NOTE: method name annotation is optional, you are not required to name your  method if you don&#39;t need to. </p>
-<p>Method name defined on the models and services is of particular interest to Angoose. 
-To facilitate the exporting of methods to the remote client, Angoose relies on the function name to hint it which methods should be 
-exported and which ones should not. In general the function name is not required when you define the methods on Mongoose schema
-or on a Service class because the function would be assigned to a property of the container object. Example for a Mongoose model shcema:</p>
-<pre><code>{
-   methods: {
-       updateStatus: function(){
-           // body
-       }
-   }
-}  </code></pre>
-<p>Angoose hence uses the unused function name as a way to annotate the function for the purpose of RMI. For instance, to indicate a method
-can be exported to the remote client, you would write the function like this:</p>
-<pre><code>{
-   methods: {
-       updateStatus: function remote(){
-           // body
-       }
-   }
-}</code></pre>
-<p>Following are a list of keywords that can be used to annotate the function. You may use more than one keywords, just join them using 
-underscore, i.e., static_remote </p>
-<p><strong> remote </strong>
-This indicates the method can be exported to remote client. By default all the methods will be considered this type</p>
-<p><strong> portable </strong>
-This indicates the method can be &quot;ported&quot; to remote client and executed on the client side without even contacting server. An example of
-this usage is some helper method that only operates on the instance object and has no other dependencies. i.e., a method to concatenate the names
-to return a full name:</p>
-<pre><code>{
-  methods: {
-      getFullname: function portable{
-          return (this.firstname || &quot;&quot;) + &quot; &quot; 
-                     + (this.lastname || &quot;&quot;);
-      }
-  }
-} </code></pre>
-<p><strong> static </strong>
-Indicates this is a static method and can be invoked on the class/function level. Note in Mongoose model, you should use the <code>statics</code> property to
-define the static methods. This is mostly useful for Service classes.$</p>
-<p><strong> instance </strong>
-This is the default value so usually you don&#39;t need to use it. It&#39;s here only for documentation purpose. </p>
-<p><strong> local </strong>
-This indicates the method should NOT be exported. It can only be invoked on the server side, locally. </p>
-
+              
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> logger = require(<span class="string">"log4js"</span>).getLogger(<span class="string">"angoose"</span>);
+            <div class="content"><div class='highlight'><pre>
+
+<span class="keyword">var</span> logger = require(<span class="string">"log4js"</span>).getLogger(<span class="string">"angoose"</span>);
 <span class="keyword">var</span> _ =require(<span class="string">"underscore"</span>);
 
-<span class="keyword">var</span> FunctionNamePattern = <span class="regexp">/^function\s+(remote|server|portable)/i</span>;
+<span class="keyword">var</span> FunctionNamePattern = <span class="regexp">/^function\s+(remote|local|portable)/i</span>;
 
 <span class="keyword">var</span> parseDeclaredArguments = <span class="function"><span class="keyword">function</span><span class="params">(funcBody)</span>{</span>
     <span class="keyword">if</span>(<span class="keyword">typeof</span> funcBody === <span class="string">'function'</span>) funcBody = funcBody.toString();
@@ -151,7 +108,7 @@ This indicates the method should NOT be exported. It can only be invoked on the 
         <span class="keyword">if</span>(!schema.methods[m]) 
             schema.methods[m]= <span class="function"><span class="keyword">function</span> <span class="title">remote</span><span class="params">()</span>{</span>};     
     });
-    <span class="keyword">var</span> staticMethods = <span class="string">"populate,find,findOne,findById,findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate,update,remove"</span>;
+    <span class="keyword">var</span> staticMethods = <span class="string">"populate,find,findOne,findById,findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate,update,remove,count"</span>;
     staticMethods.split(<span class="string">","</span>).forEach(<span class="function"><span class="keyword">function</span><span class="params">(m)</span>{</span>
         m = m.replace(<span class="regexp">/\s+/g</span>, <span class="string">''</span>);
         schema.statics[m] || (schema.statics[m]= <span class="function"><span class="keyword">function</span> <span class="title">remote</span><span class="params">()</span>{</span>} );     
@@ -164,15 +121,14 @@ This indicates the method should NOT be exported. It can only be invoked on the 
     <span class="keyword">return</span> <span class="string">'service'</span>
 }
 
-<span class="keyword">var</span> getFunctionType = <span class="function"><span class="keyword">function</span><span class="params">(schema, funcName, funcBody)</span>{</span>
+
+<span class="keyword">var</span> getFunctionType = <span class="function"><span class="keyword">function</span><span class="params">(schemaObj, funcName, funcBody)</span>{</span>
         <span class="comment">/** we only deal with delared methods */</span>
-        <span class="keyword">if</span>(!  schema.methods[funcName] &amp;&amp; !  schema.statics[funcName] ) <span class="keyword">return</span>; 
+        <span class="keyword">if</span>(!  schemaObj.methods[funcName] &amp;&amp; !  schemaObj.statics[funcName] ) <span class="keyword">return</span>;
         <span class="keyword">var</span> ftype = <span class="string">'_'</span>;
-        <span class="keyword">if</span>(schema.methods[funcName]) ftype+=<span class="string">'instance'</span>;
-        <span class="keyword">if</span>(schema.statics[funcName]) ftype+=<span class="string">'static'</span>;
-        ftype+=<span class="string">"_"</span>;
-        <span class="keyword">var</span> matcher = FunctionNamePattern.exec(funcBody);
-        ftype+= matcher? matcher[<span class="number">1</span>]: <span class="string">'remote'</span>; <span class="comment">//default is remote</span>
+        <span class="keyword">if</span>(schemaObj.methods[funcName]) ftype+=<span class="string">'instance'</span>;
+        <span class="keyword">if</span>(schemaObj.statics[funcName]) ftype+=<span class="string">'static'</span>;
+        ftype+=<span class="string">"_"</span> + getFunctionAnnotation(funcBody);
         <span class="keyword">return</span> ftype;
 }    
 
@@ -182,6 +138,7 @@ This indicates the method should NOT be exported. It can only be invoked on the 
     <span class="keyword">var</span> funcStringifier = <span class="function"><span class="keyword">function</span> <span class="params">(key, value)</span> {</span>
         <span class="keyword">if</span> (<span class="keyword">typeof</span> value !== <span class="string">'function'</span>) <span class="keyword">return</span> value;
         <span class="keyword">var</span> body =  value.toString();
+        
         <span class="keyword">var</span> funcType = getFunctionType(schemaObj, key, body);
         <span class="keyword">if</span>(!funcType) <span class="keyword">return</span>; <span class="comment">//'not-available';</span>
         logger.trace(<span class="string">"Stringify function"</span>,key, funcType);
@@ -220,10 +177,39 @@ This indicates the method should NOT be exported. It can only be invoked on the 
     <span class="keyword">return</span> ret;
 }    
 
+<span class="function"><span class="keyword">function</span>  <span class="title">getFunctionAnnotation</span><span class="params">(funcBody)</span>{</span>
+    <span class="keyword">var</span> matcher = FunctionNamePattern.exec(funcBody);
+    <span class="keyword">return</span> matcher? matcher[<span class="number">1</span>]: <span class="string">'remote'</span>; <span class="comment">//default is remote</span>
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">getReference</span><span class="params">(pathSchema)</span>{</span>
+    <span class="keyword">var</span> opts = pathSchema.options;
+    
+    <span class="comment">/** Mongoose, array of ObjectIDs */</span>
+    <span class="keyword">if</span>( Array.isArray(opts.type) &amp;&amp; opts.type.length&gt;<span class="number">0</span>  &amp;&amp;  opts.type[<span class="number">0</span>] &amp;&amp; opts.type[<span class="number">0</span>].ref ) 
+        <span class="keyword">return</span> opts.type[<span class="number">0</span>].ref;
+    <span class="comment">/** Single ObjectID Reference*/</span>
+    <span class="keyword">if</span>(pathSchema.instance == <span class="string">'ObjectID'</span> &amp;&amp; opts.ref) <span class="keyword">return</span> opts.ref;
+    
+    
+    <span class="keyword">if</span>(pathSchema.options.ref &amp;&amp; pathSchema.instance == <span class="string">'CustomRef'</span>){
+        <span class="comment">/** deform custom ref*/</span>
+       <span class="keyword">return</span> pathSchema.options.ref;    
+    }
+    <span class="comment">/** deform rich reference, array */</span>
+    <span class="keyword">if</span>(Array.isArray(opts.type ) &amp;&amp; pathSchema.caster &amp;&amp; 
+            pathSchema.caster.instance == <span class="string">'CustomRef'</span> &amp;&amp; pathSchema.caster.options.ref ){ 
+        <span class="keyword">return</span> pathSchema.caster.options.ref;
+    }
+        
+    <span class="keyword">return</span> <span class="literal">null</span>;
+}
+
 module.exports = {
-    getFunctionType:getFunctionType,
+    getFunctionAnnotation:getFunctionAnnotation,
     stringify: stringify,
-    parseDeclaredArguments:parseDeclaredArguments
+    parseDeclaredArguments:parseDeclaredArguments,
+    getReference:getReference
 }</pre></div></div>
             
         </li>

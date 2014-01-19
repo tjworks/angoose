@@ -73,12 +73,17 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              
+              <p>This is the base class for Angoose model classes and service classes. 
+This is used internally and it&#39;s here only for listing the APIs common
+to all Model and Service classes.  </p>
+
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="keyword">var</span> logger = require(<span class="string">"log4js"</span>).getLogger(<span class="string">"angoose"</span>);
 <span class="keyword">var</span> _ = require(<span class="string">"underscore"</span>);
-<span class="keyword">var</span> Class = require(<span class="string">"./util/classy"</span>);</pre></div></div>
+<span class="keyword">var</span> Class = require(<span class="string">"./util/classy"</span>);
+
+<span class="keyword">var</span> schemaUtil = require(<span class="string">"./Schema"</span>);</pre></div></div>
             
         </li>
         
@@ -89,15 +94,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <h1 id="remotable">Remotable</h1>
-<p>This is the base class for Angoose model classes and service classes</p>
+              <h3 id="api-rereferences">API Rereferences</h3>
 <p><strong>getContext()</strong></p>
 <p>This method allows you obtain the execution context.
 See <a href="Context.html">Context</a> for more. </p>
 <p>Note this method is also available on the class(function) as well. i.e.,</p>
-<pre><code> var instance = new Remotable();
+<pre><code> /** MyModel is subclass of Remotable */
+ var instance = new MyModel(); 
  /** Following yields true */
- Remotable.getContext() === instance.getContext(); </code></pre>
+ MyModel.getContext() === instance.getContext(); </code></pre>
 
             </div>
             
@@ -153,6 +158,9 @@ All classes created using this method is a subclass of <code>Remotable</code></p
 }
 <span class="function"><span class="keyword">function</span> <span class="title">mixinInstance</span><span class="params">(parentClass, subClass, options)</span>{</span>
     subClass.prototype.getContext = getContext;
+    
+    <span class="comment">/** look for static classes*/</span>
+   
 }
 <span class="function"><span class="keyword">function</span> <span class="title">mixinStatic</span><span class="params">(parentClass, subClass, options)</span>{</span>
     <span class="comment">/** mixin Angoose functions to the new class */</span>
