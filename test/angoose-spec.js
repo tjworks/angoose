@@ -16,17 +16,8 @@ var userdata =  util.testuser;
 
 var clientSource = util.clientSource();
 describe("Angoose Server Tests", function(){
-    
-     xit("Load client file from http", function(done){
-       request('http://localhost:9988' +configs.urlPrefix+'/angoose-client.js', function(err, response, body){
-            eval(body);
-            var SampleUser = AngooseClient.getClass("SampleUser");
-            var suser = new SampleUser( userdata);
-            expect(suser.getFullname()).toBe("Gaelyn Hurd");
-            done();
-       });
-    });
-     it("Dependency injection", function(done){
+     
+      it("Dependency injection", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
@@ -37,7 +28,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     }); 
-     it("Static method", function(done){
+      it("Static method", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
@@ -46,7 +37,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     }); 
-    it("Sample Service", function(done){
+     it("Sample Service", function(done){
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
         new SampleService().listFavoriteDestinations().done(function(places){
@@ -55,7 +46,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     });
-    it("Sample User Groups", function(done){
+     it("Sample User Groups", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
@@ -89,7 +80,7 @@ describe("Angoose Server Tests", function(){
              
         })
     });
-     it("Sample User Find", function(done){
+      it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
         eval(clientSource);
@@ -121,7 +112,7 @@ describe("Angoose Server Tests", function(){
                 //SampleUser.find()
         })
     });
-    it("Sample User Save", function(done){
+     it("Sample User Save", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         
@@ -172,7 +163,7 @@ describe("Angoose Server Tests", function(){
         })
     });
     
-    it("Execution Context", function(done){
+     it("Execution Context", function(done){
         console.log("Execution context test");
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
@@ -184,6 +175,15 @@ describe("Angoose Server Tests", function(){
             
         })
     });
+    
+    it("Test Promise", function(done){
+        eval(clientSource);
+        var SampleService = AngooseClient.getClass("SampleService");
+        SampleService.testPromiseReturn(function(err, res){
+            expect(res).toBe("PromiseOK");
+            done();
+        })
+    })
 });
 
  

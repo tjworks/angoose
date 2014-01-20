@@ -24,5 +24,5 @@ describe("Angoose Model Tests", function(){
        var clz = angoose.getClass('Testie');
        expect( new Actual(new clz().testme(), "class should be Service, but got "+ clz)).toBe("hello"); 
     });
-     
+    
 }); 

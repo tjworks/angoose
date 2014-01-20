@@ -144,8 +144,10 @@ Note not all Mongoose model functionalities are exported yet. Following are a li
 - findXXX (all other find methods)
 - update
 - remove
+- count
 
 Some notes about using these Mongoose API:
+
 - Most of the Mongoose model methods accepts a callback function with two arguments: err and result, you can continue to use this. 
 - If no callback function provided, then a [Q promise](https://github.com/kriskowal/q) is returned on which you can call the success handler and error handler using its `done` API. 
 - Mongoose `query` is NOT supported in the client side. i.e., if you do not provide callback, the `exec` will still be automatically called for you and return the results via the Q promise. 
@@ -155,15 +157,17 @@ In Mongoose it will return a `query` object with with which you can chain your r
 
 
 In addition, following are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
-a reference to the empty object/list. The empty object/list will be automatically populated(and view updated accordingly) once server side returns.
+a reference to the empty object/list. The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of these work like Mongoose
+`find` method.
   
-- $get (Angoose addition)
-- $query (Angoose addition)
+- Model.$get() 
+- Model.$query()  
 
  
 
 **Custom Methods on Mongoose Models**
-Any methods you defined in the Mongoose schema(whether static or instance) will be automatically made available to the client. 
+
+Any methods you defined in the Mongoose schema(whether static or instance) will be treated as remotable method and automatically exported to client.  
 
 #### About Services
 
