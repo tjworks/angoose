@@ -35,15 +35,11 @@ function createApp(opts){
         app.use(express.session({secret: '1234567890QWERTY'}));
         app.use(app.router);
         app.use(function(err, req, res, next){
-            console.log("In error handling", err)
-            if (err.message == 'APIAuthError') {
-                res.send(401, {success:false, msg:"Authorization Error"});
-            } else {
-                res.send(500, 'Something broke!');
-            };
+            console.log("In default error handling", err)
+            res.send(500, 'Unhandled error: '+ err);
         });
         app.use(express.methodOverride());
-        app.use(express.static(path.join(__dirname, 'public')));
+        app.use(express.static(path.join(__dirname, '/../public')));
     });
     
     require(ROOT+ "/lib/angoose").init(app, options);

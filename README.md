@@ -13,6 +13,26 @@ Angoose depends on following frameworks and assumes you have basic familarities 
 
 ## 2. Get Started
 =================
+You can try out Angoose in two ways. 
+
+### 2.1  Install Angoose as an app
+Angoose comes with a tiny demo app "Todo", an implementation of [TodoMVC](http://todomvc.com/). 
+
+- `git clone https://github.com/tjworks/angoose.git`
+- `npm install`
+- Make suer you have Mongo installed and running 
+- Start demo app: `node test/server`
+- Browse to [http://localhost:9988](http://localhost:9988)
+
+Files used in demo app:
+
+- `models/Todo.js` Todo model module
+- `test/server.js` Server side node app
+- `public/index.html` Todo html/template file
+- `public/todo-angular-app` Client side Angular app, including controller funciton
+
+
+### 2.2 Angoose as a module
 
 #### 1. npm install angoose
 
@@ -97,8 +117,8 @@ If you don't use angular, then you just need to include jQuery before the angoos
 		var sampleUser = SampleUser.findOne({'email':'xxx@yyy.com'}, function(err, user ){  
 			sampleUser.firstname='Gaelyn';
 			sampleUser.save(function(err){
-				if(err)  console.log("Success!);
-				else alert("Something wrong: " + err);
+				if(!err)  console.log("Success!");
+				else alert("Something went wrong: " + err);
 			});
 		});    
   
@@ -106,8 +126,8 @@ If you don't use angular, then you just need to include jQuery before the angoos
 ===================
 
 The core of the Angoose is its Remote Method Invocation, or RMI, that bridges the gap between server side and front end. With this technique, the server side modules, such as
-Mongoose models and custom defined service modules will be transparently made available to the client side. No need for REST api or route setup. Just call the method! See diagram below
-for a depiction of the RMI process. 
+Mongoose models and custom defined service modules will be transparently made available to the client side. No need for REST api or route setup. Just call the modules as if they
+reside in the browser! See diagram below for a depiction of the RMI process. 
 
 ![Angoose Remote Method Invocation](https://www.lucidchart.com/publicSegments/view/52dbe203-1508-4b43-b6cb-5c020a00d361/image.png)
 	 
@@ -158,7 +178,7 @@ In Mongoose it will return a `query` object with with which you can chain your r
 
 In addition, following are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
 a reference to the empty object/list. The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of these work like Mongoose
-`find` method.
+`findOne` and `find` methods respectively.
   
 - Model.$get() 
 - Model.$query()  

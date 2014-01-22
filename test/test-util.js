@@ -12,9 +12,6 @@ logger.setLevel(logging.levels.TRACE);
 require("jasmine-custom-message");
 var Actual = jasmine.customMessage.Actual;
 
-console.log("Deleting ", clientfile);
-if(fs.exists(clientfile))
-    fs.unlinkSync(clientfile);
 var configs = {
     modelDir: ROOT+'/models',
     clientFile: clientfile,
