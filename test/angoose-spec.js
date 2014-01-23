@@ -6,10 +6,11 @@ var express = require("express");
 var request = require('request');
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
-require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
+
 
 var util = require("./test-util");
+var Actual = util.Actual;
+
 var angoose = util.initAngoose();
 //require("./server"); //.startServer(configs);
 var userdata =  util.testuser;
@@ -17,7 +18,7 @@ var userdata =  util.testuser;
 var clientSource = util.clientSource();
 describe("Angoose Server Tests", function(){
      
-      it("Dependency injection", function(done){
+       it("Dependency injection", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
@@ -28,7 +29,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     }); 
-      it("Static method", function(done){
+       it("Static method", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
@@ -37,7 +38,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     }); 
-     it("Sample Service", function(done){
+      it("Sample Service", function(done){
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
         new SampleService().listFavoriteDestinations().done(function(places){
@@ -66,11 +67,11 @@ describe("Angoose Server Tests", function(){
                  
                  console.log("Saving user with group", grps[0], grps[0].find);
                  suser.save(function(err, res){
-                     console.log("Saved user", err, res)
+                     console.log("Saved user with group", err, res)
                      expect(err).toBeUndefined()
                      if(err) done();
                      else suser.remove(function(reError, reRes){
-                        console.log("Remove user", reError, reRes)
+                        console.log("Removeing user", reError, reRes)
                         expect(reError).toBeUndefined();
                         done();    
                      })
@@ -80,7 +81,7 @@ describe("Angoose Server Tests", function(){
              
         })
     });
-      it("Sample User Find", function(done){
+       it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
         eval(clientSource);
@@ -112,7 +113,7 @@ describe("Angoose Server Tests", function(){
                 //SampleUser.find()
         })
     });
-     it("Sample User Save", function(done){
+    it("Sample User Save", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         
@@ -122,9 +123,10 @@ describe("Angoose Server Tests", function(){
         expect(suser.remove).toBeTruthy()
         suser.email = 'john@'
         suser.save(function(err, res){  // can either user callback for promise
-            console.log("Expecting error: ", err, res);
+            console.log("Expecting save error : ", err, res);
             expect(err).toBeTruthy();
-            expect(err.indexOf('email')).toBeGreaterThan(0);
+            if(!err) return done();
+            err && expect(err.indexOf('email')).toBeGreaterThan(0);
             suser = new SampleUser( userdata);
             suser.save().done(function(res){
                 console.log("Expecting save OK: ", res);
@@ -163,20 +165,9 @@ describe("Angoose Server Tests", function(){
         })
     });
     
-     it("Execution Context", function(done){
-        console.log("Execution context test");
-        eval(clientSource);
-        var SampleService = AngooseClient.getClass("SampleService");
-        new SampleService().testExecutionContext().done(function(data){
-            console.log("Got context path", data)
-            expect(new Actual(data), "Execution context expecting 'testExecutionContext'  but got: "+ data).toBe('testExecutionContext');
-            done();
-        }, function(err){
-            
-        })
-    });
     
-    it("Test Promise", function(done){
+    
+     it("Test Promise", function(done){
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.testPromiseReturn(function(err, res){

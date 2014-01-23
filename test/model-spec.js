@@ -3,6 +3,7 @@ var path= require("path")
 var fs = require("fs");
 var logging = require("log4js");
 var util = require("./test-util");
+var traverse = require("traverse");
 var angoose = util.initAngoose();
 require("jasmine-custom-message");
 var clientSource = util.clientSource();
@@ -11,7 +12,7 @@ var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
 var SampleUser = AngooseClient.getClass('SampleUser');  
 describe("Angoose Model Tests", function(){
-    it("Test Dirty", function(done){
+    xit("Test Dirty", function(done){
         
         util.addUser(SampleUser, function(err, user){
             console.log("user", user)
@@ -24,7 +25,7 @@ describe("Angoose Model Tests", function(){
         })
     });   
     
-    it("Partial Loading", function(done){
+    xit("Partial Loading", function(done){
         util.addUser(SampleUser, function(err, u){
             SampleUser.findOne({firstname: util.testuser.firstname}, 'firstname', function(err, user){
                 console.log("User", user);
@@ -36,4 +37,7 @@ describe("Angoose Model Tests", function(){
         });
         
     })
+   
+    
 }); 
+ 

@@ -17,8 +17,8 @@ var options = {
 };
 
 process.on('uncaughtException',function(e) {
-    var sys = require("sys");
-    sys.log(" Unhandled Error -----> : " + e.stack);
+    var sys = require("sys"); 
+    sys.log(" Unhandled Error caught in server.js -----> : " + e.stack);
 });
 
 

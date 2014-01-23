@@ -1,13 +1,15 @@
 var ROOT = process.cwd();
+var _ = require("underscore");
 var path= require("path")
 var http = require("http");
 var fs = require("fs");
 var express = require("express");
 var request = require('request');
+require("jasmine-custom-message");
 var clientfile =  './build/generated-client.js';
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
-logger.setLevel(logging.levels.TRACE);
+logger.setLevel(logging.levels.DEBUG);
 
 require("jasmine-custom-message");
 var Actual = jasmine.customMessage.Actual;
@@ -28,8 +30,15 @@ var userdata = {
     status:'active',
     email:'gaelyn@hurd.com'
 };  
+function unloadAngoose(){
+    console.log("#### UNLOADING angoose ####")
+    var name = require.resolve('../lib/angoose');
+    delete require.cache[name];
+}
 
-function initAngoose(app){
+function initAngoose(app, opts){
+    angoose = require("../lib/angoose");
+    configs = _.extend(configs, (opts|| {}))
     angoose.init(app, configs)
     return angoose;
 }
@@ -40,7 +49,11 @@ module.exports = {
     },
     testuser:userdata,
     initAngoose: initAngoose,
-    angooseOpts: configs
+    angooseOpts: configs,
+    
+    Actual: jasmine.customMessage.Actual,
+    unloadAngoose:unloadAngoose
+
 }
 
 

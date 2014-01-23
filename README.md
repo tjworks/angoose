@@ -177,11 +177,11 @@ In Mongoose it will return a `query` object with with which you can chain your r
 
 
 In addition, following are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
-a reference to the empty object/list. The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of these work like Mongoose
-`findOne` and `find` methods respectively.
+a reference to the empty object/list. This way you don't need to use callback.  The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of methods takes parameters similar
+to the Mongoose find() method.
   
-- Model.$get() 
-- Model.$query()  
+- Model.$get() 	Return a reference to one object
+- Model.$query()  Return a reference to an array of objects
 
  
 
@@ -319,13 +319,18 @@ as long as the code execution was originated by Angoose RMI handler. This is mad
 For each Angoose RMI invocation request, an unique Context object is created when Angoose starts handling. The context contains the request
 and response objects, as well as session and authenticated user info(TBD). The context can then be accessed by all the subsequent code paths, including in async callback functions.
 
-To obtain the context, you may use any of the following method:
+To obtain the context, you may use one of following method:
 
 - `angoose.getContext()`
 - `MyModel.getContext()`
 - `myModelInstance.getContext()`  
+- Declare  `$context` as one of the arguments on your method, the context will be injected by Angoose.   
 
 See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for detailed API.  
+
+**NOTE**: The `continuation-local-storage` module has some known issues with Q and Mongo connections. If you're having problems with  `getContext()` method, 
+try to use the injection method(last one) to obtain the context, and try to use callback instead of Q when return value. See above disucssion about handling return value.   
+
 
 ## 6. References
 =====================
