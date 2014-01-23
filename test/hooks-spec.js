@@ -36,7 +36,7 @@ describe("Hooks  Tests", function(){
          
     }); 
     
-    xit("try wrapper test", function(done){
+    it("try wrapper test", function(done){
         function fn(a){
             console.log("in function fn, going to throw", a);
             throw("bad girl")
@@ -59,7 +59,6 @@ describe("Hooks  Tests", function(){
     })
     it("Hook sequence", function(done){
         var flag = 'init';
-        util.unloadAngoose();
         var hk = {
             name:'sequence-tester',
             preAuthorize: function(next){
@@ -75,9 +74,8 @@ describe("Hooks  Tests", function(){
                 next( false, true );
             }
         }
-        angoose = util.initAngoose(null, {
-            hooks:hk
-        });
+        util.angooseOpts.hooks = hk;
+        angoose = util.initAngoose(null, util.angooseOpts);
         eval(util.clientSource());
         var SU = AngooseClient.getClass('SampleUser');
         SU.findOne(function(err, u){

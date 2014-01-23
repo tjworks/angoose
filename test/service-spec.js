@@ -8,7 +8,7 @@ angoose.init();
 require("jasmine-custom-message");
 var Actual = jasmine.customMessage.Actual;
   
-describe("Angoose Model Tests", function(){
+describe("Angoose Service Tests", function(){
     it("Sample Service Schema", function(done){
         var SampleService = angoose.getClass("SampleService");
         console.log("SCHEMA", SampleService.getSchema());

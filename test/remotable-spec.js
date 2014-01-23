@@ -25,7 +25,7 @@ describe("Angoose Remotable Tests", function(){
         }
         catch(err){
         }
-    });
+    }); 
     it("Remotable class", function(){
        var obj = angoose.Service.extend({}, {name:'Testie'});
        var clz = obj._angoosemeta.baseClass;
