@@ -4,12 +4,11 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     watch: {
-        scripts:{
+        testall:{
             files: ["lib/**/*.js", "test/**/*.js"],
-            tasks:['test:model'],
+            tasks:['test'],
             options: { debounceDelay: 250 }    
         }
-        
     },
     jasmine_node: {
             specNameMatcher: "spec", // load only specs containing specNameMatcher
@@ -56,10 +55,18 @@ module.exports = function(grunt) {
         require("./test/server").startServer();
     });
   
+    grunt.registerTask('autotest', 'watch and test', function(argPattern) {
+
+        var watched= ["lib/**/*.js", "test/**/*.js", "models/**/*.js"];
+       // set the correct list of file to watch according to the argument passed
+        grunt.config('watch.autotest.files', watched);
+        grunt.config('watch.autotest.tasks',  (argPattern? 'test:'+ argPattern: 'test'));
+        grunt.task.run('watch:autotest');
+    })
 };
 
 
 process.on('uncaughtException',function(e) {
     var sys = require("sys");
-    sys.log(" Unhandled Error -----> : " + e.stack);
+    sys.log(" Unhandled Error in Grunt -----> : " + e.stack);
 });

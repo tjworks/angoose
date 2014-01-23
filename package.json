@@ -38,7 +38,9 @@
     "q": "*",
     "express": "*",
     "log4js": "*",
-    "continuation-local-storage": "~3.0.0"
+    "continuation-local-storage": "~3.0.0",
+    "hooks": "~0.3.2",
+    "shimmer": "~1.0.0"
   },
   "author": "tjworks",
   "license": "MIT",

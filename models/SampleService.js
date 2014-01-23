@@ -4,9 +4,15 @@ var service = {
     listFavoriteDestinations: function(){
         return ["Paris", "Virgin Islands", "Antarctic"]
     },
-    testExecutionContext: function remote(){
-        var req = this.getContext().getRequest();
-        return req.params['method'];
+    testExecutionContext: function remote($callback){
+        var self = this;
+        var su = require("./SampleUser");
+        su.findOne(angoose.inContext(   function(err, res){
+                var ctx = self.getContext();
+                console.log("In testExecutionContext "+ ctx.seqnum)
+                var req = ctx.getRequest();
+                $callback(false, req.params['method']);
+        }))
     }
 }
 var SampleService = angoose.service('SampleService',  service);
