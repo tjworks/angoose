@@ -1,6 +1,6 @@
 {
   "name": "angoose",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Angoose allows you to seamlessly reuse the server side model(Mongoose model) in Angular",
   "main": "lib/angoose",
   "scripts": {
@@ -30,7 +30,6 @@
     "jasmine-custom-message": "~0.1.2",
     "node-mocks-http": "*",
     "grunt-contrib-watch": "~0.5.3"
-    
   },
   "dependencies": {
     "underscore": "*",
