@@ -4,7 +4,6 @@ var http = require("http");
 var fs = require("fs");
 var _ =require("underscore");
 var express = require("express");
-var request = require('request');
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
 logger.setLevel(logging.levels.DEBUG);

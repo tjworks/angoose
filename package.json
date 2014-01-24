@@ -29,8 +29,8 @@
     "request": "*",
     "jasmine-custom-message": "~0.1.2",
     "node-mocks-http": "*",
-    "grunt-contrib-watch": "~0.5.3",
-    "traverse": "~0.6.6"
+    "grunt-contrib-watch": "~0.5.3"
+    
   },
   "dependencies": {
     "underscore": "*",
@@ -40,7 +40,8 @@
     "log4js": "*",
     "continuation-local-storage": "~3.0.0",
     "hooks": "~0.3.2",
-    "shimmer": "~1.0.0"
+    "shimmer": "~1.0.0",
+    "traverse": "~0.6.6"
   },
   "author": "tjworks",
   "license": "MIT",
