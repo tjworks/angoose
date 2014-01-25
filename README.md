@@ -209,10 +209,10 @@ If your method has no asynchronous call and returns the data directly at the end
 
 Or if there is no data to return, just skip the `return` statement.
 
-If there is error during the method, you may simply throw an exception:
+If there is error during the method, you may return an error(avoid throw an error if possible):
 
 		if(!require("fs").existsSync(filename))
-			throw "File "+ filename+" does not exit.";
+			return new Error( "File "+ filename+" does not exit");
 
 **Method has async call** 
 

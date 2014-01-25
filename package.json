@@ -1,7 +1,7 @@
 {
   "name": "angoose",
   "version": "0.2.13",
-  "description": "Angoose allows you to seamlessly reuse the server side model(Mongoose model) in Angular",
+  "description": "Angoose is a Remote Method Invocation module that comes with built-in mongoose/angular support. Now you can call server side module in browser just like you're in the server side!",
   "main": "lib/angoose",
   "scripts": {
     "test": "test"
