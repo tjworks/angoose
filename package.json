@@ -37,7 +37,6 @@
     "q": "*",
     "express": "*",
     "log4js": "*",
-    "continuation-local-storage": "~3.0.0",
     "hooks": "~0.3.2",
     "shimmer": "~1.0.0",
     "traverse": "~0.6.6"

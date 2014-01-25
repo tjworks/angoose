@@ -12,7 +12,7 @@ var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
 var SampleUser = AngooseClient.getClass('SampleUser');  
 describe("Angoose Model Tests", function(){
-    xit("Test Dirty", function(done){
+    it("Test Dirty", function(done){
         
         util.addUser(SampleUser, function(err, user){
             console.log("user", user)
@@ -25,7 +25,7 @@ describe("Angoose Model Tests", function(){
         })
     });   
     
-    xit("Partial Loading", function(done){
+    it("Partial Loading", function(done){
         util.addUser(SampleUser, function(err, u){
             SampleUser.findOne({firstname: util.testuser.firstname}, 'firstname', function(err, user){
                 console.log("User", user);
@@ -37,7 +37,89 @@ describe("Angoose Model Tests", function(){
         });
         
     })
-   
+     it("Sample User Find", function(done){
+        var SSU = require(ROOT+ "/models/SampleUser");
+        
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass("SampleUser");
+        
+        expect(SampleUser.save).not.toBeTruthy()
+        expect(SampleUser.find).toBeTruthy()
+        expect(SampleUser.findOne).toBeTruthy()
+        
+        var suser = new SampleUser( userdata);
+        expect(suser.remove).toBeTruthy()
+        suser.save().done(function(res){
+                console.log("Expecting save OK: ", res);
+                
+                SSU.findById( suser._id ).exec(function(err, obj){
+                    console.log("server object find",err,  obj);
+                    
+                    SampleUser.findById( suser._id ).done(function(su){
+                        console.log("Expecting findById OK: ", su);
+                        done();
+                    }, function(err){
+                        console.log("Failed to find ", err);
+                        expect(err).toBe("OK");
+                        done();
+                    })
+                });
+                
+                // now trying to find one
+                //SampleUser.find()
+        })
+    });
+    
+   it("Sample User Save", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass("SampleUser");
+        
+        expect(SampleUser.save).not.toBeTruthy()
+        
+        var suser = new SampleUser( userdata);
+        expect(suser.remove).toBeTruthy()
+        suser.email = 'john@'
+        suser.save(function(err, res){  // can either user callback for promise
+            console.log("Expecting save error : ", err, res);
+            expect(err).toBeTruthy();
+            if(!err) return done();
+            err && expect(err.indexOf('email')).toBeGreaterThan(0);
+            suser = new SampleUser( userdata);
+            suser.save().done(function(res){
+                console.log("Expecting save OK: ", res);
+                SampleUser.find({email:suser.email}).done(function(su){
+                    console.log("Expecting find OK: ", su);
+                    expect(su && su.length).toBe(1)
+                    if(!su || !su.length) return done();
+                    var foundUser = su[0];
+                    foundUser.email = 'Invalid';
+                    foundUser.save(function(err, res){
+                        console.log("Expect saving invalid foundUser to fail:", err);
+                        expect(err).toBeTruthy();
+                        
+                        foundUser.remove().done(function(res){
+                            console.log("Expecting remove() to be OK:", res);
+                            done();
+                        }, function(er){
+                            console.log("Failed to remove", er);
+                            expect(err).toBe("OK");                        
+                        });    
+                    })
+                        
+                }, function(err){
+                    console.log("Failed to find ", err);
+                    expect(err).toBe("OK");
+                    done();
+                })
+                // now trying to find one
+                //SampleUser.find()
+                
+                
+            }, function(er){
+                console.log("Unexpected error: ", er);
+            })
+        })
+    });
     
 }); 
  

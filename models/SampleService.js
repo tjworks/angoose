@@ -7,7 +7,7 @@ var service = {
     testExecutionContext: function remote($callback){
         var self = this;
         var su = require("./SampleUser");
-        su.findOne(angoose.inContext(   function(err, res){
+        su.findOne(angoose.bind(   function(err, res){
                 var ctx = self.getContext();
                 console.log("In testExecutionContext "+ ctx.seqnum)
                 var req = ctx.getRequest();
@@ -17,7 +17,6 @@ var service = {
 }
 var SampleService = angoose.service('SampleService',  service);
 module.exports = SampleService;
-
 // static method
 SampleService.testPromiseReturn=function(){
     console.log("testPromiseReturn!");

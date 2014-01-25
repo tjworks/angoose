@@ -5,6 +5,7 @@ var fs = require("fs");
 var express = require("express");
 var request = require('request');
 var logging = require("log4js");
+var async = require("../lib/util/toolbox").async;
   
 var localStorage = require('continuation-local-storage');
 var session = localStorage.createNamespace('Session');
@@ -16,10 +17,26 @@ var Actual = util.Actual;
 var angoose = util.initAngoose();
 var clientSource = util.clientSource();
 
+
+var MyError = function(message, value){
+    this.name = 'My Error';
+    this.message = message;
+    this.value = value;
+}
+
+process.on('uncaughtException',function(e) {
+    var sys = require("sys");
+    sys.log(" Unhandled Error in local-storage test -----> : " + e.stack);
+    if(e instanceof MyError){
+        e.value();
+    }
+});
+
+
 var donedone = false;
 describe("Angoose Local Storage Tests", function(){
     xit("Test context", function(done){
-         // setup.js
+        // no longer use local-storage        
         for(var i=0;i<5;i++){
             console.log("setting up "+i)
             session.run(function(){
@@ -34,22 +51,8 @@ describe("Angoose Local Storage Tests", function(){
             done();
         }, 15)
     });
-    
-    xit("Execution Context", function(done){
-        console.log("Execution context test");
-        eval(clientSource);
-        var SampleService = AngooseClient.getClass("SampleService");
-        new SampleService().testExecutionContext().done(function(data){
-            console.log("Got context path", data)
-            expect(new Actual(data, "Execution context expecting 'testExecutionContext'  but got: "+ data)).toBe('testExecutionContext');
-            done();
-        }, function(err){
-            
-        })
-    });
-    
-    it("Test async context lost", function(done){
-        var async = require("../lib/util/toolbox").async;
+     xit("Test async context lost", function(done){
+        
         var fn = function(){
             var s = localStorage.getNamespace("Session2")
             expect(s.get("val")).toBe(1);
@@ -62,7 +65,23 @@ describe("Angoose Local Storage Tests", function(){
             var f = async(async(async(async(async(async(fn))))));
             async(async(async(f)))();
         })
-    })
+    });
+     
+    it("Execution Context", function(done){
+        console.log("Execution context test");
+        eval(clientSource);
+        var SampleService = AngooseClient.getClass("SampleService");
+        new SampleService().testExecutionContext().done(function(data){
+            console.log("Got context path", data)
+            expect(new Actual(data, "Execution context expecting 'testExecutionContext'  but got: "+ data)).toBe('testExecutionContext');
+            done();
+        }, function(err){
+            
+        })
+    });
+   
+    
+    
 }); 
 function setUp(val, func){
     session.set("count", val );
@@ -78,3 +97,4 @@ function doWork(){
         donedone = true;
     }             
 }
+

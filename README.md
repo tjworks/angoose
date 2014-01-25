@@ -61,7 +61,11 @@ Restart your server.
 
      <script src="/angoose/angoose-client.js"></script>
      
-Note the `/angoose/angoose-client.js` route will be handled by Angoose in the backend.  
+**NOTE**
+- The `/angoose/angoose-client.js` route will be handled by Angoose in the backend.
+- This file contains dynamic content based on your backend models. If you don't see updates in your client after changing backend, make sure no cache is in play. 
+
+  
 
 #### 4. In your main angular app, add `angoose-client` to your app module dependencies. For example:
 
@@ -314,7 +318,7 @@ This indicates the method should NOT be exported. It can only be invoked on the 
 #### Angoose Context
  
 Angoose supports an execution context feature that allows you to access some contextual state from any part of the code,
-as long as the code execution was originated by Angoose RMI handler. This is made possible by  npm module `continuation-local-storage` 
+as long as the code execution was originated by Angoose RMI handler. This is made possible by  node domain.  
 
 For each Angoose RMI invocation request, an unique Context object is created when Angoose starts handling. The context contains the request
 and response objects, as well as session and authenticated user info(TBD). The context can then be accessed by all the subsequent code paths, including in async callback functions.
@@ -327,9 +331,6 @@ To obtain the context, you may use one of following method:
 - Declare  `$context` as one of the arguments on your method, the context will be injected by Angoose.   
 
 See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for detailed API.  
-
-**NOTE**: The `continuation-local-storage` module has some known issues with Q and Mongo connections. If you're having problems with  `getContext()` method, 
-try to use the injection method(last one) to obtain the context, and try to use callback instead of Q when return value. See above disucssion about handling return value.   
 
 
 ## 6. References
