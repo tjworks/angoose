@@ -11,7 +11,7 @@ var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
   
 describe("Angoose Model Tests", function(){
-    xit("Test Dirty", function(done){
+    it("Test Dirty", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass('SampleUser');        
         util.addUser(SampleUser, function(err, user){
@@ -25,7 +25,7 @@ describe("Angoose Model Tests", function(){
         })
     });   
     
-    xit("Partial Loading", function(done){
+    it("Partial Loading", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass('SampleUser');
         util.addUser(SampleUser, function(err, u){
@@ -38,7 +38,7 @@ describe("Angoose Model Tests", function(){
         });
         
     })
-     xit("Sample User Find", function(done){
+    it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
         eval(clientSource);
@@ -71,7 +71,7 @@ describe("Angoose Model Tests", function(){
         })
     });
     
-   xit("Sample User Save", function(done){
+   it("Sample User Save", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         

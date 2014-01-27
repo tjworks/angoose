@@ -71,7 +71,7 @@ describe("Angoose Local Storage Tests", function(){
         console.log("Execution context test");
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
-        new SampleService().testExecutionContext().done(function(data){
+        SampleService.testExecutionContext().done(function(data){
             console.log("Got context path", data)
             expect(new Actual(data, "Execution context expecting 'testExecutionContext'  but got: "+ data)).toBe('testExecutionContext');
             done();

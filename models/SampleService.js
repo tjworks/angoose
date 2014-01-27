@@ -1,10 +1,10 @@
 var angoose = require("../lib/angoose");
 var Q = require("q");
-var service = {
-    listFavoriteDestinations: function(){
+var SampleService =  function(){};
+SampleService.listFavoriteDestinations= function(){
         return ["Paris", "Virgin Islands", "Antarctic"]
-    },
-    testExecutionContext: function remote($callback){
+    }
+SampleService.testExecutionContext= function remote($callback){
         var self = this;
         var su = require("./SampleUser");
         su.findOne(angoose.bind(   function(err, res){
@@ -13,10 +13,7 @@ var service = {
                 var req = ctx.getRequest();
                 $callback(false, req.params['method']);
         }))
-    }
 }
-var SampleService = angoose.service('SampleService',  service);
-module.exports = SampleService;
 // static method
 SampleService.testPromiseReturn=function(){
     console.log("testPromiseReturn!");
@@ -27,3 +24,4 @@ SampleService.testPromiseReturn=function(){
     })
     return out.promise;
 } 
+module.exports = angoose.module('SampleService',  SampleService);

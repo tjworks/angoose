@@ -48,8 +48,8 @@ Assuming you already have an express server/app file, you just need to add follo
 
 	/** Angoose bootstraping */
     require("angoose").init(app, {
-       modelDir: './models',
-       mongo_opts: 'localhost:27017/test'
+       'module-dirs':/models,
+       'mongo-opts': 'localhost:27017/test',
     });
 
 Here we assume your Mongoose model files are defined under `models` sub directory relative to the current dir where you start your app. 
@@ -102,8 +102,7 @@ just delcare them in the function argument list(We're using `SampleUser` as exam
 		});
 
 		newUser.email = 'test@google.com';
-		/** here we are using Q's promise, an alternate to callback function */
-		newUser.save().done(function(result){
+		newUser.save(function(err, result){
 			/** result is undefined since model.save() does not return value */
 			console.log(newUser._id);  // print out: _id value
 			newUser.remove(); // remove this user from database
@@ -116,7 +115,7 @@ just delcare them in the function argument list(We're using `SampleUser` as exam
 
 If you don't use angular, then you just need to include jQuery before the angoose-client.js. Then instead of step 4 & 5, you could simply do:
 
- 		var SampleUser = AngooseClient.getClass('SampleUser');
+ 		var SampleUser = angoose('SampleUser'); // lookup SampleUser module, this is same as angoose.module('SampleUser')
  		// get one user
 		var sampleUser = SampleUser.findOne({'email':'xxx@yyy.com'}, function(err, user ){  
 			sampleUser.firstname='Gaelyn';
@@ -136,18 +135,20 @@ reside in the browser! See diagram below for a depiction of the RMI process.
 ![Angoose Remote Method Invocation](https://www.lucidchart.com/publicSegments/view/52dbe203-1508-4b43-b6cb-5c020a00d361/image.png)
 	 
 
-## 4. Models and Services
+## 4. Angoose Module
 ==========================
 
 Wah, you say, so I can use every NPM module out there in my front end? 
 
-Unfortunately, no. Server side modules will not be automatically become avaialbe to the client side. Not until you register your module as one of the `Model` or `Service` class. 
-Note by saying "class" it really is a constructor function in Javascript.
+Unfortunately, no. Server side modules will not be automatically become avaialbe to the client side. And really you only want to make those modules with database/filesystem or other 
+external IO operations available to the front end. For instance, Mongoose models or other database oriented service modules are good usa case of Angoose modules.
 
-- A `Model` currently means a Mongoose model(not Mongoose schema, but the return value of `mongoose.model()` call). Mongoose models are automatically registered as Angoose Model. 
-- A `Service` is just a plain constructor function.  You must call `angoose.service('ServiceName', serviceFunc)` to register with Angoose.  
+Only modules registered with Angoose will be exported to client side(hence the term `angoose module`). To register a module:
 
-All the model or service files must be located under one of the directories specified by `modeldir` option used when init Angoose. `modirDir` accepts string or array of directory names. 
+- For Mongoose models, just make sure you set your `module.exports` to the return value of `mongoose.model()` call. 
+- For other modules, call `angoose.module(name, func_or_object)` to register your service module. (angoose.service() is still supported and does same thing)
+
+And for either case, make sure Angoose knwo where to find your model files by using the `modelDir` configuration.
 
 There are a couple of exmaples under `angoose/models` directory for reference. 
 
@@ -169,18 +170,16 @@ Note not all Mongoose model functionalities are exported yet. Following are a li
 - update
 - remove
 - count
-
-Some notes about using these Mongoose API:
-
-- Most of the Mongoose model methods accepts a callback function with two arguments: err and result, you can continue to use this. 
-- If no callback function provided, then a [Q promise](https://github.com/kriskowal/q) is returned on which you can call the success handler and error handler using its `done` API. 
-- Mongoose `query` is NOT supported in the client side. i.e., if you do not provide callback, the `exec` will still be automatically called for you and return the results via the Q promise. 
-In Mongoose it will return a `query` object with with which you can chain your requests. This may be supported in the future.  
+- geoNear
+- geoSearch
 
 
+**NOTE** 
 
+You must supply a callback for most of these Mongoose model methods. Mongoose `query` is NOT supported in the client side yet. On the server side, Mongoose allows you to call
+these methods without a callback function and it will return a `Qeury` instance to facilitate chaining. This may be changed in the future.  
 
-In addition, following are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
+In addition, there are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
 a reference to the empty object/list. This way you don't need to use callback.  The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of methods takes parameters similar
 to the Mongoose find() method.
   
@@ -192,10 +191,6 @@ to the Mongoose find() method.
 **Custom Methods on Mongoose Models**
 
 Any methods you defined in the Mongoose schema(whether static or instance) will be treated as remotable method and automatically exported to client.  
-
-#### About Services
-
-See [Service](http://tjworks.github.io/angoose/docs/Service.html)
 
 
 ## 5. Writting a Remotable Method
@@ -220,34 +215,20 @@ If there is error during the method, you may return an error(avoid throw an erro
 
 **Method has async call** 
 
-When you have async call in your method, you can no longer directly return the results or report an error if it occurred from callback handler.  In this case, you must use
-one of the `$callback`, an injected callback handler or by using Q promise.
-
-Example of using `$callback`: 
-
+When you have async call in your method, you can no longer directly return the results or report an error if it occurred from callback handler.  In this case, you must declare
+a callback function as your last function argument:
+ 
 	/** MyService is an Angoose Service */
+	var MyService = function(){}
 	MyService.geocoding = function(address, $callback){ 
-		/** note 2nd argument $callback, angoose will inject this callback handler, you can you provide yourself if called from server side */
+		/** note 2nd argument $callback. 
 		var googleApi = require("google-geo-api");
 		googleApi.lookup( address, function( err, matchedAddresses){
 			if(err)  $callback(err);
 			else $callback(false, matchedAddresses[0]); /** $callback takes two arguments: err, result */
 		});
 	} 
-
-Example of using Q promise:
-
-	/** MyService is an Angoose Service */
-	MyService.geocoding = function(address){  
-		var googleApi = require("google-geo-api");
-		var deferred = require('angoose').defer(); /** convenience wrapper for Q.defer() */ 
-		googleApi.lookup( address, function( err, matchedAddresses){
-			if(err)  deferred.reject(err);
-			else deferred.resolve(matchedAddresses[0]); 
-		});
-		return deferred;
-	} 
-
+	module.exports = angoose.module("MyService", MyService);
 
 
 #### Specifying Method Type
@@ -326,8 +307,6 @@ and response objects, as well as session and authenticated user info(TBD). The c
 To obtain the context, you may use one of following method:
 
 - `angoose.getContext()`
-- `MyModel.getContext()`
-- `myModelInstance.getContext()`  
 - Declare  `$context` as one of the arguments on your method, the context will be injected by Angoose.   
 
 See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for detailed API.  
@@ -337,7 +316,5 @@ See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for d
 =====================
   
 - [Angoose](http://tjworks.github.io/angoose/docs/angoose.html)
-- [Model](http://tjworks.github.io/angoose/docs/Model.html)
-- [Service](http://tjworks.github.io/angoose/docs/Service.html)
 - [Context](http://tjworks.github.io/angoose/docs/Context.html)
 

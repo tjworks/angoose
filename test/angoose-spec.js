@@ -29,7 +29,7 @@ describe("Angoose Server Tests", function(){
             done();
         });
     }); 
-       it("Static method", function(done){
+      it("Static method", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
@@ -41,7 +41,7 @@ describe("Angoose Server Tests", function(){
       it("Sample Service", function(done){
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
-        new SampleService().listFavoriteDestinations().done(function(places){
+        SampleService.listFavoriteDestinations().done(function(places){
             console.log("Places", places);
             expect(places[0]).toBe("Paris");
             done();
@@ -88,7 +88,7 @@ describe("Angoose Server Tests", function(){
      it("Test Promise", function(done){
         eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
-        SampleService.testPromiseReturn(function(err, res){
+        SampleService.testPromiseReturn().done(function(res){
             expect(res).toBe("PromiseOK");
             done();
         })

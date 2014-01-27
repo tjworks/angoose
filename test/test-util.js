@@ -17,7 +17,7 @@ var Actual = jasmine.customMessage.Actual;
 var configs = {
     modelDir: ROOT+'/models',
     clientFile: clientfile,
-    urlPrefix: '/angoose',
+    'urlPrefix': '/angoose',
     httpPort: 9988,
     mongo_opts:'localhost:27017/test'
 }; 

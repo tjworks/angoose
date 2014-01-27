@@ -12,7 +12,7 @@ describe("Angoose Service Tests", function(){
     it("Sample Service Schema", function(done){
         var SampleService = angoose.getClass("SampleService");
         console.log("SCHEMA", SampleService.getSchema());
-        var places = new SampleService().listFavoriteDestinations();
+        var places =   SampleService .listFavoriteDestinations();
         console.log("Places", places);
         expect(new Actual(places[0], "SampleService.listFavoriteDestination failed")).toBe("Paris");
         done();

@@ -37,8 +37,7 @@ describe("Hooks  Tests", function(){
          });  
          
     }); 
-    
-    xit("try wrapper test", function(done){
+    it("try wrapper test", function(done){
         function fn(a){
             console.log("in function fn, going to throw", a);
             throw("bad girl")
@@ -57,7 +56,6 @@ describe("Hooks  Tests", function(){
         }
         
         trywrapper(fn)('hello');
-        
     })
     xit("Hook sequence", function(done){
         var flag = 'init';
@@ -85,8 +83,8 @@ describe("Hooks  Tests", function(){
             done();    
         });
     })
+    
 });
-
 
 function getInitHook(){
     return {
@@ -118,3 +116,4 @@ function getSecondHook(){
         }
     }
 }
+
