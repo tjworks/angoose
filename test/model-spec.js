@@ -7,13 +7,13 @@ var traverse = require("traverse");
 var angoose = util.initAngoose();
 require("jasmine-custom-message");
 var clientSource = util.clientSource();
-eval(clientSource);
 var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
-var SampleUser = AngooseClient.getClass('SampleUser');  
+  
 describe("Angoose Model Tests", function(){
-    it("Test Dirty", function(done){
-        
+    xit("Test Dirty", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass('SampleUser');        
         util.addUser(SampleUser, function(err, user){
             console.log("user", user)
             var lastname = "User"+new Date().getTime();
@@ -25,7 +25,9 @@ describe("Angoose Model Tests", function(){
         })
     });   
     
-    it("Partial Loading", function(done){
+    xit("Partial Loading", function(done){
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass('SampleUser');
         util.addUser(SampleUser, function(err, u){
             SampleUser.findOne({firstname: util.testuser.firstname}, 'firstname', function(err, user){
                 console.log("User", user);
@@ -33,11 +35,10 @@ describe("Angoose Model Tests", function(){
                 expect(user.lastname).toBeUndefined();
                 done()        
             })
-            
         });
         
     })
-     it("Sample User Find", function(done){
+     xit("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
         eval(clientSource);
@@ -70,7 +71,7 @@ describe("Angoose Model Tests", function(){
         })
     });
     
-   it("Sample User Save", function(done){
+   xit("Sample User Save", function(done){
         eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         
@@ -121,5 +122,31 @@ describe("Angoose Model Tests", function(){
         })
     });
     
+     
+    it("validation error test", function(done){
+        console.log("validation error tests");
+        eval(clientSource);
+        var SampleUser = AngooseClient.getClass("SampleUser");
+        var suser = new SampleUser( userdata);
+        suser.email = 'john@test.org'
+        suser.save(function(err, res){
+            console.log("Office save result", err);
+            expect(err +" clientside").toContain("don't like");
+            setTimeout(done, 500)
+        })
+    });
+
+    it("validation error test backend only", function(done){
+        console.log("validation error tests");
+        var SampleUser = angoose.getClass("SampleUser");
+        var suser = new SampleUser( userdata);
+        suser.email = 'john@test.org'
+        suser.save(function(err, res){
+            console.log("Office save result", err);
+            expect(err +" backedn").toContain("don't like");
+            done();
+        })
+    });
+
 }); 
  

@@ -51,3 +51,13 @@ SampleSchema.statics.checkExists = function(email){
 var SampleUser = mongoose.model('SampleUser', SampleSchema);
 module.exports = SampleUser;
 
+SampleSchema.path('email').validate(function(value, respond){
+    console.log("##### in sample user custom validator")
+    if(value && value.indexOf(".org")>0){
+        process.nextTick(function(){
+            respond(false)    
+        })
+    }
+    else
+        respond(true);
+}, "I don't like .org emails")
