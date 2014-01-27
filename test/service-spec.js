@@ -17,12 +17,19 @@ describe("Angoose Service Tests", function(){
         expect(new Actual(places[0], "SampleService.listFavoriteDestination failed")).toBe("Paris");
         done();
     });
-     it("Create service class", function(){
+    it("Create service class", function(){
        var obj = angoose.service('Testie', {
            testme: function(){ return 'hello' }
        });
        var clz = angoose.getClass('Testie');
-       expect( new Actual(new clz().testme(), "class should be Service, but got "+ clz)).toBe("hello"); 
+       expect( new Actual(new clz().testme(), "Register object as service failed")).toBe("hello"); 
     });
     
+    it("Create service ", function(){
+        var func = function(){ console.log("testie2")}
+        func.testme2 = function(){ return 'hello2'};
+       var obj = angoose.module('Testie2',  func);
+       var clz = angoose.module('Testie2'); 
+       expect( new Actual( clz.testme2(), "Register function as a service failed")).toBe("hello2"); 
+    });
 }); 
