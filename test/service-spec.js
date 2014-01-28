@@ -25,11 +25,18 @@ describe("Angoose Service Tests", function(){
        expect( new Actual(new clz().testme(), "Register object as service failed")).toBe("hello"); 
     });
     
-    it("Create service ", function(){
+    it("Create service class using module", function(){
         var func = function(){ console.log("testie2")}
-        func.testme2 = function(){ return 'hello2'};
+        func.testme = function(){ return 'hello2'};
        var obj = angoose.module('Testie2',  func);
-       var clz = angoose.module('Testie2'); 
-       expect( new Actual( clz.testme2(), "Register function as a service failed")).toBe("hello2"); 
+       var clazz = angoose.module('Testie2'); 
+       expect( new Actual( clazz.testme(), "Register function as a service failed")).toBe("hello2"); 
+    });
+    
+    it("Create service object using module", function(){
+        var service =   { testme: function(){ return 'hello2'} };
+       var obj = angoose.module('Test3',  service);
+       var clazz = angoose.module('Test3'); 
+       expect( new Actual( clazz.testme(), "Register function as a service failed")).toBe("hello2"); 
     });
 }); 
