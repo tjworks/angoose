@@ -23,14 +23,7 @@ var MyError = function(message, value){
     this.message = message;
     this.value = value;
 }
-
-process.on('uncaughtException',function(e) {
-    var sys = require("sys");
-    sys.log(" Unhandled Error in local-storage test -----> : " + e.stack);
-    if(e instanceof MyError){
-        e.value();
-    }
-});
+ 
 
 
 var donedone = false;
