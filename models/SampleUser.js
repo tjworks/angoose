@@ -6,6 +6,7 @@ var SampleSchema = mongoose.Schema({
         lastname: {type: String, required:true },
         status: {type: String, enum: ['inactive', 'active', 'disabled', 'archived'], required:true, def:'inactive' },
         password: { type:String },
+        verified: Boolean,
         groupRef: {type: mongoose.Schema.Types.ObjectId, ref: 'SampeUserGroup'}
     },
     {
@@ -17,7 +18,7 @@ var sampleUserData = {
     firstname:'Gaelyn', 
     lastname:'Hurd',
     status:'active',
-    email: 'gaelyn@hurd.com'
+    email: 'gaelyn@hurd.com',
 };
 
 SampleSchema.methods.getFullname= function portable(){

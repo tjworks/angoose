@@ -6,13 +6,14 @@ var util = require("./test-util");
 var traverse = require("traverse");
 var angoose = util.initAngoose();
 require("jasmine-custom-message");
-var clientSource = util.clientSource();
 var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
-  
+
+
 describe("Angoose Model Tests", function(){
+    
+    var AngooseClient = util.angooseClient();
     it("Test Dirty", function(done){
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass('SampleUser');        
         util.addUser(SampleUser, function(err, user){
             console.log("user", user)
@@ -26,7 +27,6 @@ describe("Angoose Model Tests", function(){
     });   
     
     it("Partial Loading", function(done){
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass('SampleUser');
         util.addUser(SampleUser, function(err, u){
             SampleUser.findOne({firstname: util.testuser.firstname}, 'firstname', function(err, user){
@@ -41,7 +41,6 @@ describe("Angoose Model Tests", function(){
     it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         
         expect(SampleUser.save).not.toBeTruthy()
@@ -72,7 +71,6 @@ describe("Angoose Model Tests", function(){
     });
     
    it("Sample User Save", function(done){
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         
         expect(SampleUser.save).not.toBeTruthy()
@@ -125,7 +123,6 @@ describe("Angoose Model Tests", function(){
      
     it("validation error test", function(done){
         console.log("validation error tests");
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
         suser.email = 'john@test.org'

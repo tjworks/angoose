@@ -6,7 +6,7 @@ var fs = require("fs");
 var express = require("express");
 var request = require('request');
 require("jasmine-custom-message");
-var clientfile =  './build/generated-client.js';
+var clientfile =  ROOT+'/build/generated-client.js';
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
 logger.setLevel(logging.levels.DEBUG);
@@ -16,7 +16,7 @@ var Actual = jasmine.customMessage.Actual;
 
 var configs = {
     modelDir: ROOT+'/models',
-    clientFile: clientfile,
+    'client-file': clientfile,
     'urlPrefix': '/angoose',
     httpPort: 9988,
     mongo_opts:'localhost:27017/test'
@@ -36,16 +36,20 @@ function unloadAngoose(){
     delete require.cache[name];
 }
 
-function initAngoose(app, opts){
+function initAngoose(app, opts, force){
     angoose = require("../lib/angoose");
     configs = _.extend(configs, (opts|| {}))
-    angoose.init(app, configs)
+    angoose.init(app, configs, force)
     return angoose;
 }
 module.exports = {
     
     clientSource: function(){
-        return angoose.generateClient();
+        return "AngooseClient=angoose.client();"
+    },
+    angooseClient: function(){
+        initAngoose();
+        return require( configs['client-file']);
     },
     testuser:userdata,
     initAngoose: initAngoose,
@@ -55,7 +59,6 @@ module.exports = {
     unloadAngoose:unloadAngoose
 
 }
-
 
 module.exports.addUser = function(SampleUser, cb){
     SampleUser.findOne({email: userdata.email}, function(err, res){

@@ -11,15 +11,15 @@ var logger = logging.getLogger('angoose');
 var util = require("./test-util");
 var Actual = util.Actual;
 
-var angoose = util.initAngoose();
+
 //require("./server"); //.startServer(configs);
 var userdata =  util.testuser;
+console.log("****** TEST: angoose-spec ***** ");
 
-var clientSource = util.clientSource();
 describe("Angoose Server Tests", function(){
-     
-       it("Dependency injection", function(done){
-        eval(clientSource);
+     var angoose = util.initAngoose();
+     var AngooseClient = util.angooseClient();
+    it("Dependency injection", function(done){
         var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
         suser.setPassword('abc').done(function(res){
@@ -30,7 +30,6 @@ describe("Angoose Server Tests", function(){
         });
     }); 
       it("Static method", function(done){
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
             console.log("Done done", arguments);
@@ -39,7 +38,6 @@ describe("Angoose Server Tests", function(){
         });
     }); 
       it("Sample Service", function(done){
-        eval(clientSource);
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.listFavoriteDestinations().done(function(places){
             console.log("Places", places);
@@ -48,7 +46,6 @@ describe("Angoose Server Tests", function(){
         });
     });
      it("Sample User Groups", function(done){
-        eval(clientSource);
         var SampleUser = AngooseClient.getClass("SampleUser");
         var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
         var group = new SampleUserGroup({
@@ -83,16 +80,13 @@ describe("Angoose Server Tests", function(){
     });
       
     
-    
-    
-     it("Test Promise", function(done){
-        eval(clientSource);
+    it("Test Promise", function(done){
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.testPromiseReturn().done(function(res){
             expect(res).toBe("PromiseOK");
             done();
         })
     })
+   
 });
-
  
