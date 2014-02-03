@@ -14,7 +14,7 @@ var util = require("./test-util");
 var Actual = util.Actual;
 
 var angoose = util.initAngoose();
-var clientSource = util.clientSource();
+AngooseClient = util.angooseClient();
 
 var MyError = function(message, value){
     this.name = 'My Error';
@@ -81,7 +81,7 @@ describe("Angoose Local Storage Tests", function(){
       
     it("Execution Context", function(done){
         console.log("Execution context test");
-        eval(clientSource);
+        
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.testExecutionContext().done(function(data){
             console.log("Got context path", data)
