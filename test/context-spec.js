@@ -8,24 +8,110 @@ var logging = require("log4js");
 var async = require("../lib/util/toolbox").async;
 var _ = require("underscore");
   
-
-
 var util = require("./test-util");
 var Actual = util.Actual;
-
-var angoose = util.initAngoose();
-AngooseClient = util.angooseClient();
 
 var MyError = function(message, value){
     this.name = 'My Error';
     this.message = message;
     this.value = value;
 };
-
 var donedone = false;
 var mongoose = require("mongoose")
-var SampleUser =  mongoose.model('SampleUser');
-describe("Angoose Local Storage Tests", function(){
+
+var angoose = util.initAngoose();
+xdescribe("Context with Mongoose parallel hooks", function(){
+    // this cannot be run with other tests for now
+    var testSchema = mongoose.Schema({
+        name:String
+    });
+    testSchema.pre('save', true,  function(  next, done){
+        next();
+       angoose.getContext()
+       console.log("CONTEXT 2 OK");
+       angoose('TestUser').findOne({x:1}, function(err, re){
+            angoose.getContext()
+            console.log("CONTEXT 2.1 OK");
+            done();    
+       });
+    });
+    testSchema.pre('save', true, function(next, done){
+       next();
+       angoose.getContext()
+       console.log("CONTEXT 3 OK"  );
+       angoose('TestUser').findOne({x:2},   angoose.inContext( function(err, re){
+            angoose.getContext()
+            console.log("CONTEXT 3.1 OK");
+            done();    
+       })); 
+    });
+    angoose.module('TestUser', mongoose.model('TestUser', testSchema));
+    
+    it("Parallel hooks", function(done){
+        var TestUser = angoose.client(true).module("TestUser");
+        var su = new TestUser({ name: 'Gaelyn' });
+        su.save(function(err, data){
+            expect(err).toBeFalsy();
+            console.log("Got Result", err, data, su)
+            done(); 
+            // TestUser.remove({}, {multi:true}, function(){
+                // done();
+            // })
+        });
+    });
+    
+});
+xdescribe("Context with simple Mongoose hooks", function(){
+    var testSchema = mongoose.Schema({
+        name:String
+    });
+    testSchema.pre('save',   function(  next){
+       angoose.getContext();
+       console.log("CONTEXT 1 OK");
+       angoose('TestUser2').findOne({x:11}, function(err, re){
+            angoose.getContext();
+            console.log("CONTEXT 1.1 OK"); 
+            next();    
+       });
+    }); 
+    angoose.module('TestUser2', mongoose.model('TestUser2', testSchema));
+    
+    it("Simple Mongoose hooks", function(done){
+        var TestUser = angoose.client(true).module("TestUser2");
+        var su = new TestUser({ name: 'Gaelyn' });
+        su.save(function(err, data){
+            expect(err).toBeFalsy();
+            console.log("Got Result", err, data, su)
+            done(); 
+            // TestUser.remove({}, {multi:true}, function(){
+                // done();
+            // })
+        });
+    });
+    
+});
+describe("Context with nested mongoose callback", function(){
+    it("Nested callback test", function(done){
+        var TestUser = angoose.client(true).module("SampleUser");
+        TestUser.findOne({x:100}, function(err, u){
+            angoose.testContext("Callback 1")
+            mongoose.model("SampleUser").findOne({x:200}, function(err, u){
+                angoose.testContext("Callback 2")
+                angoose.getContext();
+                expect(err).toBeFalsy();
+                mongoose.model("SampleUser").findOne({x:300}, function(err, u){
+                    angoose.testContext("Callback 3")
+                    angoose.getContext();
+                    expect(err).toBeFalsy();
+                    done();
+                })
+            })
+        })
+    });
+    
+});
+describe("Angoose Context Tests", function(){
+    var SampleUser =  mongoose.model('SampleUser');
     var user = null;
     beforeEach(function(done){
         util.addUser(SampleUser, function(err, u){
@@ -33,7 +119,7 @@ describe("Angoose Local Storage Tests", function(){
             done();
         });
     });
-    it("MongoDB callback domain bind test", function(done){
+    xit("MongoDB callback domain bind test", function(done){
         
         //console.log("MyService", angoose.module('MyService'));
         var invocation = {
@@ -82,7 +168,7 @@ describe("Angoose Local Storage Tests", function(){
     it("Execution Context", function(done){
         console.log("Execution context test");
         
-        var SampleService = AngooseClient.getClass("SampleService");
+        var SampleService = angoose.client().module("SampleService");
         SampleService.testExecutionContext().done(function(data){
             console.log("Got context path", data)
             expect(new Actual(data, "Execution context expecting 'testExecutionContext'  but got: "+ data)).toBe('testExecutionContext');
