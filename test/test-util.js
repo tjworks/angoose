@@ -19,6 +19,7 @@ var configs = {
     'client-file': clientfile,
     'urlPrefix': '/angoose',
     httpPort: 9988,
+    logging:'DEBUG',
     mongo_opts:'localhost:27017/test'
 }; 
 
