@@ -18,16 +18,20 @@ module.exports = {
 
 function preAuth(next){
     logger().trace("in preAuth", session().$authenticatedUser);
-    if(session().$authenticatedUser){
-        logger().trace("Found user in session",     session().$authenticatedUser );
+    var authUser = session().$authenticatedUser;
+    if(authUser){
+        logger().trace("Found user in session",    authUser);
         //angoose.getContext().setUser( session().$authenticatedUser );
-        angoose.getContext().setPrincipal( new angoose.Principal( session().$authenticatedUser.userId, session().$authenticatedUser.roles) );
+        angoose.getContext().setPrincipal( new angoose.Principal( authUser.userId, authUser.roles) );
     }  
+    else{
+        angoose.getContext().setPrincipal( new angoose.Principal( 'guest', 'guest' ));
+    }
     next();
 };
 function logger(){
-    var extensionOptions = angoose.config()[EXTENSION]  ;
-    angoose.getLogger('angoose-authorization').setLevel( extensionOptions.logging || 'INFO');
+    var extensionOptions = angoose.config()[EXTENSION] ;
+    angoose.getLogger('angoose-authorization').setLevel((extensionOptions && extensionOptions.logging) || 'INFO');
     return angoose.getLogger('angoose-authorization')
 }
 function postAuth(next, allowed){
@@ -35,9 +39,13 @@ function postAuth(next, allowed){
    
    var ctx = angoose.getContext();
    var invocation = ctx.getInvocation();
-   var user = ctx.getPrincipal() || {};
-   var superuser =(  extensionOptions && extensionOptions.superuser) || 'admin';
+   var user = ctx.getPrincipal();
+   
+   /** admin user bypass */
+   var superuser =  extensionOptions && extensionOptions.superuser 
    if(user.getUserId() ===  superuser ) return next(false, true); // always allow super user admin
+   var superrole = ( extensionOptions && extensionOptions.superrole ) || 'admin';
+   if(user && user.getRoles().indexOf(superrole) >=0) return next(false, true);
    
    logger().trace("in auth.postAuth:", invocation.clazz, invocation.method);
    if(invocation.method == 'signin' || invocation.method=="signout") return next(false, true);
@@ -45,7 +53,6 @@ function postAuth(next, allowed){
    var mod = angoose.module( invocation.clazz );
    var category = mod.config(EXTENSION +".category") || invocation.clazz;
    var group = toolbox.camelcase(getGroup(mod, invocation.method)) || invocation.method;
-   
    
    var allowed = isAllowed( category +"."+ group, user.getRoles(), function(allowed){
        logger().trace("isAllowed: ", category, group, allowed);
@@ -108,10 +115,10 @@ function getGroup(module, methodName){
      if(!grp && isModel(module)){
          //populate,find,findOne,findById,findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate,update,remove,count,geoNear,geoSearch,aggregate
          // mongoose groups:  View, Modify, Create, Remove
-         if('populate,find,findOne,findById,geoNear,geoSearch,aggregate,count,'.indexOf(methodName)>=0) return 'view';
-         if('update,save'.indexOf(methodName  )>=0) return 'modify';
-         if('remove'.indexOf(methodName )>=0) return 'delete';
-         if('create'.indexOf(methodName  )>=0) return 'create';
+         if('populate,find,findOne,findById,geoNear,geoSearch,aggregate,count,'.indexOf(methodName)>=0) return 'View';
+         if('update,save'.indexOf(methodName  )>=0) return 'Modify';
+         if('remove'.indexOf(methodName )>=0) return 'Delete';
+         if('create'.indexOf(methodName  )>=0) return 'Create';
          if('findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate'.indexOf(methodName) >=0) return "find-and-modify"
      }
      return grp
