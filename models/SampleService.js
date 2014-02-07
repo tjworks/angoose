@@ -23,5 +23,10 @@ SampleService.testPromiseReturn=function(){
         out.resolve("PromiseOK");
     })
     return out.promise;
+}
+
+SampleService.testErrorBack = function($callback){
+    console.log("In testErrorCallback");
+    $callback("Error in testError");
 } 
 module.exports = angoose.module('SampleService',  SampleService);

@@ -32,19 +32,18 @@ describe("Angoose Remotable Tests", function(){
        expect( new Actual(clz, "class should be Service, but got "+ clz)).toBe("Service"); 
     });
     
-    it("Automatic registering", function(){
-        angoose.Service.extend({}, {name:'Testie'});
-        var clz = angoose.getClass("Testie")
-        console.log(clz, "CLZ")
-        var name = clz&& clz._angoosemeta && clz._angoosemeta.name;
-        expect( new Actual(name, "Service Testie not found in registry " + name)).toBe("Testie");
-    });
+    // xit("Automatic registering", function(){
+        // angoose.Service.extend({}, {name:'Testie'});
+        // var clz = angoose.getClass("Testie")
+        // console.log(clz, "CLZ")
+        // var name = clz&& clz._angoosemeta && clz._angoosemeta.name;
+        // expect( new Actual(name, "Service Testie not found in registry " + name)).toBe("Testie");
+    // });
     it("getContext on mongoose model", function(){
         var clz = angoose.getClass("SampleUser")
         var user = new clz({
             email:'hello@he.com'
         });
-        expect( new Actual(user.getContext, "Mongoose model should have getContext instance method")).toBeTruthy();
         expect( new Actual(clz.getContext, "Mongoose model should have getContext static method")).toBeTruthy();
     });
 }); 

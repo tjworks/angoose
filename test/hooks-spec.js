@@ -24,6 +24,9 @@ function doTests(){
     describe("Hooks Sequence Tests", function(){
         console.log("****** TEST: sequence-test starts ***** ");
         var flag = 'init';
+        beforeEach(function(){
+            flag = 'init';
+        })
         var hk = {
                 name:'sequence-tester',
                 preAuthorize: function(next){
@@ -37,6 +40,10 @@ function doTests(){
                     expect(flag).toBe("preauthorize")
                     flag='postauthorize';
                     next( false, true );
+                },
+                postInvoke: function(next){
+                    console.log("POST INVOKE", arguments);
+                    next();
                 }
             }
         
@@ -47,11 +54,19 @@ function doTests(){
             var SU =  angoose.client().module('SampleUser');
             SU.findOne(function(err, u){
                 expect(flag).toBe('postauthorize');
-                util.angooseOpts.extensions = null;        
-                util.initAngoose(null, util.angooseOpts, true);
                 done();    
             });
         });
+        
+        it("Post Hook with error", function(done){
+            var SS =  angoose.client().module('SampleService');
+            SS.testErrorBack(function(err, u){
+                console.log("post hook", err, u)
+                expect(err).toBeTruthy();
+                done();    
+            });
+        });
+        
         
          xit("hooks registration", function(done){
             var angoose = util.initAngoose(null, {
