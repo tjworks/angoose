@@ -54,7 +54,12 @@ function postAuth(next, allowed){
    var category = mod.config(EXTENSION +".category") || invocation.clazz;
    var group = toolbox.camelcase(getGroup(mod, invocation.method)) || invocation.method;
    
-   var allowed = isAllowed( category +"."+ group, user.getRoles(), function(allowed){
+    var roles = user.getRoles() ? user.getRoles(): [];
+    roles = Array.isArray(roles)? roles: [ roles ];
+    if(roles.indexOf('guest') <0) roles.push('guest');
+    if(roles.indexOf('authenticated') <0) roles.push('authenticated');
+   
+   var allowed = isAllowed( category +"."+ group, roles, function(allowed){
        logger().trace("isAllowed: ", category, group, allowed);
         next(null, allowed);    
    });
@@ -66,10 +71,6 @@ function redact(next){
 };
 function isAllowed(action, roles, callback){
     logger().trace("Checking ", roles, " for action", action);
-    roles = roles ? roles: [];
-    roles = Array.isArray(roles)? roles: [ roles ];
-    if(roles.indexOf('guest') <0) roles.push('guest');
-    
     getMatrix(function(perms){
         for(var i=0;i<roles.length;i++){
             var permissions =  perms &&  perms[ roles[i] ];
