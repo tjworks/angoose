@@ -189,7 +189,7 @@ function postInvoke(next, data){
     if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next(false, data);
     logger().debug("Intercepting login methods", invocation.method, data);
     if(!data || !data.userId  )
-        return next();
+        return next(false, data);
     if(invocation.method == 'signin'){
         angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
         logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
