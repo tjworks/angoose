@@ -16,44 +16,60 @@ var userdata =  util.testuser;
 // these tests cannot be run together with others 
 console.log("****** TEST: hooks-spec ***** ");
 var angoose = require("../lib/angoose");
+
 if(!angoose.initialized){
     doTests();
 }
 function doTests(){   
-    
+ 
     describe("Hooks Sequence Tests", function(){
         console.log("****** TEST: sequence-test starts ***** ");
-        var flag = 'init';
+        var flag = {};
         beforeEach(function(){
-            flag = 'init';
+            flag = {};
         })
         var hk = {
                 name:'sequence-tester',
-                preAuthorize: function(next){
-                    console.log("in preAuthorize hook")
-                    expect(flag).toBe("init")
-                    flag='preauthorize'; 
+                preAuthorize: function(next, invocation, callback){
+                    console.log("in preAuthorize hook", arguments)
+                    //expect(flag).toBe("init")
+                    flag.hook = 'pre';
                     next();
                 },
-                postAuthorize: function(next, allowed){
-                    console.log("in postAuthorize hook, allowed?", allowed);
-                    expect(flag).toBe("preauthorize")
-                    flag='postauthorize';
-                    next( false, true );
+                postAuthorize: function(next, invocation, callback){
+                    console.log("in postAuthorize hook", arguments);
+                    // why post hook is receiving the invocation arguments?
+                    //expect(flag).toBe("preauthorize")
+                    flag.hook = 'post';
+                    flag.postauth = invocation.method;
+                    //next(new Error("post bad"));
+                    next();
                 },
                 postInvoke: function(next){
-                    console.log("POST INVOKE", arguments);
+                    //console.log("POST INVOKE", arguments);
                     next();
                 }
             }
         
-        util.angooseOpts.extensions = hk;
+        util.angooseOpts.extensions = [hk , 'angoose-mongoose'];
         angoose = util.initAngoose(null, util.angooseOpts, true);
         
+        // IMPORTANT: post hooks will be bypassed if main method returns error
+        // IMPORTANT: post hooks will be called with main method arguments if no error
+        // hooks must return new Error() to report error 
+        // 
+        it("PostHooks with arguments", function(done){
+            var service =  angoose.client().module('SampleService');
+            service.listFavoriteDestinations(function(err, places){
+                console.log("places", err, places);
+                expect(flag.postauth).toBe('listFavoriteDestinations');
+                done();    
+            });
+        });
         it("Hook sequence", function(done){
             var SU =  angoose.client().module('SampleUser');
             SU.findOne(function(err, u){
-                expect(flag).toBe('postauthorize');
+                expect(flag.hook).toBe('post');
                 done();    
             });
         });
@@ -66,64 +82,10 @@ function doTests(){
                 done();    
             });
         });
-        
-        
-         xit("hooks registration", function(done){
-            var angoose = util.initAngoose(null, {
-                extensions: getInitHook() 
-            });
-             angoose.compile();  
-             expect(preCompileCalled).toBe('precompile called');
-             expect(postCompileCalled).toBe('postcompile called');
-             
-             
-             angoose.use(getSecondHook());
-             angoose.compile(function(){
-                 console.log("completed compile in test")
-                 expect(preCompileCalled).toBe('precompile #2 called');
-                 expect(postCompileCalled).toBe('postcompile #2 called');
-                 done();    
-             });  
-             
-        }); 
-     
-        
     });
     
 }
 
 
-
-function getInitHook(){
-    return {
-        name:'test',
-        preCompile: function(next){
-            console.log("pre-compile hook fired")
-            preCompileCalled = 'precompile called';
-            next();
-        },
-        postCompile: function(next){
-            console.log("post-compile ");
-            postCompileCalled = 'postcompile called';
-            next()
-        }
-    }
-}
-function getSecondHook(){
-    return {
-        name:'test2',
-        preCompile: function(next){
-            console.log("pre-compile #2 hook  ")
-            preCompileCalled = 'precompile #2 called';
-            next();
-        },
-        postCompile: function(next){
-            console.log("post-compile #2 ");
-            postCompileCalled = 'postcompile #2 called';
-            next()
-        }
-    }
-}
-
-
  
+

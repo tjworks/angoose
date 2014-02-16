@@ -34,21 +34,22 @@ function logger(){
     angoose.getLogger('angoose-authorization').setLevel((extensionOptions && extensionOptions.logging) || 'INFO');
     return angoose.getLogger('angoose-authorization')
 }
-function postAuth(next, allowed){
+function postAuth(next, invocation){
    var extensionOptions = angoose.config()[EXTENSION]  ;
    
    var ctx = angoose.getContext();
-   var invocation = ctx.getInvocation();
    var user = ctx.getPrincipal();
+   
+   invocation.allowed = true;
    
    /** admin user bypass */
    var superuser =  extensionOptions && extensionOptions.superuser 
-   if(user.getUserId() ===  superuser ) return next(false, true); // always allow super user admin
+   if(user.getUserId() ===  superuser ) return next(); // always allow super user admin
    var superrole = ( extensionOptions && extensionOptions.superrole ) || 'admin';
-   if(user && user.getRoles().indexOf(superrole) >=0) return next(false, true);
+   if(user && user.getRoles().indexOf(superrole) >=0) return next();
    
    logger().trace("in auth.postAuth:", invocation.clazz, invocation.method);
-   if(invocation.method == 'signin' || invocation.method=="signout") return next(false, true);
+   if(invocation.method == 'signin' || invocation.method=="signout") return next();
 
    var mod = angoose.module( invocation.clazz );
    var category = mod.config(EXTENSION +".category") || invocation.clazz;
@@ -60,8 +61,9 @@ function postAuth(next, allowed){
     if(roles.indexOf('authenticated') <0) roles.push('authenticated');
    
    var allowed = isAllowed( category +"."+ group, roles, function(allowed){
-       logger().trace("isAllowed: ", category, group, allowed);
-        next(null, allowed);    
+        logger().trace("isAllowed: ", category, group, allowed);
+        invocation.allowed = allowed;
+        next();    
    });
 };
 // redaction
@@ -183,22 +185,25 @@ function serializeModulesInterceptor(next,  schemas){
     next(false, schemas);
 };
 
-function postInvoke(next, data){
+function postInvoke(next, invocation){
     // this is bizzare, if main method fails, this will be called with arguments meant for pre()
-        var invocation = angoose.getContext().getInvocation(); 
-        if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next(false, data);
-        logger().debug("Intercepting login methods", invocation.method, data);
-        if(!data || !data.userId  )
-            return next(false, data);
-        if(invocation.method == 'signin'){
-            angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
-            logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
-        }
-        if(invocation.method == 'signout'){
-            angoose.getContext().getRequest().session.$authenticatedUser =   null;
-            logger().debug("User logged out", data.userId);
-        }
-        next(false, data);
+    //var invocation = angoose.getContext().getInvocation(); 
+    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next();
+    
+    var data = invocation.result;
+    logger().debug("Intercepting login methods", invocation.method, data);
+    if(!data || !data.userId  )
+        return next();
+    if(invocation.method == 'signin'){
+        angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
+        logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
+    }
+    if(invocation.method == 'signout'){
+        angoose.getContext().getRequest().session.$authenticatedUser =   null;
+        logger().debug("User logged out", data.userId);
+    }
+    invocation.result = data;
+    next();
 };
 
 function moduleSetup(next){

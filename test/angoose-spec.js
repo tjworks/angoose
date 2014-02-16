@@ -16,7 +16,7 @@ var Actual = util.Actual;
 var userdata =  util.testuser;
 console.log("****** TEST: angoose-spec ***** ");
 
-describe("Angoose Server Tests", function(){
+describe("Core Tests", function(){
      var angoose = util.initAngoose();
      var AngooseClient = util.angooseClient();
     it("Dependency injection", function(done){
@@ -41,44 +41,10 @@ describe("Angoose Server Tests", function(){
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.listFavoriteDestinations().done(function(places){
             console.log("Places", places);
-            expect(places[0]).toBe("Paris");
+            expect(places && places[0]).toBe("Paris");
             done();
         });
     });
-     it("Sample User Groups", function(done){
-        var SampleUser = AngooseClient.getClass("SampleUser");
-        var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
-        var group = new SampleUserGroup({
-            name:'testgroup'
-        });
-        group.save(function(err, res){
-            console.log("save group", err, group);
-            if(err && err.indexOf("duplicate")<0){
-                expect(err).toBeUndefined();
-                done()
-            }
-            else SampleUserGroup.find({"name":"testgroup"}, function(err, grps){
-                 var suser = new SampleUser( userdata);
-                 suser.email = new Date().getTime() + suser.email;
-                 suser.groupRef = grps[0]._id;
-                 
-                 console.log("Saving user with group", grps[0], grps[0].find);
-                 suser.save(function(err, res){
-                     console.log("Saved user with group", err, res)
-                     expect(err).toBeUndefined()
-                     if(err) done();
-                     else suser.remove(function(reError, reRes){
-                        console.log("Removeing user", reError, reRes)
-                        expect(reError).toBeUndefined();
-                        done();    
-                     })
-                     
-                 })   
-            })
-             
-        })
-    });
-      
     
     it("Test Promise", function(done){
         var SampleService = AngooseClient.getClass("SampleService");
@@ -89,4 +55,3 @@ describe("Angoose Server Tests", function(){
     })
    
 });
- 

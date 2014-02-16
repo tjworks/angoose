@@ -8,11 +8,8 @@ var angoose = util.initAngoose();
 require("jasmine-custom-message");
 var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
-
-
+var AngooseClient = angoose.client();
 describe("Angoose Model Tests", function(){
-    
-    var AngooseClient = util.angooseClient();
     it("Test Dirty", function(done){
         var SampleUser = AngooseClient.getClass('SampleUser');        
         util.addUser(SampleUser, function(err, user){
@@ -38,6 +35,24 @@ describe("Angoose Model Tests", function(){
         });
         
     })
+    
+    it("validation error test backend only", function(done){
+        console.log("validation error tests");
+        var SampleUser = angoose.getClass("SampleUser");
+        var suser = new SampleUser( userdata);
+        suser.email = 'john@test.org'
+        suser.save(function(err, res){
+            console.log("Office save result", err);
+            expect(err +" backedn").toContain("don't like");
+            done();
+        })
+    });
+
+});
+
+
+describe("Model save validations", function(){
+    
     it("Sample User Find", function(done){
         var SSU = require(ROOT+ "/models/SampleUser");
         
@@ -70,7 +85,7 @@ describe("Angoose Model Tests", function(){
         })
     });
     
-   it("Sample User Save", function(done){
+   xit("Sample User Save", function(done){
         var SampleUser = AngooseClient.getClass("SampleUser");
         
         expect(SampleUser.save).not.toBeTruthy()
@@ -81,7 +96,7 @@ describe("Angoose Model Tests", function(){
         suser.save(function(err, res){  // can either user callback for promise
             console.log("Expecting save error : ", err, res);
             expect(err).toBeTruthy();
-            if(!err) return done();
+            if(!err) return done(); 
             err && expect(err.indexOf('email')).toBeGreaterThan(0);
             suser = new SampleUser( userdata);
             suser.save().done(function(res){
@@ -121,7 +136,7 @@ describe("Angoose Model Tests", function(){
     });
     
      
-    it("validation error test", function(done){
+    xit("validation error test", function(done){
         console.log("validation error tests");
         var SampleUser = AngooseClient.getClass("SampleUser");
         var suser = new SampleUser( userdata);
@@ -133,17 +148,46 @@ describe("Angoose Model Tests", function(){
         })
     });
 
-    it("validation error test backend only", function(done){
-        console.log("validation error tests");
-        var SampleUser = angoose.getClass("SampleUser");
-        var suser = new SampleUser( userdata);
-        suser.email = 'john@test.org'
-        suser.save(function(err, res){
-            console.log("Office save result", err);
-            expect(err +" backedn").toContain("don't like");
-            done();
+    
+}) ;
+
+describe("", function(){
+     it("Sample User Groups", function(done){
+        var SampleUser = AngooseClient.getClass("SampleUser");
+        var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
+        var group = new SampleUserGroup({
+            name:'testgroup'
+        });
+        group.save(function(err, res){
+            console.log("save group", err, group);
+            if(err && err.indexOf("duplicate")<0){
+                expect(err).toBeUndefined();
+                done()
+            }
+            else SampleUserGroup.find({"name":"testgroup"}, function(err, grps){
+                if(!grps ){
+                    expect('no groups').toBe("test groups");
+                    return done();
+                }
+                 var suser = new SampleUser( userdata);
+                 suser.email = new Date().getTime() + suser.email;
+                 suser.groupRef =  grps[0]._id;
+                 
+                 console.log("Saving user with group", grps[0], grps[0].find);
+                 suser.save(function(err, res){
+                     console.log("Saved user with group", err, res)
+                     expect(err).toBeUndefined()
+                     if(err) done();
+                     else suser.remove(function(reError, reRes){
+                        console.log("Removeing user", reError, reRes)
+                        expect(reError).toBeUndefined();
+                        done();    
+                     })
+                     
+                 })   
+            })
+             
         })
     });
-
-}); 
+})
  

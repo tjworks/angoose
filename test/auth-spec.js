@@ -20,21 +20,27 @@ MyService.signout = function(userId, $callback){
     $callback(false, {userId:userId});
 }
 
-var angoose = require("../lib/angoose");
-var serviceAdder = {
-    name:'test-adder',
-    preGenerateClient: function(next){
-        angoose.module('MyService', MyService );
-        next();
-    }
-}
+
+
  
 // this cannot be run with the rest tests    
 xdescribe("Angoose-Auth Tests", function(done){
-    var angoose = util.initAngoose(null, {
-        extensions:  [ 'angoose-authorization' , serviceAdder]
-    });
+    
+     var angoose = util.initAngoose(null, {
+            extensions:  [ 'angoose-authorization' ,  {
+                        name:'test-adder',
+                        preGenerateClient: preGen 
+                    }],
+            'angoose-authorization': {
+                superuser: 'admin'
+            }
+        });
         
+    function preGen(next){
+        require('../lib/angoose').module('MyService', MyService );
+        next();
+    }
+
     //angoose.module('MyService', MyService )
     var myService = angoose.client().module('MyService');
 
@@ -98,42 +104,47 @@ xdescribe("Angoose-Auth Tests", function(done){
    it("Auth model schema should have all published methods", function(done){
         angoose.module('MyService', MyService )
        var authModel = angoose.client().module("PermissionModel");
+       //console.log("###########", authModel, authModel.schema)
        if(!authModel || !authModel.schema) {
            expect("").toBeTruthy();
            return done();
        }
        
        //console.log("Permission model schema", authModel.schema.paths);
-       expect( authModel.schema.paths['SampleUser.find']).toBeTruthy();
+       expect( authModel.schema.paths['SampleUserGroup.View']).toBeTruthy();
        expect( authModel.schema.paths['SampleService.testExecutionContext']).toBeTruthy();
        done();
    } );
-});
+   
+   
+       
+       
+    function setupPermission(){
+        it("Setup permission", function(done){
+            var Model = angoose.module("PermissionModel");
+            console.log("Setting up permission")
+            var adminModel = new Model({
+                role:'admin', 
+                'AllPermissions':true,
+                'MyService.forbiddenOp':true,
+                'MyService.allowedOp':true,
+            });
+            var otherModel = new Model({
+                role:'other',
+                'MyService.forbiddenOp':false,
+                'MyService.allowedOp':true
+            });
+            Model.remove({}, function(err){
+                console.log("Done removing", err);
+                adminModel.save(function(err, r1){
+                    console.log("admin model", err, r1)
+                    otherModel.save(function(err, r2){
+                        console.log("Setup test permissions", r1, r2);
+                        done() ;    
+                    });
+                });    
+            });
+        }) ;
+    }
 
-function setupPermission(){
-    it("Setup permission", function(done){
-        var Model = angoose.module("PermissionModel");
-        console.log("Setting up permission")
-        var adminModel = new Model({
-            role:'admin', 
-            'AllPermissions':true,
-            'MyService.forbiddenOp':true,
-            'MyService.allowedOp':true,
-        });
-        var otherModel = new Model({
-            role:'other',
-            'MyService.forbiddenOp':false,
-            'MyService.allowedOp':true
-        });
-        Model.remove({}, function(err){
-            console.log("Done removing", err);
-            adminModel.save(function(err, r1){
-                console.log("admin model", err, r1)
-                otherModel.save(function(err, r2){
-                    console.log("Setup test permissions", r1, r2);
-                    done() ;    
-                });
-            });    
-        });
-    }) ;
-}
+});

@@ -57,11 +57,13 @@ module.exports = function(grunt) {
   
     grunt.registerTask('autotest', 'watch and test', function(argPattern) {
 
-        var watched= ["lib/**/*.js", "test/**/*.js", "models/**/*.js"];
+        var watched= ["lib/**/*.js", "test/**/*.js", "models/**/*.js", "extensions/**/*.js"];
        // set the correct list of file to watch according to the argument passed
         grunt.config('watch.autotest.files', watched);
         grunt.config('watch.autotest.tasks',  (argPattern? 'test:'+ argPattern: 'test'));
+        grunt.task.run(argPattern? 'test:'+ argPattern: 'test');
         grunt.task.run('watch:autotest');
+        
     })
 };
 
