@@ -185,7 +185,6 @@ function serializeModulesInterceptor(next,  schemas){
 
 function postInvoke(next, data){
     // this is bizzare, if main method fails, this will be called with arguments meant for pre()
-    try{
         var invocation = angoose.getContext().getInvocation(); 
         if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next(false, data);
         logger().debug("Intercepting login methods", invocation.method, data);
@@ -199,14 +198,7 @@ function postInvoke(next, data){
             angoose.getContext().getRequest().session.$authenticatedUser =   null;
             logger().debug("User logged out", data.userId);
         }
-    }
-    catch(err){
-        logger.error("error in postInvoke")
-    }
-    finally{
         next(false, data);
-    }
-    
 };
 
 function moduleSetup(next){
