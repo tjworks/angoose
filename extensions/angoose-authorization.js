@@ -6,7 +6,7 @@ var AUTHMODEL  = 'PermissionModel';
 var COLLECTION_NAME  = 'angoose_perms';
 
 var cached = null;
-module.exports = {
+var authExt = {
     name: EXTENSION,
     preAuthorize: preAuth,
     postAuthorize: postAuth,
@@ -15,6 +15,8 @@ module.exports = {
     postSerializeModules: serializeModulesInterceptor,
     postGenerateClient: moduleSetup
 };
+
+module.exports = angoose.extension('AngooseAuthorization',  authExt);
 
 function preAuth(next){
     logger().trace("in preAuth", session().$authenticatedUser);

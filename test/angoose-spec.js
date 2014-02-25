@@ -9,7 +9,6 @@ var logger = logging.getLogger('angoose');
 
 
 var util = require("./test-util");
-var Actual = util.Actual;
 
 
 //require("./server"); //.startServer(configs);

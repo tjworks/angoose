@@ -1,6 +1,5 @@
 require("jasmine-custom-message");
 var request = require("request");
-var Actual = jasmine.customMessage.Actual;
 
 var util = require("./test-util");
 describe("Angoose Server Tests", function(){

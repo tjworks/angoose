@@ -12,14 +12,13 @@ var logger = logging.getLogger('angoose');
 logger.setLevel(logging.levels.DEBUG);
 
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
 
 var configs = {
     modelDir: ROOT+'/models',
     'client-file': clientfile,
     'urlPrefix': '/angoose',
     httpPort: 9988,
-    logging:'TRACE',
+    logging:'DEBUG',
     mongo_opts:'localhost:27017/test'
 }; 
 
@@ -56,9 +55,9 @@ module.exports = {
     initAngoose: initAngoose,
     angooseOpts: configs,
     
-    Actual: jasmine.customMessage.Actual,
-    unloadAngoose:unloadAngoose
-
+    
+    unloadAngoose:unloadAngoose,
+    Actual: function(val){ return val} 
 }
 
 module.exports.addUser = function(SampleUser, cb){

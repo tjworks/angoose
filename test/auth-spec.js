@@ -25,19 +25,17 @@ MyService.signout = function(userId, $callback){
  
 // this cannot be run with the rest tests    
 xdescribe("Angoose-Auth Tests", function(done){
-    
+     var angoose = require("../lib/angoose");
+     angoose.module('MyService', MyService);
      var angoose = util.initAngoose(null, {
-            extensions:  [ 'angoose-authorization' ,  {
-                        name:'test-adder',
-                        preGenerateClient: preGen 
-                    }],
+            extensions:  [ '../extensions/angoose-authorization' ],
             'angoose-authorization': {
                 superuser: 'admin'
             }
         });
         
     function preGen(next){
-        require('../lib/angoose').module('MyService', MyService );
+        
         next();
     }
 

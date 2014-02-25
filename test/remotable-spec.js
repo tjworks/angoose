@@ -6,7 +6,6 @@ var logging = require("log4js");
 var angoose = require("../lib/angoose");
 angoose.init();
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
   
 describe("Angoose Remotable Tests", function(){
     it("Inheritance Test", function(done){
@@ -14,14 +13,14 @@ describe("Angoose Remotable Tests", function(){
         var model = new modelClass({});
         console.log("Model instanceof Model", (model instanceof angoose.Remotable))
         var isSubclass = (model instanceof angoose.Remotable);
-        expect( new Actual(isSubclass, "model should be a subclass of Remotable") ).toBeTruthy();
-        expect(new Actual(model.getContext, "getContext method not defined") ).toBeTruthy();
+        expect(  isSubclass   ).toBeTruthy();
+        expect( model.getContext ).toBeTruthy(); //, "getContext method not defined")
         done()
     });
     it("getContext negative test", function(){
         try{
             angoose.getContext();
-            expect(new Actual(false, "getContext should throw error")).toBe(true);     
+            expect( false).toBe(true);     //, "getContext should throw error"
         }
         catch(err){
         }
@@ -29,7 +28,7 @@ describe("Angoose Remotable Tests", function(){
     it("Remotable class", function(){
        var obj = angoose.Service.extend({}, {name:'Testie'});
        var clz = obj._angoosemeta.baseClass;
-       expect( new Actual(clz, "class should be Service, but got "+ clz)).toBe("Service"); 
+       expect(  clz).toBe("Service"); // , "class should be Service, but got "+ clz)
     });
     
     // xit("Automatic registering", function(){
@@ -44,6 +43,6 @@ describe("Angoose Remotable Tests", function(){
         var user = new clz({
             email:'hello@he.com'
         });
-        expect( new Actual(clz.getContext, "Mongoose model should have getContext static method")).toBeTruthy();
+        expect(  clz.getContext).toBeTruthy();//, "Mongoose model should have getContext static method")
     });
 }); 

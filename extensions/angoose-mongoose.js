@@ -8,12 +8,13 @@ var fs = require("fs"),  _ =require("underscore");
 
 toolbox.patchMongoCallback();
 
-module.exports = {
-    name: EXTENSION,
+var plugin = {
     postResolveTarget: postResolveTarget,
     postInvoke: postInvoke,
     postPack: postPack
 };
+
+module.exports = angoose.extension('MongoosePlugin', plugin);
 
 function debug(){
     var logger = angoose.getLogger(EXTENSION);
@@ -99,7 +100,7 @@ function postInvoke (next, invocation){
 }; /**  end invoke */
 
 function postPack(next, invocation){
-    console.log("In mongoose post pack", invocation)
+    //console.log("In mongoose post pack", invocation)
     if(!invocation.redacted) return next();
     var type = getValueType(invocation.redacted);
     if(type) invocation.packed.datatype = type;

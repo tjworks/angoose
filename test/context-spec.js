@@ -171,7 +171,7 @@ describe("Angoose Context Tests", function(){
         var SampleService = angoose.client().module("SampleService");
         SampleService.testExecutionContext().done(function(data){
             console.log("Got context path", data)
-            expect(new Actual(data, "Execution context expecting 'testExecutionContext'  but got: "+ data)).toBe('testExecutionContext');
+            expect( data).toBe('testExecutionContext');
             done();
         }, function(err){
             

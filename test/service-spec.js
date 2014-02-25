@@ -6,7 +6,7 @@ var logging = require("log4js");
 var angoose = require("../lib/angoose");
 angoose.init();
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
+var Actual = require("./test-util").Actual;
   
 describe("Angoose Service Tests", function(){
     it("Sample Service Schema", function(done){
@@ -14,7 +14,7 @@ describe("Angoose Service Tests", function(){
         console.log("SCHEMA", SampleService.getSchema());
         var places =   SampleService .listFavoriteDestinations();
         console.log("Places", places);
-        expect(new Actual(places[0], "SampleService.listFavoriteDestination failed")).toBe("Paris");
+        expect( places[0] ).toBe("Paris");
         done();
     });
     // it("Create service class", function(){
@@ -30,13 +30,13 @@ describe("Angoose Service Tests", function(){
         func.testme = function(){ return 'hello2'};
        var obj = angoose.module('Testie2',  func);
        var clazz = angoose.module('Testie2'); 
-       expect( new Actual( clazz.testme(), "Register function as a service failed")).toBe("hello2"); 
+       expect(  clazz.testme() ).toBe("hello2"); //, "Register function as a service failed" 
     });
     
     it("Create service object using module", function(){
         var service =   { testme: function(){ return 'hello2'} };
        var obj = angoose.module('Test3',  service);
        var clazz = angoose.module('Test3'); 
-       expect( new Actual( clazz.testme(), "Register function as a service failed")).toBe("hello2"); 
+       expect(  clazz.testme() ).toBe("hello2"); //, "Register function as a service failed" 
     });
 }); 

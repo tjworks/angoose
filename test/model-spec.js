@@ -6,7 +6,6 @@ var util = require("./test-util");
 var traverse = require("traverse");
 var angoose = util.initAngoose();
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
 var userdata =  util.testuser;
 var AngooseClient = angoose.client();
 describe("Angoose Model Tests", function(){
@@ -52,24 +51,27 @@ describe("Angoose Model Tests", function(){
 
 
 describe("Model save validations", function(){
-    
+     var SSU = require(ROOT+ "/models/SampleUser");
+    var SampleUser = AngooseClient.getClass("SampleUser");
+    beforeEach(function(done){
+        SSU.remove(function(){
+            done();   
+        });
+    });
     it("Sample User Find", function(done){
-        var SSU = require(ROOT+ "/models/SampleUser");
-        
-        var SampleUser = AngooseClient.getClass("SampleUser");
-        
         expect(SampleUser.save).not.toBeTruthy()
         expect(SampleUser.find).toBeTruthy()
         expect(SampleUser.findOne).toBeTruthy()
         
         var suser = new SampleUser( userdata);
         expect(suser.remove).toBeTruthy()
-        suser.save().done(function(res){
-                console.log("Expecting save OK: ", res);
-                
+        suser.save( function(res){
+                console.log("Expecting save OK: ", suser._id);
                 SSU.findById( suser._id ).exec(function(err, obj){
-                    console.log("server object find",err,  obj);
-                    
+                    if(!obj) {
+                        expect("Created user not found").toBe("");
+                        done();
+                    }
                     SampleUser.findById( suser._id ).done(function(su){
                         console.log("Expecting findById OK: ", su);
                         done();
@@ -82,7 +84,7 @@ describe("Model save validations", function(){
                 
                 // now trying to find one
                 //SampleUser.find()
-        })
+        } )
     });
     
    xit("Sample User Save", function(done){

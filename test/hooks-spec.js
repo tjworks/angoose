@@ -7,7 +7,6 @@ var request = require('request');
 var logging = require("log4js");
 var logger = logging.getLogger('angoose');
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
 var preCompileCalled = false,postCompileCalled=false;
 var util = require("./test-util");
 
@@ -29,7 +28,6 @@ function doTests(){
             flag = {};
         })
         var hk = {
-                name:'sequence-tester',
                 preAuthorize: function(next, invocation, callback){
                     console.log("in preAuthorize hook", arguments)
                     //expect(flag).toBe("init")
@@ -50,9 +48,8 @@ function doTests(){
                     next();
                 }
             }
-        
-        util.angooseOpts.extensions = [hk , 'angoose-mongoose'];
-        angoose = util.initAngoose(null, util.angooseOpts, true);
+        angoose.extension('HookTest', hk)        
+        angoose = util.initAngoose(null);
         
         // IMPORTANT: post hooks will be bypassed if main method returns error
         // IMPORTANT: post hooks will be called with main method arguments if no error

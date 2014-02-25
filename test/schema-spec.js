@@ -4,16 +4,18 @@ var path= require("path")
 var fs = require("fs");
 var logging = require("log4js");
 require("jasmine-custom-message");
-var Actual = jasmine.customMessage.Actual;
+
 
 var util = require("./test-util");
-var angoose = util.initAngoose();  
+var angoose = util.initAngoose();
+var Actual = util.Actual;
+  
 describe("Angoose Schema Tests", function(){
     it("Sample Service", function(done){
         var SampleService = angoose.module("SampleService");
         var schema = SampleService.getSchema();
         console.log("SCHEMA", schema);
-        expect(new Actual(schema.statics.extend, "SampleService.extend should be undefined")).toBeFalsy();
+        expect( schema.statics.extend).toBeFalsy(); //, "SampleService.extend should be undefined")
         done();
     });
     
