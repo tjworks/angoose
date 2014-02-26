@@ -1,39 +1,64 @@
 var angoose = require("../lib/angoose");
 var toolbox = require("../lib/util/toolbox");
 var EXTENSION = 'angoose-mongoose';
-
 var path= require("path"),traverse = require("traverse"),hooks= require("hooks"), Q = require("q");
 var fs = require("fs"),  _ =require("underscore");
-
 
 toolbox.patchMongoCallback();
 
 var plugin = {
     postResolveTarget: postResolveTarget,
     postInvoke: postInvoke,
-    postPack: postPack
+    postPack: postPack,
+    postExportModule: decorateMongooseSchema
 };
+module.exports = angoose.extension('MongooseExtension', plugin);
 
-module.exports = angoose.extension('MongoosePlugin', plugin);
-
-function debug(){
-    var logger = angoose.getLogger(EXTENSION);
-    logger.debug.apply(logger, arguments);
-    // var extensionOptions = angoose.config()[EXTENSION] ;
-    // angoose.getLogger(EXTENSION).setLevel((extensionOptions && extensionOptions.logging) || 'INFO');
-    // return angoose.getLogger(EXTENSION);
+function decorateMongooseSchema(  client, moduleName){
+    console.log("exportModule hook", moduleName);
+    var model = angoose.module(moduleName);
+    if(!model.schema || !model.schema.paths) return;
+    logger().debug("Decorating mongoose model", moduleName);
+    
+    var schema = client.schemas[moduleName];
+    // automatically publish these instance methods
+    var instanceMethods = "save,remove,populate";
+    instanceMethods.split(",").forEach(function(m){
+        m = m.replace(/\s+/g, '');
+        if(!schema.methods[m]) 
+            schema.methods[m]= function remote(){};     
+    });
+    
+    // automatically publish these static methods
+    var staticMethods = "populate,find,findOne,findById,findByIdAndRemove,findByIdAndUpdate,findOneAndRemove,findOneAndUpdate,update,remove,count,geoNear,geoSearch,create";
+    staticMethods.split(",").forEach(function(m){
+        m = m.replace(/\s+/g, '');
+        if(!schema.statics[m])
+            schema.statics[m]= function remote(){};     
+    });
+    
+    schema.paths = traverse(model.schema.paths).map(function(item){
+        if(!item) return;
+        if(item.options && typeof(item.options.type) === 'function' ){
+            var fn = item.options.type;
+            item.options.type = fn.name || fn.toString();                
+        }
+        else if(typeof(item) == 'function')
+            this.update( 'not-supported' );
+        if(item.requiredValidator) delete item.requiredValidator;
+        if(item.enumValidator) delete item.enumValidator;
+        if(item.validators) delete item.validators; /**@todo validators are not supported yet*/
+    }); 
+    schema.options = traverse( model.schema.options).clone();
 }
+
 function logger(){
     var logger = angoose.getLogger(EXTENSION); return logger;
 }
 
-
-
-/**@todo: move to mongoose plugin */
-
 function postResolveTarget(next, invocation){
     if(!invocation.target || invocation.static || ! invocation.instance || !invocation.instance._id ) return next();
-    debug("postResolveTarget for mongoose models");
+    logger().debug("postResolveTarget for mongoose models");
         
     var _id = invocation.instance._id;
     logger().trace("Loading pristine instance as base",invocation.clazz, _id);

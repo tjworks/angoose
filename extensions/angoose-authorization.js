@@ -12,8 +12,7 @@ var authExt = {
     postAuthorize: postAuth,
     preRedact: redact,
     postInvoke: postInvoke,
-    postSerializeModules: serializeModulesInterceptor,
-    postGenerateClient: moduleSetup
+    beforeCreateBundle: beforeCreateBundle
 };
 
 module.exports = angoose.extension('AngooseAuthorization',  authExt);
@@ -139,31 +138,30 @@ function getCategory(module){
 function isModel(module){
     return module.config('baseClass') == 'Model';
 }
-function serializeModulesInterceptor(next,  schemas){
+function beforeCreateBundle(  client){
     // generating PermissionModel schema used on UI
-    logger().debug("in post serializeModules " ); 
-    var clientSchema = new angoose.Schema();
+    logger().debug("in beforeCreateBundle"); 
+    var schemas = client.schemas;
     var authSchema = getModelSchema(); 
     // get list of all published methods
     Object.keys(schemas).forEach(function(moduleName){
         var schema = schemas[moduleName];
         if(!schema || moduleName == 'SampleUser') return;
         var methodNames =   Object.keys(schema.methods).concat(Object.keys(schema.statics));
-        
-        var module = angoose.module(moduleName);
-        var category = getCategory(module);
+        var mod = angoose.module(moduleName);
+        var category = getCategory(mod);
         for(var i=0;methodNames && i<methodNames.length;i++){
            var mName = methodNames[i];
            if(mName == 'config' || mName == 'getSchema') continue;
            var fn = schema.methods && schema.methods[mName];
            fn = fn || (schema.statics && schema.statics[mName]);
-           if(angoose.Schema.typeOf(fn) != 'remote') continue; 
+           if(toolbox.methodType(fn) != 'remote') continue; 
            
-           var group = getGroup(module, mName);
+           var group = getGroup(mod, mName);
            if(!group){
                var path = category +"." + mName;
                var field = {};
-               field[path] = {type:Boolean, label: getLabel(module,mName)};
+               field[path] = {type:Boolean, label: getLabel(mod,mName)};
                authSchema.add(field);    
            }
            else if(!authSchema.path(group)){
@@ -177,14 +175,8 @@ function serializeModulesInterceptor(next,  schemas){
     });
     var mongooseModel =  angoose.getMongoose().modelNames().indexOf(AUTHMODEL)>=0? angoose.getMongoose().model(AUTHMODEL):angoose.getMongoose().model(AUTHMODEL, authSchema) ;
     var permModule = angoose.module(AUTHMODEL, mongooseModel); 
-    var checker = false;
-    clientSchema.prepareSchema(AUTHMODEL, permModule, function(err, pSchema){
-        // this callback is guaranteed done synchorounsly
-        schemas[AUTHMODEL] = pSchema;
-        checker = true;  
-    });
-    if(!checker) throw("prepareSchema extension did not return immediately"); 
-    next(false, schemas);
+    new angoose.Bundle().exportModule(client, AUTHMODEL); // toolbox.exportModuleMethods(AUTHMODEL, permModule);
+    logger().debug("Added mongoose model", AUTHMODEL);
 };
 
 function postInvoke(next, invocation){
