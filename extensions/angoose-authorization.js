@@ -185,20 +185,20 @@ function serializeModulesInterceptor(next,  schemas){
 
 function postInvoke(next, data){
     // this is bizzare, if main method fails, this will be called with arguments meant for pre()
-        var invocation = angoose.getContext().getInvocation(); 
-        if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next(false, data);
-        logger().debug("Intercepting login methods", invocation.method, data);
-        if(!data || !data.userId  )
-            return next(false, data);
-        if(invocation.method == 'signin'){
-            angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
-            logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
-        }
-        if(invocation.method == 'signout'){
-            angoose.getContext().getRequest().session.$authenticatedUser =   null;
-            logger().debug("User logged out", data.userId);
-        }
-        next(false, data);
+    var invocation = angoose.getContext().getInvocation(); 
+    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next(false, data);
+    logger().debug("Intercepting login methods", invocation.method, data);
+    if(!data || !data.userId  )
+        return next(false, data);
+    if(invocation.method == 'signin'){
+        angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
+        logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
+    }
+    if(invocation.method == 'signout'){
+        angoose.getContext().getRequest().session.$authenticatedUser =   null;
+        logger().debug("User logged out", data.userId);
+    }
+    next(false, data);
 };
 
 function moduleSetup(next){
