@@ -11,8 +11,7 @@ var logging = require("log4js");
 var logger = logging.getLogger('angoose');
 logger.setLevel(logging.levels.DEBUG);
 
-require("jasmine-custom-message");
-
+require("jasmine-custom-message"); 
 var configs = {
     modelDir: ROOT+'/models',
     'client-file': clientfile,
@@ -58,6 +57,7 @@ module.exports = {
     
     unloadAngoose:unloadAngoose,
     Actual: function(val){ return val} 
+
 }
 
 module.exports.addUser = function(SampleUser, cb){
