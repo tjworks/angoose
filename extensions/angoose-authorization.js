@@ -149,6 +149,7 @@ function beforeCreateBundle(  client){
         if(!schema || moduleName == 'SampleUser') return;
         var methodNames =   Object.keys(schema.methods).concat(Object.keys(schema.statics));
         var mod = angoose.module(moduleName);
+        if(mod.config && mod.config("visibility") === false ) return;
         var category = getCategory(mod);
         for(var i=0;methodNames && i<methodNames.length;i++){
            var mName = methodNames[i];
