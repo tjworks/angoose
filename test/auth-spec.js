@@ -20,9 +20,6 @@ MyService.signin = function(userId, role, $callback){
 MyService.signout = function(userId, $callback){
     $callback(false, {userId:userId});
 }
-
-
-
  
 // this cannot be run with the rest tests    
 xdescribe("Angoose-Auth Tests", function(done){
