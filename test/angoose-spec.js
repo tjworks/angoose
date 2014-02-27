@@ -1,4 +1,4 @@
-var ROOT = process.cwd();
+var ROOT = process.cwd(),assert= require("assert");
 var path= require("path")
 var http = require("http");
 var fs = require("fs");
@@ -23,8 +23,8 @@ describe("Core Tests", function(){
         var suser = new SampleUser( userdata);
         suser.setPassword('abc').done(function(res){
             console.log("setpassword done", arguments);
-            expect(suser.password).toBe("abcsalt123");
-            expect(res).toBe("Password changed");
+            assert.equal(suser.password, "abcsalt123");
+            assert.equal(res, "Password changed");
             done();
         });
     }); 
@@ -32,7 +32,7 @@ describe("Core Tests", function(){
         var SampleUser = AngooseClient.getClass("SampleUser");
         SampleUser.checkExists('newmeil@he.com').done(function(exists){
             console.log("Done done", arguments);
-            expect(exists).toBe(false);
+            assert.equal(exists, false);
             done();
         });
     }); 
@@ -40,7 +40,7 @@ describe("Core Tests", function(){
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.listFavoriteDestinations().done(function(places){
             console.log("Places", places);
-            expect(places && places[0]).toBe("Paris");
+            assert(places && places[0], "Paris");
             done();
         });
     });
@@ -48,7 +48,7 @@ describe("Core Tests", function(){
     it("Test Promise", function(done){
         var SampleService = AngooseClient.getClass("SampleService");
         SampleService.testPromiseReturn().done(function(res){
-            expect(res).toBe("PromiseOK");
+            assert.equal(res, "PromiseOK");
             done();
         })
     })

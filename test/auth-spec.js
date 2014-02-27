@@ -1,4 +1,5 @@
 var ROOT = process.cwd();
+var assert = require("assert");
 var util = require("./test-util");
 
 function MyService(){};
@@ -46,7 +47,7 @@ xdescribe("Angoose-Auth Tests", function(done){
     it("allowedOp should be denied to guest user", function(done){
         myService.allowedOp(function(err, ret ){
            console.log("allowedOp result", err, ret)
-           expect(err).toBe('Access Denied');
+           assert.equal(err,'Access Denied');
            done(); 
         });
     }); 
@@ -54,7 +55,7 @@ xdescribe("Angoose-Auth Tests", function(done){
         myService.signin('admin', 'xxx', function(err, user){
             myService.forbiddenOp(function(err, ret ){
                console.log("forbiddenOp result", err, ret)
-               expect( ret ).toBe('NotOK');
+               assert.equal( ret ,'NotOK');
                done(); 
             });    
         })
@@ -63,7 +64,7 @@ xdescribe("Angoose-Auth Tests", function(done){
         myService.signin('adminuser', 'admin', function(err, user){
             myService.forbiddenOp(function(err, ret ){
                console.log("forbiddenOp result", err, ret)
-               expect( ret ).toBe('NotOK');
+               assert.equal( ret ,'NotOK');
                done(); 
             });    
         })
@@ -73,7 +74,7 @@ xdescribe("Angoose-Auth Tests", function(done){
         myService.signin('someuser', 'other', function(err, user){
             myService.forbiddenOp(function(err, ret ){
                console.log("forbiddenOp 2 result", err, ret)
-               expect(err).toBe('Access Denied');
+               assert.equal(err,'Access Denied');
                done(); 
             });    
         })
@@ -82,7 +83,7 @@ xdescribe("Angoose-Auth Tests", function(done){
         myService.signin('someuser', 'other', function(err, user){
             myService.allowedOp(function(err, ret ){
                console.log("forbiddenOp 2 result", err, ret)
-               expect( ret ).toBe('OK');
+               assert.equal( ret ,'OK');
                done(); 
             });    
         })
@@ -93,7 +94,7 @@ xdescribe("Angoose-Auth Tests", function(done){
             myService.signout('someuser', function(err, user){
                 myService.allowedOp(function(err, ret ){
                    console.log("after signing out ", err, ret)
-                   expect(err).toBe('Access Denied');
+                   assert.equal(err,'Access Denied');
                    done(); 
                 });
             });    
@@ -104,13 +105,13 @@ xdescribe("Angoose-Auth Tests", function(done){
        var authModel = angoose.client().module("PermissionModel");
        //console.log("###########", authModel, authModel.schema)
        if(!authModel || !authModel.schema) {
-           expect("").toBeTruthy();
+           assert.fail("No model schema");
            return done();
        }
        
        //console.log("Permission model schema", authModel.schema.paths);
-       expect( authModel.schema.paths['SampleUserGroup.View']).toBeTruthy();
-       expect( authModel.schema.paths['SampleService.testExecutionContext']).toBeTruthy();
+       assert( authModel.schema.paths['SampleUserGroup.View'], "permission model does not have SampleUserGroup.View");
+       assert( authModel.schema.paths['SampleService.testExecutionContext'] , "permission model does not have SampleService.testExecutionContext");
        done();
    } );
    

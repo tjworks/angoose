@@ -1,4 +1,5 @@
-var ROOT = process.cwd();
+var ROOT = process.cwd()
+var assert = require("assert");;
 var path= require("path")
 var fs = require("fs");
 var logging = require("log4js");
@@ -11,8 +12,8 @@ describe("Config test", function(){
     SU.config("a.b-c.c", 3);
     
     it("Setting module configuration ", function(){
-        expect(SU.config("a.b-c").c).toBe(3);
-        expect(SU.config("a.b-c.c")).toBe(3)
+        assert.equal(SU.config("a.b-c").c,3);
+        assert.equal(SU.config("a.b-c.c"),3)
     });
 }); 
   

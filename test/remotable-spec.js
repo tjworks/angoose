@@ -1,5 +1,5 @@
-
 var ROOT = process.cwd();
+var assert =require('assert');
 var path= require("path")
 var fs = require("fs");
 var logging = require("log4js");
@@ -13,14 +13,13 @@ describe("Angoose Remotable Tests", function(){
         var model = new modelClass({});
         console.log("Model instanceof Model", (model instanceof angoose.Remotable))
         var isSubclass = (model instanceof angoose.Remotable);
-        expect(  isSubclass   ).toBeTruthy();
-        expect( model.getContext ).toBeTruthy(); //, "getContext method not defined")
+        assert(  isSubclass);
         done()
     });
     it("getContext negative test", function(){
         try{
             angoose.getContext();
-            expect( false).toBe(true);     //, "getContext should throw error"
+            assert.equal( false,true);     //, "getContext should throw error"
         }
         catch(err){
         }
@@ -28,7 +27,7 @@ describe("Angoose Remotable Tests", function(){
     it("Remotable class", function(){
        var obj = angoose.Service.extend({}, {name:'Testie'});
        var clz = obj._angoosemeta.baseClass;
-       expect(  clz).toBe("Service"); // , "class should be Service, but got "+ clz)
+       assert.equal(  clz,"Service"); // , "class should be Service, but got "+ clz)
     });
     
     // xit("Automatic registering", function(){
@@ -36,13 +35,13 @@ describe("Angoose Remotable Tests", function(){
         // var clz = angoose.getClass("Testie")
         // console.log(clz, "CLZ")
         // var name = clz&& clz._angoosemeta && clz._angoosemeta.name;
-        // expect( new Actual(name, "Service Testie not found in registry " + name)).toBe("Testie");
+        // assert.equal( new Actual(name, "Service Testie not found in registry " + name),"Testie");
     // });
     it("getContext on mongoose model", function(){
         var clz = angoose.getClass("SampleUser")
         var user = new clz({
             email:'hello@he.com'
         });
-        expect(  clz.getContext).toBeTruthy();//, "Mongoose model should have getContext static method")
+        assert(  clz.getContext);//, "Mongoose model should have getContext static method")
     });
 }); 

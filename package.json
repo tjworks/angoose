@@ -29,7 +29,8 @@
     "request": "*",
     "jasmine-custom-message": "~0.1.2",
     "node-mocks-http": "*",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "mocha":"*"
   },
   "dependencies": {
     "underscore": "*",

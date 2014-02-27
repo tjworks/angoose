@@ -15,7 +15,7 @@ describe("Angoose Server Tests", function(){
              }
             var SampleUser = AngooseClient.getClass("SampleUser");
             var suser = new SampleUser( util.testuser);
-            expect(suser.getFullname()).toBe("Gaelyn Hurd");
+            assert.equal(suser.getFullname(),"Gaelyn Hurd");
             done();
        });
     }); 

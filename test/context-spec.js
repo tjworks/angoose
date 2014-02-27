@@ -1,4 +1,5 @@
 var ROOT = process.cwd();
+var assert = require("assert");
 var path= require("path");
 var http = require("http");
 var fs = require("fs");
@@ -51,7 +52,7 @@ xdescribe("Context with Mongoose parallel hooks", function(){
         var TestUser = angoose.client(true).module("TestUser");
         var su = new TestUser({ name: 'Gaelyn' });
         su.save(function(err, data){
-            expect(err).toBeFalsy();
+            assert(!err);
             console.log("Got Result", err, data, su)
             done(); 
             // TestUser.remove({}, {multi:true}, function(){
@@ -80,7 +81,7 @@ xdescribe("Context with simple Mongoose hooks", function(){
         var TestUser = angoose.client(true).module("TestUser2");
         var su = new TestUser({ name: 'Gaelyn' });
         su.save(function(err, data){
-            expect(err).toBeFalsy();
+            assert(!err);
             console.log("Got Result", err, data, su)
             done(); 
             // TestUser.remove({}, {multi:true}, function(){
@@ -98,11 +99,11 @@ describe("Context with nested mongoose callback", function(){
             mongoose.model("SampleUser").findOne({x:200}, function(err, u){
                 angoose.testContext("Callback 2")
                 angoose.getContext();
-                expect(err).toBeFalsy();
+                assert(!err);
                 mongoose.model("SampleUser").findOne({x:300}, function(err, u){
                     angoose.testContext("Callback 3")
                     angoose.getContext();
-                    expect(err).toBeFalsy();
+                    assert(!err);
                     done();
                 })
             })
@@ -134,9 +135,9 @@ describe("Angoose Context Tests", function(){
             var count = 0; var completed = 0;
             function CB(name){
                 console.log("in funciton callback",name, ++completed, " of ", count);
-                expect(name).toBeTruthy();
+                assert.equal(name, true);
                 if(completed == count){
-                    expect(completed).toBe(count)
+                    assert.equal(completed, count, "FF32")
                     done();  
                 } 
             };
@@ -171,7 +172,7 @@ describe("Angoose Context Tests", function(){
         var SampleService = angoose.client().module("SampleService");
         SampleService.testExecutionContext().done(function(data){
             console.log("Got context path", data)
-            expect( data).toBe('testExecutionContext');
+            assert.equal( data, 'testExecutionContext');
             done();
         }, function(err){
             

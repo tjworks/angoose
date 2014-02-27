@@ -1,4 +1,5 @@
 var ROOT = process.cwd();
+var assert = require("assert");
 var path= require("path")
 var fs = require("fs");
 var logging = require("log4js");
@@ -36,14 +37,14 @@ describe("Toolbox Merge test", function(){
     
     toolbox.merge(dst, src);
     it("Merge data should override simple key ", function(){
-        expect(dst.aa).toBe(10);
+        assert.equal(dst.aa,10);
     });
     it("Merge data should override nested key ", function(){
-        expect(dst.a.bb.c).toBe(30); // updated
-        expect(dst.a.bb.cc).toBe(10); // unchanged
+        assert.equal(dst.a.bb.c,30); // updated
+        assert.equal(dst.a.bb.cc,10); // unchanged
     });
     it("Merge data should not traverse function property ", function(){
-        expect(dst.f.x).toBe(1); // unchanged
+        assert.equal(dst.f.x,1); // unchanged
     });
 }); 
   
