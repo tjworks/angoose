@@ -15,10 +15,9 @@ var plugin = {
 module.exports = angoose.extension('MongooseExtension', plugin);
 
 function decorateMongooseSchema(  client, moduleName){
-    console.log("exportModule hook", moduleName);
     var model = angoose.module(moduleName);
     if(!model.schema || !model.schema.paths) return;
-    logger().debug("Decorating mongoose model", moduleName);
+    logger().trace("Decorating mongoose model", moduleName);
     
     var schema = client.schemas[moduleName];
     // automatically publish these instance methods
@@ -53,7 +52,7 @@ function decorateMongooseSchema(  client, moduleName){
 }
 
 function logger(){
-    var logger = angoose.getLogger(EXTENSION); return logger;
+    var logger = angoose.getLogger('angoose'); return logger;
 }
 
 function postResolveTarget(next, invocation){
