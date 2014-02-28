@@ -174,6 +174,7 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
                     
                 
                 var fieldController = customController || "dfController"+ camelcase(template);
+                var fieldController = customController || "dfc-"+template;
                 try{  $controller(fieldController, {$scope: childScope, $schema: schema, inputElement: inputElement, templateElement: templateElement}) }
                 catch(err){
                     //console.error("fieldControoler error", err)

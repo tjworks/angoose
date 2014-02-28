@@ -25,7 +25,7 @@
 					</fieldset>
 					<div class="form-actions">
 						<button class="btn btn-success"  type="submit">Save </button>
-						<button class="btn btn-inverse" type="button" ng-click="cancelEdit()">Cancel </button>
+						<button class="btn btn-danger" type="button" ng-click="cancelEdit()">Cancel </button>
 					</div>
 				</form>
 				<div class="clearfix"></div>

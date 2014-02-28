@@ -9,7 +9,7 @@
 (function(){
     
  
-angular.module('angoose.ui.controllers',[] ).controller("dfControllerSelect", function($scope, $injector, $schema ){
+angular.module('angoose.ui.controllers',[] ).controller("dfc-select", function($scope, $injector, $schema ){
         console.log("In Select Ctrl", $scope.path   );
         if(!$schema || !$schema.options || !$schema.options.enum || !$schema.options.enum.length) return;
         $scope.selectOptions = {};
