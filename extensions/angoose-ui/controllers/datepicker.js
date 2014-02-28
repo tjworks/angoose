@@ -9,7 +9,7 @@
 (function(){
     
  
-angular.module('angoose.ui.controllers').controller("dfControllerDatepicker", function($scope, $injector, $schema, $filter, $timeout, $modal ){
+angular.module('angoose.ui.controllers').controller("dfc-datepicker", function($scope, $injector, $schema, $filter, $timeout, $modal ){
         enterscope($scope, "Datepicker "+ $scope.path);
         $scope.openPicker = function(){
             $modal.open({

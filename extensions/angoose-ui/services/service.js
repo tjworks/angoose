@@ -1,5 +1,5 @@
 (function(){
-angular.module('angoose.ui.service',[]).provider('$ui', function () {
+angular.module('angoose.ui.services').provider('$ui', function () {
     var deformOptions ={ templateDir: '' };
     var service = {
             getReference: getRef,
@@ -13,67 +13,53 @@ angular.module('angoose.ui.service',[]).provider('$ui', function () {
             getter:getter,
             setter:setter,
             getCustomRefKeyfieldPath:getCustomRefKeyfieldPath,
-            getCustomRefValue:getCustomRefValue
+            getCustomRefValue:getCustomRefValue,
+            filterPath:filterPath
     }
-    this.$get = function ($http, $templateCache) {
+    this.$get = function ($http, $templateCache, $q) {
             service.loadFieldTemplate = function(fieldTemplate){
-                return this.loadTemplate( 'deform.field.'+ fieldTemplate)
+                fieldTemplate = fieldTemplate.replace(".html", "");
+                fieldTemplate = 'deform.field.' + fieldTemplate+".tpl";
+                return this.loadTemplate( fieldTemplate);
             }
             service.loadTemplate = function(templateName){
-                var templateUrl = service.resolveTemplateUrl(templateName);
-                return $http.get(templateUrl, {cache:$templateCache}).then(function(response) {
-                  return angular.element(response.data);
-                }, function(response) {
-                  throw new Error('Template not found: ' + templateName);
-                  //console && console.error("teamplte note found", templateName)
-                });
+                console.log("Loading   template", templateName)
+                var deferred = $q.defer();
+                var html = $angooseTemplateCache(templateName) || "Template not cached: " + templateName
+                deferred.resolve( angular.element(html));
+                return deferred.promise;
+                
+                //var templateUrl = service.resolveTemplateUrl(templateName);
+                // return $http.get(templateName, {cache:  $templateCache }).then(function(response) {
+                  // return angular.element(response.data);
+                // }, function(response) {
+                  // throw new Error('Template not found: ' + templateName);
+                  // //console && console.error("teamplte note found", templateName)
+                // });
             }
-            service.resolveTemplateUrl = function(templateName){
-                var templateUrl = deformOptions.templateDir +"/"+ templateName +".tpl.html";
-                return templateUrl;
-            }
+            // service.resolveTemplateUrl = function(templateName){
+                // var templateUrl = deformOptions.templateDir +"/"+ templateName +".tpl.html";
+                // return templateUrl;
+            // }
             return service;  
     };
     this.config = function(opts){
         deformOptions = angular.extend(deformOptions, opts)
     }
     
-}).config(['$uiProvider','$routeProvider', function($uiProvider, $routeProvider ) {
-    console.log("configuring deform");
-    $uiProvider.config({
-          templateDir: '/js/deform/tpl'
-    });
-    function resolve(name){
-        return '/js/deform/tpl/'+ name+".tpl.html";  /**@todo: include template in script */
+});
+
+function filterPath(path, data, schema){
+    
+    if(data.options.editable === false) return true;
+    if(schema && schema.options && schema.options.discriminatorKey == path) return true;
+    if(path.indexOf("-")>0 || path == 'type') return true; /** cannot handle hyphen */
+    
+    if(getter(data, "schema.options.editable") === false) {
+        return true
     }
-    $routeProvider.
-    when("/deform/:modelName/list-:customController", {templateUrl: resolve('deform.list')}).
-    when("/deform/:modelName/list", {templateUrl: resolve('deform.list')}).
-    when("/deform/:modelName/create", {templateUrl:resolve('deform.edit')}).
-    when("/deform/:modelName/update/:modelId", {templateUrl:resolve('/deform.edit')}).
-    when("/deform/:modelName/view/:modelId", {templateUrl:resolve('deform.view')});
-
-}]).run(function($templateCache, $ui, $http, $rootScope){
-    
-    console.log("DEFORM SERVICE RUN START");
-    //var names = ["deform.list", "deform.edit", "deform.view", "deform.sublist", "deform.subschema"];
-    //@todo: templates in javascript */
-    
-    // deform.edit.tpl.html
-    // deform.field.input.tpl.html
-    // deform.field.readonly.tpl.html
-    // deform.field.select.tpl.html
-    // deform.field.selector.tpl.html
-    // deform.field.textarea.tpl.html
-    // deform.list.tpl.html
-    // deform.sublist.tpl.html
-    // deform.subschema.tpl.html
-    // deform.view.tpl.html
-}); // end Run block
-
- 
-
-
+    return false;
+}
 function setter(doc, path, val){
     if(!path || !doc ) return;
      var   pieces = path.split('.');

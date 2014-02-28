@@ -9,7 +9,7 @@
 (function(){
     
  
-angular.module('angoose.ui.controllers').controller("dfControllerSelector", function($scope, $injector, $schema, $ui, inputElement, templateElement, $timeout){
+angular.module('angoose.ui.controllers').controller("dfc-selector", function($scope, $injector, $schema, $ui, inputElement, templateElement, $timeout){
         console.log("In DFSelector Ctrl", $scope.path );
         enterscope($scope, "selector ctrl: "+ $scope.path);
         window.s2em = inputElement;
