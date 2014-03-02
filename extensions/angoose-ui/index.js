@@ -41,7 +41,7 @@ function concatFilesInDirectory( dirname){
         var absDir = path.resolve(__dirname, dir);
         var files = fs.readdirSync( absDir );
         files.forEach(function(filename){
-            console.log("Concat file", filename)
+            angoose.getLogger('angoose.ui').debug("Concat file", filename)
             output+= readFile( path.resolve(absDir, filename), dir+"/"+filename);
         });    
     });

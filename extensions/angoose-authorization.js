@@ -229,7 +229,7 @@ function getModelSchema(){
 
 
 function setupInitialRoles(){
-    var model=  mongoose.model(MODEL_NAME);
+    var model=  angoose.module(MODEL_NAME);
     model.findOne({role:'admin'}, function(err, role){
         if(role) return;
         var u = new model({

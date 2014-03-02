@@ -28,6 +28,7 @@ UserSchema.pre('save', function(next){
     if(this.isModified('password')){
         //this.password = crypto.pbkdf2Sync(this.password)
     } 
+    next();
 });      
 module.exports =  mongoose.model( options.MODEL_NAME, UserSchema);
 
@@ -49,7 +50,7 @@ setTimeout(function(){
         if(user) return;
         var u = new UserModel(adminUser);
         u.save(function(err){
-            console.log("Added default admin user");
+            console.log("Add default admin user result:", err);
         });
     })
 },1000);
