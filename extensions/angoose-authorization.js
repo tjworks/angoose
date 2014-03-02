@@ -2,7 +2,7 @@ var angoose = require("../lib/angoose");
 var toolbox = require("../lib/util/toolbox");
 
 var EXTENSION = 'angoose-authorization';
-var AUTHMODEL  = 'PermissionModel';
+var MODEL_NAME  = 'PermissionModel';
 var COLLECTION_NAME  = 'angoose_perms';
 
 var cached = null;
@@ -88,7 +88,7 @@ function getMatrix(callback){
     if(cached){
         return callback(cached);
     }
-    angoose(AUTHMODEL).find(function(err, perms){
+    angoose(MODEL_NAME).find(function(err, perms){
         if(err) logger().error("Failed to load permission roles", err);
         cached = {};
         for(var i=0; perms && i<perms.length; i++){
@@ -141,6 +141,9 @@ function isModel(module){
 function beforeCreateBundle(  client){
     // generating PermissionModel schema used on UI
     logger().debug("in beforeCreateBundle"); 
+    MODEL_NAME = angoose.config('angoose-authorization.model-name') || MODEL_NAME;
+    COLLECTION_NAME = angoose.config('angoose-authorization.collection-name') || COLLECTION_NAME;
+    
     var schemas = client.schemas;
     var authSchema = getModelSchema(); 
     // get list of all published methods
@@ -174,31 +177,33 @@ function beforeCreateBundle(  client){
            }
         };
     });
-    var mongooseModel =  angoose.getMongoose().modelNames().indexOf(AUTHMODEL)>=0? angoose.getMongoose().model(AUTHMODEL):angoose.getMongoose().model(AUTHMODEL, authSchema) ;
-    var permModule = angoose.module(AUTHMODEL, mongooseModel); 
-    new angoose.Bundle().exportModule(client, AUTHMODEL); // toolbox.exportModuleMethods(AUTHMODEL, permModule);
-    logger().debug("Added mongoose model", AUTHMODEL);
+    var mongooseModel =  angoose.getMongoose().modelNames().indexOf(MODEL_NAME)>=0? angoose.getMongoose().model(MODEL_NAME):angoose.getMongoose().model(MODEL_NAME, authSchema) ;
+    var permModule = angoose.module(MODEL_NAME, mongooseModel); 
+    new angoose.Bundle().exportModule(client, MODEL_NAME); // toolbox.exportModuleMethods(MODEL_NAME, permModule);
+    logger().debug("Added mongoose model", MODEL_NAME);
+    
+    setupInitialRoles();
 };
 
 function postInvoke(next, invocation){
+    next();
     // this is bizzare, if main method fails, this will be called with arguments meant for pre()
     //var invocation = angoose.getContext().getInvocation(); 
-    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next();
+    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return;
     
+    if(invocation.method == 'signout'){
+        angoose.getContext().getRequest().session.$authenticatedUser =   null;
+        logger().debug("User logged out");
+    }
     var data = invocation.result;
     logger().debug("Intercepting login methods", invocation.method, data);
     if(!data || !data.userId  )
-        return next();
+        return;
     if(invocation.method == 'signin'){
         angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
         logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
     }
-    if(invocation.method == 'signout'){
-        angoose.getContext().getRequest().session.$authenticatedUser =   null;
-        logger().debug("User logged out", data.userId);
-    }
     invocation.result = data;
-    next();
 };
 
 function moduleSetup(next){
@@ -211,7 +216,8 @@ function session(){
 
 function getModelSchema(){
     var schema =  new angoose.getMongoose().Schema({
-         role: {type:String, label:'Role', required:true, tags:['default-list'], unique:true }
+         role: {type:String, label:'Role', required:true, tags:['default-list'], unique:true },
+         desc: {type:String, label:'Description',tags:['default-list']}
     }, {collection: COLLECTION_NAME});
     
     schema.pre('save', function(next){
@@ -222,3 +228,38 @@ function getModelSchema(){
     return schema;
 }
 
+
+function setupInitialRoles(){
+    var model=  mongoose.model(MODEL_NAME);
+    model.findOne({role:'admin'}, function(err, role){
+        if(role) return;
+        var u = new model({
+            role:'admin', 
+            desc:"System default role with all permissions"
+        });
+        u.save(function(err){
+            logger().debug("Added default role: admin");
+        });
+    });
+    model.findOne({role:'authenticated'}, function(err, role){
+        if(role) return;
+        var u = new model({
+            role:'authenticated', 
+            desc:"System default role for authenticated user"
+        });
+        u.save(function(err){
+            logger().debug("Added default role: authenticated");
+        });
+    });
+    
+     model.findOne({role:'guest'}, function(err, role){
+        if(role) return;
+        var u = new model({
+            role:'guest', 
+            desc:"System default role for guest user"
+        });
+        u.save(function(err){
+            logger().debug("Added default role: guest");
+        });
+    });
+};

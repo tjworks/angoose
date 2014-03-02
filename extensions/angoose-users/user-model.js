@@ -3,7 +3,7 @@ var crypto = require("crypto");
 var mongoose = angoose.getMongoose();
 var options = {
     MODEL_NAME: 'AngooseUser',
-    COLLECTION_NAME: 'angoose-users'
+    COLLECTION_NAME: 'angoose_users'
 }
 var UserSchema = new mongoose.Schema({
                 email: {type: String, required: true, label: 'Email', match:[/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i, "Email is not valid"], unique:true, tags:['default-list']},
@@ -26,4 +26,24 @@ var UserSchema = new mongoose.Schema({
 module.exports =  mongoose.model( options.MODEL_NAME, UserSchema);
 
 
+// create a default user
 
+var adminUser = {
+    email:'admin@demo.com',
+    password:'demo',
+    name: {
+        first:'Admin', last:'Demo'
+    },
+    status:'active',
+    roles:'admin'
+}
+setTimeout(function(){
+    var UserModel=  mongoose.model(options.MODEL_NAME);
+    UserModel.findOne({email: adminUser.email}, function(err, user){
+        if(user) return;
+        var u = new UserModel(adminUser);
+        u.save(function(err){
+            console.log("Added default admin user");
+        });
+    })
+},1000);

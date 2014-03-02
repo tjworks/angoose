@@ -1,6 +1,8 @@
 (function(){
 angular.module('angoose.ui.services').provider('$ui', function () {
-    var deformOptions ={ templateDir: '' };
+    var uiOptions ={
+        '$query-error': 'throw'  // throw | alert | none, used to specify what happens when there is error loading data
+    };
     var service = {
             getReference: getRef,
             getPathSchema:getPathSchema,
@@ -43,10 +45,14 @@ angular.module('angoose.ui.services').provider('$ui', function () {
             // }
             return service;  
     };
-    this.config = function(opts){
-        deformOptions = angular.extend(deformOptions, opts)
-    }
-    
+    this.config = function(name, val){
+        if(typeof(name) === 'object')
+            uiOptions = angular.extend(uiOptions, opts)
+        else if(name){
+            if( val === undefined) return getter(uiOptions, name);
+            setter(uiOptions, name, val)    
+        }
+    };
 });
 
 function filterPath(path, data, schema){
