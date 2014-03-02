@@ -1,6 +1,6 @@
 {
   "name": "angoose",
-  "version": "0.2.37",
+  "version": "0.2.38",
   "description": "Angoose is a Remote Method Invocation module that comes with built-in mongoose/angular support. Now you can call server side module in browser just like you're in the server side!",
   "main": "lib/angoose",
   "scripts": {
@@ -30,7 +30,7 @@
     "jasmine-custom-message": "~0.1.2",
     "node-mocks-http": "*",
     "grunt-contrib-watch": "~0.5.3",
-    "mocha":"*"
+    "mocha": "*"
   },
   "dependencies": {
     "underscore": "*",

@@ -99,7 +99,7 @@ describe("Model save validations", function(){
             console.log("Expecting save error : ", err, res);
             assert.equal(err, true);
             if(!err) return done(); 
-            assert(err && err.indexOf('email'));
+            assert(err && (err+"").indexOf('email'));
             suser = new SampleUser( userdata);
             suser.save().done(function(res){
                 console.log("Expecting save OK: ", res);
@@ -154,7 +154,7 @@ describe("Model save validations", function(){
 }) ;
 
 describe("", function(){
-     it("Sample User Groups", function(done){
+     it("Sample User Groups add and save", function(done){
         var SampleUser = AngooseClient.getClass("SampleUser");
         var SampleUserGroup = AngooseClient.getClass("SampleUserGroup");
         var group = new SampleUserGroup({
@@ -162,7 +162,7 @@ describe("", function(){
         });
         group.save(function(err, res){
             console.log("save group", err, group);
-            if(err && err.indexOf("duplicate")<0){
+            if(err && (err+"").indexOf("duplicate")<0){
                 assert(!err);
                 done()
             }

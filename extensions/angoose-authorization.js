@@ -186,10 +186,9 @@ function beforeCreateBundle(  client){
 };
 
 function postInvoke(next, invocation){
-    next();
     // this is bizzare, if main method fails, this will be called with arguments meant for pre()
     //var invocation = angoose.getContext().getInvocation(); 
-    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return;
+    if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next();;
     
     if(invocation.method == 'signout'){
         angoose.getContext().getRequest().session.$authenticatedUser =   null;
@@ -198,12 +197,12 @@ function postInvoke(next, invocation){
     var data = invocation.result;
     logger().debug("Intercepting login methods", invocation.method, data);
     if(!data || !data.userId  )
-        return;
+        return next();;
     if(invocation.method == 'signin'){
         angoose.getContext().getRequest().session.$authenticatedUser =   {userId: data.userId, roles: data.roles } ;
         logger().debug("User authenticated", angoose.getContext().getRequest().session.$authenticatedUser );
     }
-    invocation.result = data;
+    next();    
 };
 
 function moduleSetup(next){

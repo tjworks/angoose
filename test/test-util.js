@@ -65,7 +65,7 @@ module.exports.addUser = function(SampleUser, cb){
         if(!err && res)  return cb(err, res);
         var user1 = new SampleUser(userdata);
         user1.save(function(err, saved){
-            if(err && err.indexOf("duplicate")) err=undefined;
+            if(err && (err +"").indexOf("duplicate")) err=undefined;
             console.log("user 1 added", err)
             cb(err, user1 );    
         });    

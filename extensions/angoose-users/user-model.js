@@ -23,6 +23,12 @@ var UserSchema = new mongoose.Schema({
                 password: {type:String, required:true, label:'Password' },
                 roles:{type:String, enum:[ 'admin','manager','content-admin', 'user' ], default:'user', label:'User Role', required:true, tags:['default-list']} // the roles are sample ones
         } , {collection: options.COLLECTION_NAME, label:'User'});
+        
+UserSchema.pre('save', function(next){
+    if(this.isModified('password')){
+        //this.password = crypto.pbkdf2Sync(this.password)
+    } 
+});      
 module.exports =  mongoose.model( options.MODEL_NAME, UserSchema);
 
 
