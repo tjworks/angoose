@@ -1,5 +1,6 @@
 (function(){
-angular.module('angoose.ui.services').provider('$ui', function () {
+    
+var serviceProvider = function () {
     var uiOptions ={
         '$query-error': 'throw'  // throw | alert | none, used to specify what happens when there is error loading data
     };
@@ -53,7 +54,9 @@ angular.module('angoose.ui.services').provider('$ui', function () {
             setter(uiOptions, name, val)    
         }
     };
-});
+};    
+    
+angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider);
 
 function filterPath(path, data, schema){
     

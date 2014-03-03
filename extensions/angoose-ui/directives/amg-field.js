@@ -113,7 +113,7 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
             $compile(directiveElement)(childScope);
         }
         
-        console.log("Created child scope for deform-field ", scope.path,  childScope.$id)
+        console.log("Created child scope for deform-field ", scope.path,  childScope.$id, "using directive: ",directive)
         if(directive){
             handleDirective( directive, childScope);
         }      
@@ -171,10 +171,9 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
               element.append(templateElement);
     
                 // filed controller
-                    
-                
-                var fieldController = customController || "dfController"+ camelcase(template);
+                //var fieldController = customController || "dfController"+ camelcase(template);
                 var fieldController = customController || "dfc-"+template;
+                console.log("Invoking custom controller", fieldController);
                 try{  $controller(fieldController, {$scope: childScope, $schema: schema, inputElement: inputElement, templateElement: templateElement}) }
                 catch(err){
                     //console.error("fieldControoler error", err)

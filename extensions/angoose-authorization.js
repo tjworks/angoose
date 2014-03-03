@@ -191,7 +191,8 @@ function postInvoke(next, invocation){
     if( ['signin', 'signout'].indexOf(invocation.method ) <0 ) return next();;
     
     if(invocation.method == 'signout'){
-        angoose.getContext().getRequest().session.$authenticatedUser =   null;
+        if(angoose.getContext().getRequest().session)
+            angoose.getContext().getRequest().session.$authenticatedUser =   null;
         logger().debug("User logged out");
     }
     var data = invocation.result;

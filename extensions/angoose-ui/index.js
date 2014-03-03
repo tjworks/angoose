@@ -14,7 +14,7 @@ angoose.extension("AngooseUI", ui);
 // append angoose-ui sources
 //@todo: call grunt task api to concat/minify the source & templates 
 function appendUISource(client){
-    angoose.getLogger('angoose.ui').debug("Adding angoose-ui sources");
+    angoose.getLogger('angoose').debug("Appending angoose-ui sources");
 //    client.source += " \n;console.log('####################----------- angoose-ui -----------##############');\n";
     var output="";
     output += readFile(path.resolve(__dirname, 'angular-modules.js'));
@@ -31,6 +31,7 @@ function concatTemplates(){
          var tmp = readFile( path.resolve(__dirname, 'tpl', filename), "tpl/"+filename);
          templates[filename] = tmp;
     });
+    angoose.getLogger('angoose').debug("preprocessing templates: ", Object.keys(templates).length);
     return  "function $angooseTemplateCache(name){  var templates= "+ JSON.stringify(templates) +";  return name? templates[name]:templates; } ";
 }
 
@@ -41,7 +42,7 @@ function concatFilesInDirectory( dirname){
         var absDir = path.resolve(__dirname, dir);
         var files = fs.readdirSync( absDir );
         files.forEach(function(filename){
-            angoose.getLogger('angoose.ui').debug("Concat file", filename)
+            angoose.getLogger('angoose').trace("concating file", filename)
             output+= readFile( path.resolve(absDir, filename), dir+"/"+filename);
         });    
     });

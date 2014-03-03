@@ -8,7 +8,7 @@
   </div>
 </div>
 <script type="text/ng-template"  id="datepicker-template-{{$id}}">
-<div class="modal hide fade in" tabindex="-1" role="dialog" style="  display: block;" aria-hidden="true"  ng-controller="dfControllerDatepickerModal">
+<div class="modal hide fade in span6" tabindex="-1" role="dialog" style="display: block;" aria-hidden="true"  ng-controller="dfControllerDatepickerModal">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" ng-click="cancel()"><i class="icon-remove"></i></button>
         <h3> <span> {{label}} </span></h3>
@@ -18,8 +18,8 @@
 			<div class="row-fluid form"  >
 				<div class="control-group"  >
 					<div class="controls controls-row">
-						<div id="datepicker{{$id}}" class="span6" data-deform="appointment.$datepicker()"></div>
-						<div id="timepicker{{$id}}" class="span6" data-deform="appointment.$timepicker()"></div>
+						<div id="datepicker{{$id}}" ng-class="showTimepicker?'span6':'span12'" data-deform="appointment.$datepicker()"  ></div>
+						<div id="timepicker{{$id}}" class="span6" data-deform="appointment.$timepicker()" ng-if="showTimepicker" ></div>
 					</div>
 				</div>												
 			</div>

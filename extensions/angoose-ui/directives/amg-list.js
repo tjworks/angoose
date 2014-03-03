@@ -1,14 +1,16 @@
 (function(){
-angular.module('angoose.ui.directives').directive("deformListing", function( $templateCache, $routeParams, $location, $injector, MessageBox, $log ,$route, $ui, $controller){
+angular.module('angoose.ui.directives').directive("deformListing", angList ).directive("angList", angList);
+
+function angList( $templateCache, $routeParams, $location, $injector, MessageBox, $log ,$route, $ui, $controller){
     // this is the main controller for the sort-paging-filtering list
     var directive = {
         restrict:'AE'
     }; 
     directive.compile = function(element, attrs){
-        console.debug("In deformlisting compile");
+        console.debug("In ang-list compile");
         var preLink = function($scope, $element, $attrs){
             /** we do this in prelink because child directives needs the dmeta setup below */
-            enterscope($scope, "Deform Listing prelink");
+            enterscope($scope, "ang-list  prelink");
             
             /**@todo: calling custom controller here is kinda not the right angular way, but we augment the $scope */
             if($routeParams.customController){
@@ -120,13 +122,20 @@ angular.module('angoose.ui.directives').directive("deformListing", function( $te
             
             
             $scope.cells = [];
+            
+            // $compile template if provided
+            // var template = getTemplate(scope.data);
+            // element.html(template);
+            // $compile(element.contents())(scope);
+            
         } // end link
         return {pre:preLink, post:postLink }
         
     }; // end compile
    
     return directive;
-});
+};  // end directiveFunc
+
 // get a list of fields with a specific tag
 function findTagged(modelClass,tag){
     if(!modelClass || !modelClass.schema) return [];
