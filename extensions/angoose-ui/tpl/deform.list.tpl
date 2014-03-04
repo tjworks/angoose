@@ -1,4 +1,4 @@
-<div class="box" data-deform-listing>
+<div class="box">
     <div class="box-header">
       <h2><i class="icon-list"></i><span class="break"></span>
       	{{ dmeta.pageTitle }}

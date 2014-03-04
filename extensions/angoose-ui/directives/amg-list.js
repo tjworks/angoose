@@ -1,7 +1,7 @@
 (function(){
 angular.module('angoose.ui.directives').directive("deformListing", angList ).directive("angList", angList);
 
-function angList( $templateCache, $routeParams, $location, $injector, MessageBox, $log ,$route, $ui, $controller){
+function angList( $templateCache, $routeParams, $compile, $location, $injector, MessageBox, $log ,$route, $ui, $controller){
     // this is the main controller for the sort-paging-filtering list
     var directive = {
         restrict:'AE'
@@ -10,14 +10,14 @@ function angList( $templateCache, $routeParams, $location, $injector, MessageBox
         console.debug("In ang-list compile");
         var preLink = function($scope, $element, $attrs){
             /** we do this in prelink because child directives needs the dmeta setup below */
-            enterscope($scope, "ang-list  prelink");
+            enterscope($scope, "ang-list  prelink",  $route.current);
             
             /**@todo: calling custom controller here is kinda not the right angular way, but we augment the $scope */
             if($routeParams.customController){
                  $controller ( ($routeParams.modelName+"-list-"+ $routeParams.customController).toLowerCase(), {$scope: $scope});
             }
             
-            var thisRoute = $route.current.$$route;
+            var thisRoute = $route.current && $route.current.$$route;
             
             var dmeta = $ui.initQuery($scope, thisRoute && thisRoute.deformQuery);
             // $scope.dmeta = $scope.dmeta || {};
@@ -85,7 +85,8 @@ function angList( $templateCache, $routeParams, $location, $injector, MessageBox
             
          }
          var postLink = function($scope, $element, $attrs){
-            enterscope($scope, "postlink deform listing")
+            enterscope($scope, "postlink ang listing");
+            console.log( $scope.dmeta)
             var spec =   $scope.dmeta.spec;
             
             $scope.$watch("dmeta.spec", function(newVal, oldVal){
@@ -123,10 +124,26 @@ function angList( $templateCache, $routeParams, $location, $injector, MessageBox
             
             $scope.cells = [];
             
+            var templateUrl = $attrs.templateUrl;
+            if(!templateUrl && !element.html()){
+                templateUrl = "deform.list.tpl"; // default
+            } 
+            if(templateUrl){
+                element.html("<!-- to be replaced by contents from "+  templateUrl+" -->");
+                console.log("Loading templateUrl",  templateUrl);
+                $ui.loadTemplate(templateUrl).then(function(em){
+                    console.log("Compiling template  ", em);
+                    element.append(em);
+                    $compile(em)($scope);     
+                }, function(er){
+                    console.log("Failed to load template",  templateUrl)
+                })
+            }
+            
             // $compile template if provided
             // var template = getTemplate(scope.data);
             // element.html(template);
-            // $compile(element.contents())(scope);
+            // 
             
         } // end link
         return {pre:preLink, post:postLink }
@@ -162,7 +179,7 @@ function getDefaultSortField(modelClass){
 
 
 
-function enterscope(scope, name) {
-	console.debug("Entering scope ", name, scope.$id)
+function enterscope(scope, name, arg1) {
+	console.debug("Entering scope ", name, scope.$id, arg1)
 	window['scope' + scope.$id] = scope;
 }

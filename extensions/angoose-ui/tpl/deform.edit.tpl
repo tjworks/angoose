@@ -1,5 +1,4 @@
  
-<div deform-edit>
 	<div class="row-fluid">
 		<h4>
 		</h4>
@@ -32,4 +31,3 @@
 			</div>
 		</div>
 	</div>
-</div>

@@ -1,4 +1,4 @@
-(function(){
+;(function(){
     
 var serviceProvider = function () {
     var uiOptions ={
@@ -9,6 +9,7 @@ var serviceProvider = function () {
             getPathSchema:getPathSchema,
             debounce:debounce,
             initQuery:initQuery,
+            defineQuery:initQuery,
             isCustomRef:isCustomRef,
             camelcase:camelcase,
             decamelcase:decamelcase,
@@ -17,7 +18,8 @@ var serviceProvider = function () {
             setter:setter,
             getCustomRefKeyfieldPath:getCustomRefKeyfieldPath,
             getCustomRefValue:getCustomRefValue,
-            filterPath:filterPath
+            filterPath:filterPath,
+            resolveAttribute: resolveAttribute
     }
     this.$get = function ($http, $templateCache, $q) {
             service.loadFieldTemplate = function(fieldTemplate){
@@ -28,7 +30,7 @@ var serviceProvider = function () {
             service.loadTemplate = function(templateName){
                 console.log("Loading   template", templateName)
                 var deferred = $q.defer();
-                var html = $angooseTemplateCache(templateName) || "Template not cached: " + templateName
+                var html = $angooseTemplateCache(templateName)  || "Template not cached: " + templateName;
                 deferred.resolve( angular.element(html));
                 return deferred.promise;
                 
@@ -58,6 +60,12 @@ var serviceProvider = function () {
     
 angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider);
 
+
+// a helper function to determine the attribute value based on following order:
+//  $scope (from custom controller) -> $routeParam -> directive 
+function resolveAttribute(name, $scope, $routeParams, $attrs ){
+    return getter($scope.dmeta,  name) ||  getter($routeParams, name) ||  $attrs[name];
+}
 function filterPath(path, data, schema){
     
     if(data.options.editable === false) return true;
@@ -209,7 +217,11 @@ function initQuery($scope, options){
     dmeta.spec = dmeta.spec || {};
     dmeta.spec.filter = dmeta.spec.filter || {} ;
     
-    dmeta.spec.preset = options.preset || dmeta.spec.preset;
+    if(options.preset)
+        dmeta.spec.preset = options.preset || dmeta.spec.preset;
+    if(options.defaultFilter)
+        dmeta.spec.preset = options.defaultFilter || dmeta.spec.preset;
+    
     dmeta.spec.sortBy = options.sortBy || dmeta.sortBy 
     dmeta.spec.sortDir = options.sortDir || dmeta.sortDir
     

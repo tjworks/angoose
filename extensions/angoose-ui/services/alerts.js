@@ -2,7 +2,8 @@ angular.module('angoose.ui.services').factory("$alert", function($rootScope){
     var Alert = {};
     var scope = $rootScope;
     var alerts = scope.alerts = [];
-    function add(alert){
+    function add(alert, delay){
+        delay = delay || 1;
         setTimeout(function(){
             // doing this outside angular context
             var existing = null;
@@ -17,20 +18,20 @@ angular.module('angoose.ui.services').factory("$alert", function($rootScope){
                 alerts.push(alert);
                 scope.$digest();
             }
-        });
+        }, delay);
     }
-    Alert.info = function(msg){
+    Alert.info = function(msg, delay){
         add({type:'info', msg: msg});
     };
-    Alert.warm = function(msg){
-        add({type:'warn', msg: msg});
+    Alert.warn = function(msg, delay){
+        add({type:'warn', msg: msg}, delay);
     };
-    Alert.success = function(msg){
-        add({type:'success', msg: msg});
+    Alert.success = function(msg, delay){
+        add({type:'success', msg: msg}, delay);
     }
-    Alert.error = function(msg){
+    Alert.error = function(msg, delay){
         //msg = _formatError(msg);
-        add({type:'error', msg: msg});
+        add({type:'error', msg: msg}, delay);
     }
     Alert.clear = function(){
         setTimeout(function(){

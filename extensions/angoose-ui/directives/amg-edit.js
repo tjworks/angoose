@@ -1,61 +1,74 @@
 (function(){
-angular.module('angoose.ui.directives').directive("deformView", function(){
+angular.module('angoose.ui.directives').directive("deformView", viewDirective).directive("deformEdit",  editDirective);
+angular.module('angoose.ui.directives').directive("angView", viewDirective).directive("angEdit",  editDirective);
+
+
+function viewDirective(){
       var directive = {
-        restrict:'A',
+        restrict:'AE',
         scope:true,
     };
     
-    directive.controller = function($scope, $element, $attrs, $routeParams, $injector, MessageBox, $ui){
+    directive.controller = function($scope, $element, $attrs, $routeParams, $injector ){
         enterscope($scope,"DeformView");
-        prepareInstance($scope, $injector, $routeParams, MessageBox, $ui);
+        prepareInstance($scope, $injector, $routeParams,   $attrs);
         $scope.readonly = true;
     }
     return directive;
     
-}).directive("deformEdit", function(){
+}
+function editDirective( $location, $routeParams, $injector, $alert ){
      var directive = {
-        restrict:'A',
+        restrict:'AE',
         scope:true,
     };
     
-    directive.controller = function($scope, $element, $attrs, $location, $routeParams, $injector, MessageBox, $ui){
-        enterscope($scope,"DeformEdit");
-        $scope.isNew = $location.path().indexOf("create")>0; 
-        prepareInstance($scope, $injector, $routeParams, MessageBox, $ui);
-        $scope.saveForm = function(){
-            if(!$scope.instance) return;
-            // depopulate
-            $scope.instance.save(function(err, result){
-                if(err) MessageBox.error(err);
-                else{
-                    MessageBox.success("Successfully saved data.", function(){
-                      //$location.path("/deform/" + $scope.dmeta.modelName+"/list");  
-                      window.history.back();
-                    });
-                } 
-            })
+    directive.compile = function(){
+        return function link($scope, $element, $attrs ){
+            enterscope($scope,"AngEdit");
+            $scope.isNew = $location.path().indexOf("create")>0; 
+            prepareInstance($scope, $injector, $routeParams,  $attrs);
+            $scope.saveForm = function(){
+                if(!$scope.instance) return;
+                // depopulate
+                $scope.instance.save(function(err, result){
+                    if(err) $alert.error(err+"");
+                    else{
+                        window.history.back();
+                        $alert.success("Successfully saved data", 10);
+                        // MessageBox.success("Successfully saved data.", function(){
+                          // //$location.path("/deform/" + $scope.dmeta.modelName+"/list");  
+                          // window.history.back();
+                        // });
+                    } 
+                })
+            }
+            $scope.reset = function(){
+                $scope.instance = modelClass.$get({_id: modelId});
+            }
+            $scope.cancelEdit = function(){
+                window.history.back();
+            }
+            
         }
-        $scope.reset = function(){
-            $scope.instance = modelClass.$get({_id: modelId});
-        }
-        $scope.cancelEdit = function(){
-            window.history.back();
-        }
-        
-    }
+    };
     return directive;
-});
-function prepareInstance($scope, $injector, $routeParams, MessageBox, $ui){
+}
+function prepareInstance($scope, $injector, $routeParams,  $attrs){
         console.log("prepare scope", $scope.$id, " parent id", $scope.$parent.$id)
-        var modelClass = $injector.get( $ui.camelcase($routeParams.modelName));
-        var modelId = $routeParams.modelId;
+        var $ui = $injector.get("$ui");
+        var dmeta = $scope.dmeta = $scope.dmeta || {};
+        var modelName = $ui.resolveAttribute('modelName', $scope, $routeParams, $attrs)
+        
+        var modelClass = $injector.get( $ui.camelcase( modelName));
+        var modelId = $ui.resolveAttribute('modelId', $scope, $routeParams, $attrs);
         
         function processSchema(modelName, modelClass){
-            $scope.dmeta = {
-                modelName: $routeParams.modelName,
+            $scope.dmeta = angular.extend($scope.dmeta, {
+                modelName: modelName,
                 modelClass: modelClass,
                 modelSchema: modelClass.schema
-            }
+            });
             var groups = {};
             groups.sorted_groups  = [""]; // work around angular's collectionKeys.sort 
             var refPaths = [];
@@ -88,12 +101,12 @@ function prepareInstance($scope, $injector, $routeParams, MessageBox, $ui){
   
             }, function(err){
                 console.error(err);
-                MessageBox.error(err);
+                $injector.get('$alert').error(err+"");
             });    
         }
         else {
             $scope.instance =  new modelClass();
-            processSchema($routeParams.modelName, modelClass);
+            processSchema( modelName, modelClass);
             
         }
         

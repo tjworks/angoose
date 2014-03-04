@@ -1,4 +1,3 @@
-<div deform-view>
 	<div class="row-fluid">
 		<h4>
 		</h4>
@@ -26,4 +25,3 @@
 			</div>
 		</div>
 	</div>
-</div>
