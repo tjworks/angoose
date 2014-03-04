@@ -13,10 +13,16 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             enterscope($scope, "ang-list  prelink",  $route.current);
             
             /**@todo: calling custom controller here is kinda not the right angular way, but we augment the $scope */
-            if($routeParams.customController){
-                 $controller ( ($routeParams.modelName+"-list-"+ $routeParams.customController).toLowerCase(), {$scope: $scope});
-            }
-            
+            // get the configured defaults
+            // var ctrl = $ui.getConfig($location.path());
+            // if(ctrl){
+                // console.log("Calling user defined controller", ctrl)
+                // $controller ( ctrl, {$scope: $scope, $element:$element, $attrs: $attrs});
+            // }
+            // if($routeParams.customController) {
+                 // $controller ( ($routeParams.modelName+"-list-"+ $routeParams.customController).toLowerCase(), {$scope: $scope});
+            // }
+//             
             var thisRoute = $route.current && $route.current.$$route;
             
             var dmeta = $ui.initQuery($scope, thisRoute && thisRoute.deformQuery);

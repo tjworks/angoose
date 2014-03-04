@@ -97,7 +97,7 @@ function prepareInstance($scope, $injector, $routeParams,  $attrs){
             modelClass.findById(modelId).done(function(modelInstance){
                 $scope.instance =  modelInstance;
                 modelClass = modelInstance.constructor || modelClass;
-                processSchema(modelClass.name, modelClass);
+                processSchema(modelClass.modelName, modelClass);
   
             }, function(err){
                 console.error(err);
