@@ -31,16 +31,17 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert , $compi
             // render template if needed
             var $form = $scope.defineForm();
             
-            $ui.resolveTemplate($element, $attrs, $form, 'deform.edit.tpl').then(function(em){
-                if(em){
-                    console.log("Resolved template, compiling(default: edit.tpl')")
-                    $element.html("<!-- CLEARED -->"); // first clear the inline template
-                    $element.append(em);
-                    $compile(em)($scope);
-                }
-            }, function(err){
-                console.error("Error resolving template(edit.tpl)", err);
-            });
+            $ui.resolveAndCompile($scope, $element, $attrs, $form, 'deform.edit.tpl');
+            // $ui.resolveTemplate($element, $attrs, $form, 'deform.edit.tpl').then(function(em){
+                // if(em){
+                    // console.log("Resolved template, compiling(default: edit.tpl')")
+                    // $element.html("<!-- CLEARED -->"); // first clear the inline template
+                    // $element.append(em);
+                    // $compile(em)($scope);
+                // }
+            // }, function(err){
+                // console.error("Error resolving template(edit.tpl)", err);
+            // });
             
             $scope.saveForm = function(){
                 if(!$scope.instance) return;

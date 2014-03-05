@@ -9,7 +9,7 @@
 		</div>
 		
       	<div class="box-icon">
-        	<a class="btn" href="/deform/{{ dmeta.modelName }}/create"><i class="icon-plus"></i> New {{ dmeta.modelName }} </a>
+        	<a class="btn" href="/deform/{{ dmeta.modelName }}/create"><i class="icon-plus"></i> New {{ dmeta.modelName }}  </a>
        	</div>
        	
     </div>

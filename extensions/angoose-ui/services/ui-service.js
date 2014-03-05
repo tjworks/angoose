@@ -21,7 +21,7 @@ var serviceProvider = function () {
             filterPath:filterPath,
             resolveAttribute: resolveAttribute
     }
-    this.$get = function ($http, $templateCache, $q, AngooseForm, AngooseQuery) {
+    this.$get = function ($http, $templateCache, $q,$compile,  AngooseForm, AngooseQuery) {
             service.loadFieldTemplate = function(fieldTemplate){
                 fieldTemplate = fieldTemplate.replace(".html", "");
                 fieldTemplate = 'deform.field.' + fieldTemplate+".tpl";
@@ -65,9 +65,11 @@ var serviceProvider = function () {
             
             service.resolveTemplate = function resolveTemplate($element, $attrs, config, defaultTemplateUrl){
                 // templateUrl could be specified in the directive <ang-edit template-url='xxx' template='xxx'>
-                 /** template resolving order   
-                 1)  $form.template
-                 2)  $form.templateUrl
+                 /** template resolving order
+                 //todo: consolidate with field directive template
+                 
+                 1)  config.template  // config is from custom controller, if available
+                 2)  config.templateUrl
                  3)  $attrs.templateUrl
                  4)   inline template
                  */
@@ -87,7 +89,7 @@ var serviceProvider = function () {
                 }
                 var em = ''; 
                 if(template){
-                    // first order
+                    // template is specified as string content
                     console.log("Compiling template content");
                     em = angular.element(template);
                 }
@@ -98,13 +100,25 @@ var serviceProvider = function () {
                 }
                 else{
                     // inline doesn't need special handling
-                    console.log("Did not find configured template, using inline template");
+                    console.log("Did not find configured template, using inline template" );
                     em = "";
                 }   
                 deferred.resolve(em); // nextTick?
                 return deferred.promise;
             };
-            
+            service.resolveAndCompile = function($scope, $element, $attrs, config, defaultTemplate){
+                console.log("Resolving template[default: ", defaultTemplate+"]");
+                service.resolveTemplate($element, $attrs, config, defaultTemplate).then(function(em){
+                    console.log("resolveTemplate completed[default: ", defaultTemplate+"]. Got content: ", !!em);
+                    if(em){
+                        $element.html("<!-- CLEARED -->"); // first clear the inline template
+                        $element.append(em);
+                        $compile(em)($scope);
+                    }
+                }, function(err){
+                    console.error("Error resolving template(list.tpl)", err);
+                });
+            }
             return service;  
     };
     this.config = function(name, val){

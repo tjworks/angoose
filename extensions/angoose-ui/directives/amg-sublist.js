@@ -1,7 +1,6 @@
 angular.module('angoose.ui.directives').directive("deformSublist", function($ui){
   var directive = {
       restrict:'AE',
-      templateUrl: '/js/deform/tpl/deform.sublist.tpl.html',
       scope:{
           instance:'=',
           path:'=',
@@ -12,8 +11,9 @@ angular.module('angoose.ui.directives').directive("deformSublist", function($ui)
           //element.html("sub elements");
           return function link(scope, element, attrs){
               enterscope(scope, "sublist path "+ scope.path)
+              var getter = scope.getter = $ui.getter;
               console.debug("our data: ", getter(scope, 'instance.'+ scope.path));
-              scope.getter = $ui.getter;
+              
               console.log("Creating sublist ", scope.$id)
               // we can't just use sublist because nested scopes - where subscope may override parents
               scope['sublist'+ scope.$id] = getter(scope, 'instance.'+ scope.path) || [];
@@ -33,21 +33,24 @@ angular.module('angoose.ui.directives').directive("deformSublist", function($ui)
               scope.addSublistItem = function(){
                   scope.sublist(scope.$id).push({__toggle:1})
               }
+              
+              $ui.resolveAndCompile(scope, element, attrs, null, 'deform.sublist.tpl');
           }
       }
   };
   return directive;   
-}).directive("deformSubschema", function(){
+}).directive("deformSubschema", function($ui){
     // this is not used as of 2/28/14
     var directive = {
       restrict:'AE',
-      templateUrl: '/js/deform/tpl/deform.subschema.tpl.html',
+      //templateUrl: 'deform.subschema.tpl',
       compile: function(element, attrs){
           //element.html("sub elements");
           return function link(scope, element, attrs){
               enterscope(scope, 'sbuschema: ' + scope.path);
               scope.getter = $ui.getter;
               scope.subschema = scope.modelSchema && $ui.getter( scope.modelSchema.paths[  scope.path ], 'schema');
+              $ui.resolveAndCompile(scope, element, attrs, null, 'deform.subschema.tpl');
           }
       }
   };

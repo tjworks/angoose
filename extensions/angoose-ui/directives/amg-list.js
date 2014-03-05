@@ -84,17 +84,18 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
                     
                 })
             }
-            
-            $ui.resolveTemplate(element, $attrs, dmeta, 'deform.list.tpl').then(function(em){
-                console.log("Resolved template, compiling(default: list.tpl')", em)
-                if(em){
-                    $element.html("<!-- CLEARED -->"); // first clear the inline template
-                    $element.append(em);
-                    $compile(em)($scope);
-                }
-            }, function(err){
-                console.error("Error resolving template(list.tpl)", err);
-            });
+            $ui.resolveAndCompile($scope, $element, $attrs, dmeta, 'deform.list.tpl');
+//             
+            // $ui.resolveTemplate(element, $attrs, dmeta, 'deform.list.tpl').then(function(em){
+                // console.log("Resolved template, compiling(default: list.tpl')", em)
+                // if(em){
+                    // $element.html("<!-- CLEARED -->"); // first clear the inline template
+                    // $element.append(em);
+                    // $compile(em)($scope);
+                // }
+            // }, function(err){
+                // console.error("Error resolving template(list.tpl)", err);
+            // });
             
          }
          var postLink = function($scope, $element, $attrs){
