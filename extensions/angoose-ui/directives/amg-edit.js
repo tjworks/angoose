@@ -17,7 +17,7 @@ function viewDirective(){
     return directive;
     
 }
-function editDirective( $location, $routeParams, $injector, $ui, $alert ){
+function editDirective( $location, $routeParams, $injector, $ui, $alert , $compile){
      var directive = {
         restrict:'AE',
         scope:true,
@@ -30,6 +30,7 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert ){
             prepareInstance($scope, $injector, $routeParams,  $attrs);
             // render template if needed
             var $form = $scope.defineForm();
+            
             $ui.resolveTemplate($element, $attrs, $form, 'deform.edit.tpl').then(function(em){
                 if(em){
                     console.log("Resolved template, compiling(default: edit.tpl')")
@@ -44,7 +45,9 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert ){
             $scope.saveForm = function(){
                 if(!$scope.instance) return;
                 // depopulate
+                $scope.$emit("save");
                 $scope.instance.save(function(err, result){
+                    $scope.$emit("afterSave");
                     if(err) $alert.error(err+"");
                     else{
                         window.history.back();
@@ -60,6 +63,7 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert ){
                 $scope.instance = modelClass.$get({_id: modelId});
             }
             $scope.cancelEdit = function(){
+                $scope.$emit("cancel");
                 window.history.back();
             }
             
@@ -121,9 +125,6 @@ function prepareInstance($scope, $injector, $routeParams,  $attrs){
             processSchema( modelName, modelClass);
             
         }
-        
-            
-        
 }   
 
 })(); // scope wrapper

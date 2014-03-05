@@ -22,10 +22,7 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             // if($routeParams.customController) {
                  // $controller ( ($routeParams.modelName+"-list-"+ $routeParams.customController).toLowerCase(), {$scope: $scope});
             // }
-//             
-            var thisRoute = $route.current && $route.current.$$route;
-            
-            var dmeta = $ui.initQuery($scope, thisRoute && thisRoute.deformQuery);
+            var dmeta = $scope.defineQuery();
             // $scope.dmeta = $scope.dmeta || {};
             // var dmeta = $scope.dmeta; 
             /** order or presedence: custom controller -> directive -> route params  */
@@ -88,6 +85,16 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
                 })
             }
             
+            $ui.resolveTemplate(element, $attrs, dmeta, 'deform.list.tpl').then(function(em){
+                console.log("Resolved template, compiling(default: list.tpl')", em)
+                if(em){
+                    $element.html("<!-- CLEARED -->"); // first clear the inline template
+                    $element.append(em);
+                    $compile(em)($scope);
+                }
+            }, function(err){
+                console.error("Error resolving template(list.tpl)", err);
+            });
             
          }
          var postLink = function($scope, $element, $attrs){
@@ -129,22 +136,23 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             
             
             $scope.cells = [];
-            //todo: use 
-            var templateUrl = $attrs.templateUrl;
-            if(!templateUrl && !element.html()){
-                templateUrl = "deform.list.tpl"; // default
-            } 
-            if(templateUrl){
-                element.html("<!-- to be replaced by contents from "+  templateUrl+" -->");
-                console.log("Loading templateUrl",  templateUrl);
-                $ui.loadTemplate(templateUrl).then(function(em){
-                    console.log("Compiling template  ", em);
-                    element.append(em);
-                    $compile(em)($scope);     
-                }, function(er){
-                    console.log("Failed to load template",  templateUrl)
-                })
-            }
+            
+            
+            // var templateUrl = $attrs.templateUrl;
+            // if(!templateUrl && !element.html()){
+                // templateUrl = "deform.list.tpl"; // default
+            // } 
+            // if(templateUrl){
+                // element.html("<!-- to be replaced by contents from "+  templateUrl+" -->");
+                // console.log("Loading templateUrl",  templateUrl);
+                // $ui.loadTemplate(templateUrl).then(function(em){
+                    // console.log("Compiling template  ", em);
+                    // element.append(em);
+                    // $compile(em)($scope);     
+                // }, function(er){
+                    // console.log("Failed to load template",  templateUrl)
+                // })
+            // }
             
             // $compile template if provided
             // var template = getTemplate(scope.data);

@@ -8,8 +8,8 @@ var serviceProvider = function () {
             getReference: getRef,
             getPathSchema:getPathSchema,
             debounce:debounce,
-            initQuery:initQuery,
-            defineQuery:initQuery,
+            //initQuery:initQuery,
+            //defineQuery:initQuery,
             isCustomRef:isCustomRef,
             camelcase:camelcase,
             decamelcase:decamelcase,
@@ -21,7 +21,7 @@ var serviceProvider = function () {
             filterPath:filterPath,
             resolveAttribute: resolveAttribute
     }
-    this.$get = function ($http, $templateCache, $q, AngooseForm) {
+    this.$get = function ($http, $templateCache, $q, AngooseForm, AngooseQuery) {
             service.loadFieldTemplate = function(fieldTemplate){
                 fieldTemplate = fieldTemplate.replace(".html", "");
                 fieldTemplate = 'deform.field.' + fieldTemplate+".tpl";
@@ -30,17 +30,17 @@ var serviceProvider = function () {
             service.loadTemplate = function(templateName){
                 console.log("Loading   template", templateName)
                 var deferred = $q.defer();
-                var html = $angooseTemplateCache(templateName)  || "Template not cached: " + templateName;
-                deferred.resolve( angular.element(html));
-                return deferred.promise;
-                
-                //var templateUrl = service.resolveTemplateUrl(templateName);
-                // return $http.get(templateName, {cache:  $templateCache }).then(function(response) {
-                  // return angular.element(response.data);
-                // }, function(response) {
-                  // throw new Error('Template not found: ' + templateName);
-                  // //console && console.error("teamplte note found", templateName)
-                // });
+                var html = $angooseTemplateCache(templateName);
+                if(html){
+                    deferred.resolve( angular.element(html));
+                    return deferred.promise;
+                }
+                return $http.get(templateName, {cache:  $templateCache }).then(function(response) {
+                  return angular.element(response.data);
+                }, function(response) {
+                  throw new Error('Template not found: ' + templateName);
+                  //console && console.error("teamplte note found", templateName)
+                });
             };
             // service.resolveTemplateUrl = function(templateName){
                 // var templateUrl = deformOptions.templateDir +"/"+ templateName +".tpl.html";
@@ -53,6 +53,14 @@ var serviceProvider = function () {
                     formSpec = new AngooseForm($scope);
                 formSpec.update(options);
                 return formSpec;
+            };
+            service.initQuery = service.defineQuery = function($scope, options){
+                //@todo: use auto merge/extend
+                var querySpec =  $scope.dmeta;
+                if(!querySpec)  
+                    querySpec = new AngooseQuery($scope);
+                querySpec.update(options);
+                return querySpec;
             };
             
             service.resolveTemplate = function resolveTemplate($element, $attrs, config, defaultTemplateUrl){
@@ -88,12 +96,12 @@ var serviceProvider = function () {
                     console.log("Loading template", url);
                     return  service.loadTemplate(url);
                 }
-                else // inline doesn't need special handling
+                else{
+                    // inline doesn't need special handling
+                    console.log("Did not find configured template, using inline template");
                     em = "";
-                $timeout( function(){
-                    deferred.resolve(em); // nextTick?
-                });            
-                console.log("No configured template, using inline template");
+                }   
+                deferred.resolve(em); // nextTick?
                 return deferred.promise;
             };
             
@@ -268,35 +276,6 @@ function debounce(quietMillis, fn, ctx ) {
     };
 }
 
-function initQuery($scope, options){
-    //@todo: use auto merge/extend
-    
-    options = options || {};
-    $scope.dmeta = $scope.dmeta || {};
-    var dmeta = $scope.dmeta;
-    dmeta.modelName = options.modelName || dmeta.modelName
-    dmeta.columns = options.columns || dmeta.columns;
-    dmeta.render = options.render || dmeta.render;
-    
-    dmeta.spec = dmeta.spec || {};
-    dmeta.spec.filter = dmeta.spec.filter || {} ;
-    
-    if(options.preset)
-        dmeta.spec.preset = options.preset || dmeta.spec.preset;
-    if(options.defaultFilter)
-        dmeta.spec.preset = options.defaultFilter || dmeta.spec.preset;
-    
-    dmeta.spec.sortBy = options.sortBy || dmeta.sortBy 
-    dmeta.spec.sortDir = options.sortDir || dmeta.sortDir
-    
-    dmeta.templates = options.templates || dmeta.templates;
-    
-    dmeta.pageTitle = options.pageTitle || dmeta.pageTitle;
-    dmeta.actionColumn = options.actionColumn ===undefined?  dmeta.actionColumn :options.actionColumn   ;
-    
-    $scope.query = dmeta;
-    return dmeta;
-}
 
 
 function extractTemplate(f){

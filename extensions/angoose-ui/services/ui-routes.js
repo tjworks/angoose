@@ -21,7 +21,7 @@
     function fn(actionType){
         return function customResolve(params){
             console.log("--------- custom resolve", actionType, params);
-            actionType = actionType == 'create' ? 'edit': actionType;
+            
             var ctrl =decamelcase(params.modelName) +"-" +actionType+"-"+ params.customCtrl;
             return resolveTemplate(actionType, ctrl);
         }   
@@ -29,6 +29,9 @@
 
     function resolveTemplate(name, customCtrl){
         console.log("---------------- Resolving template for ",name)
+        
+        name = name == 'create' ? 'edit': name;
+        
         var tmpName  = "deform."+ name+".tpl"
         var contents =  $angooseTemplateCache(tmpName);
         contents = "<div ang-" + name+   (customCtrl? " ng-controller='" + customCtrl+"'": "") +">"  + contents+ "</div>";
