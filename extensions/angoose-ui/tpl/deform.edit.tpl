@@ -9,7 +9,7 @@
 				<h2><i class="icon-list"></i><span class="break"></span>
 					<span ng-if="isNew">Create </span>
 					<span ng-if="!isNew">Edit </span>
-					{{ dmeta.modelName }} </h2>
+					{{ $form.modelName }} </h2>
 			</div>
 			<div class="box-content">
 				<form class="deform-form form-horizontal span12" name="modelForm" ng-submit="saveForm()">
@@ -19,7 +19,7 @@
 						<div ng-repeat="path in groupPaths.sorted_paths" ng-init="pathData = groupPaths[path]"> 
 	 						<!-- single instance sub schema -->
 	 						
-							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="dmeta.modelSchema" instance="instance" template="" directive="" label="" controller=""></deform>
+							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance" template="" directive="" label="" controller=""></deform>
 	 					</div>  
 					</fieldset>
 					<div class="form-actions">

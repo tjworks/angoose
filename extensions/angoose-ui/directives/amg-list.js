@@ -129,7 +129,7 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             
             
             $scope.cells = [];
-            
+            //todo: use 
             var templateUrl = $attrs.templateUrl;
             if(!templateUrl && !element.html()){
                 templateUrl = "deform.list.tpl"; // default

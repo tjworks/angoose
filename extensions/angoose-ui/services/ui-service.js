@@ -21,7 +21,7 @@ var serviceProvider = function () {
             filterPath:filterPath,
             resolveAttribute: resolveAttribute
     }
-    this.$get = function ($http, $templateCache, $q) {
+    this.$get = function ($http, $templateCache, $q, AngooseForm) {
             service.loadFieldTemplate = function(fieldTemplate){
                 fieldTemplate = fieldTemplate.replace(".html", "");
                 fieldTemplate = 'deform.field.' + fieldTemplate+".tpl";
@@ -41,11 +41,62 @@ var serviceProvider = function () {
                   // throw new Error('Template not found: ' + templateName);
                   // //console && console.error("teamplte note found", templateName)
                 // });
-            }
+            };
             // service.resolveTemplateUrl = function(templateName){
                 // var templateUrl = deformOptions.templateDir +"/"+ templateName +".tpl.html";
                 // return templateUrl;
             // }
+            service.defineForm = function($scope, options){
+                //@todo: use auto merge/extend
+                var formSpec =  $scope.$form;
+                if(!formSpec)  
+                    formSpec = new AngooseForm($scope);
+                formSpec.update(options);
+                return formSpec;
+            };
+            
+            service.resolveTemplate = function resolveTemplate($element, $attrs, config, defaultTemplateUrl){
+                // templateUrl could be specified in the directive <ang-edit template-url='xxx' template='xxx'>
+                 /** template resolving order   
+                 1)  $form.template
+                 2)  $form.templateUrl
+                 3)  $attrs.templateUrl
+                 4)   inline template
+                 */
+                var inline = $element.html();
+                var template = config && config['template'];
+                var url = config && config['templateUrl'];
+                url = url || $attrs.templateUrl;
+                
+                var deferred = $q.defer();
+                
+                if(url || template) inline = "";  // ignore inline template if template/templateUrl is specified
+                
+                if(!inline && !template && !url){
+                    // no template specified anywhere, use the default
+                    console.log("Using default template", defaultTemplateUrl);
+                    url = defaultTemplateUrl;
+                }
+                var em = ''; 
+                if(template){
+                    // first order
+                    console.log("Compiling template content");
+                    em = angular.element(template);
+                }
+                else if(url){
+                    // second order
+                    console.log("Loading template", url);
+                    return  service.loadTemplate(url);
+                }
+                else // inline doesn't need special handling
+                    em = "";
+                $timeout( function(){
+                    deferred.resolve(em); // nextTick?
+                });            
+                console.log("No configured template, using inline template");
+                return deferred.promise;
+            };
+            
             return service;  
     };
     this.config = function(name, val){
@@ -56,15 +107,28 @@ var serviceProvider = function () {
             setter(uiOptions, name, val)    
         }
     };
+    
+    
+    
+    
 };    
     
-angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider);
+angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider).run(['$ui','$rootScope', function($ui, $rootScope){
+    console.log("settup $define");
+    $rootScope.defineQuery = function(meta){
+        return $ui.defineQuery(this, meta);
+    };
+    $rootScope.defineForm = function(meta){
+        return $ui.defineForm(this, meta);
+    }  
+}]);
+ 
 
 
 // a helper function to determine the attribute value based on following order:
 //  $scope (from custom controller) -> $routeParam -> directive 
 function resolveAttribute(name, $scope, $routeParams, $attrs ){
-    return getter($scope.dmeta,  name) ||  getter($routeParams, name) ||  $attrs[name];
+    return getter($scope.dmeta ? $scope.dmeta: $scope.$form,  name) ||  getter($routeParams, name) ||  $attrs[name];
 }
 function filterPath(path, data, schema){
     
@@ -233,6 +297,7 @@ function initQuery($scope, options){
     $scope.query = dmeta;
     return dmeta;
 }
+
 
 function extractTemplate(f){
       return f.toString().

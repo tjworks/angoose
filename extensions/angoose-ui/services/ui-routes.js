@@ -49,10 +49,4 @@
 
  
 
-}]).run(['$ui','$rootScope', function($ui, $rootScope){
-    console.log("settup $define");
-    $rootScope.defineQuery = function(meta){
-        $ui.defineQuery(this, meta);
-    } 
 }]);
- 

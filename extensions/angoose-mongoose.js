@@ -87,9 +87,9 @@ function postResolveTarget(next, invocation){
 
 function postInvoke (next, invocation){
     var result = invocation.result;
-    logger().debug("postInvoke for mongoose");
+    
     if(result && result.exec && (result instanceof angoose.getMongoose().Query) ){ // mongoose promise
-        logger().debug("Return value is mongoose query, call exec()" ); 
+        logger().debug("Return is mongoose query, call exec(). Conditions: ", result._conditions );
         result.exec( function(err, ret){
             if(err) return next(err);
             invocation.result = ret;
@@ -117,7 +117,10 @@ function postInvoke (next, invocation){
     process.nextTick(function waitForModelError(){
         /** the model error is emitted in next tick */
         var ex = checkForModelError(result);
-        if(ex) return next(ex);
+        if(ex){
+            logger().debug("Detected model error", ex);
+            return next(ex);
+        } 
         next();  
     });
       

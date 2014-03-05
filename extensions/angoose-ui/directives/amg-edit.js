@@ -17,7 +17,7 @@ function viewDirective(){
     return directive;
     
 }
-function editDirective( $location, $routeParams, $injector, $alert ){
+function editDirective( $location, $routeParams, $injector, $ui, $alert ){
      var directive = {
         restrict:'AE',
         scope:true,
@@ -28,6 +28,19 @@ function editDirective( $location, $routeParams, $injector, $alert ){
             enterscope($scope,"AngEdit");
             $scope.isNew = $location.path().indexOf("create")>0; 
             prepareInstance($scope, $injector, $routeParams,  $attrs);
+            // render template if needed
+            var $form = $scope.defineForm();
+            $ui.resolveTemplate($element, $attrs, $form, 'deform.edit.tpl').then(function(em){
+                if(em){
+                    console.log("Resolved template, compiling(default: edit.tpl')")
+                    $element.html("<!-- CLEARED -->"); // first clear the inline template
+                    $element.append(em);
+                    $compile(em)($scope);
+                }
+            }, function(err){
+                console.error("Error resolving template(edit.tpl)", err);
+            });
+            
             $scope.saveForm = function(){
                 if(!$scope.instance) return;
                 // depopulate
@@ -37,7 +50,7 @@ function editDirective( $location, $routeParams, $injector, $alert ){
                         window.history.back();
                         $alert.success("Successfully saved data", 10);
                         // MessageBox.success("Successfully saved data.", function(){
-                          // //$location.path("/deform/" + $scope.dmeta.modelName+"/list");  
+                          // //$location.path("/deform/" + $scope..modelName+"/list");  
                           // window.history.back();
                         // });
                     } 
@@ -57,14 +70,13 @@ function editDirective( $location, $routeParams, $injector, $alert ){
 function prepareInstance($scope, $injector, $routeParams,  $attrs){
         console.log("prepare scope", $scope.$id, " parent id", $scope.$parent.$id)
         var $ui = $injector.get("$ui");
-        var dmeta = $scope.dmeta = $scope.dmeta || {};
         var modelName = $ui.resolveAttribute('modelName', $scope, $routeParams, $attrs)
         
         var modelClass = $injector.get( $ui.camelcase( modelName));
         var modelId = $ui.resolveAttribute('modelId', $scope, $routeParams, $attrs);
         
         function processSchema(modelName, modelClass){
-            $scope.dmeta = angular.extend($scope.dmeta, {
+            var formSpec = $scope.defineForm( {
                 modelName: modelName,
                 modelClass: modelClass,
                 modelSchema: modelClass.schema
