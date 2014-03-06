@@ -1,5 +1,7 @@
 (function(){
-angular.module('angoose.ui.directives').directive('deformField', function($compile, $templateCache, $interpolate, $injector, $controller, $ui) {
+angular.module('angoose.ui.directives').directive('deformField', angField).directive('angField', angField);
+
+function angField($compile, $templateCache, $interpolate, $injector, $controller, $ui) {
   
 
   // Find the "input" element in the template.  It will be one of input, select or textarea.
@@ -63,7 +65,7 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
         throw new Error('The ng-repeat, ng-switch and ui-if directives are not supported on the same element as the field directive.');
       }
       if ( !attrs.ngModel ) {
-        throw new Error('The ng-model directive must appear on the field element');
+        //throw new Error('The ng-model directive must appear on the field element');
       }
 
       // Extract the label and validation message info from the directive's original element
@@ -83,21 +85,22 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
         var customController = attrs.controller;
         var customDirective = attrs.directive;
         
-        
+        var modelClass = scope.instance && scope.instance.constructor;
          
         //var schema = getSchema( scope.instance).paths[scope.path] ;
-        var modelSchema = scope.modelSchema;
+        var modelSchema = scope.modelSchema || (modelClass && modelClass.schema);
         //if(!modelSchema) console.error("Model schema lost in scope ", scope.$id, "parent is ", scope.$parent.$id)
         
-        var schema = scope.fieldSchema;
-        if(!schema) 
+        var schema = scope.fieldSchema || ( modelClass && modelClass.schema.paths[scope.path]);
+        if(!schema) {
             return console.error("Missing schema for path", scope.path);
+        }
         schema.options = schema.options || {};    
         
         var directive = customDirective || mapDirective(scope.path, schema, modelSchema)
         var template = customTemplate || mapTemplate(scope.path, schema, modelSchema);
         console.log("Field ", scope.path,  "template", template );
-        var labelContent = schema.options.label ||schema.options.name || scope.path;
+        var labelContent =  attrs.label || schema.options.label ||scope.path;
         
         var childScope = scope.$new();
         
@@ -129,7 +132,7 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
               // Generate an id for the field from the ng-model expression and the current scope
               // We replace dots with underscores to work with browsers and ngModel lookup on the FormController
               // We couldn't do this in the compile function as we need to be able to calculate the unique id from the scope
-              childScope.$fieldId = attrs.ngModel.replace('.', '_').toLowerCase() + '_' + childScope.$id;
+              childScope.$fieldId = scope.path.replace('.', '_').toLowerCase() + '_' + childScope.$id;
               childScope.$fieldLabel = labelContent;
     
               // Update the $fieldErrors array when the validity of the field changes
@@ -192,8 +195,7 @@ angular.module('angoose.ui.directives').directive('deformField', function($compi
       }; // end postLink
     }
   };
-});
-
+}
 // ** mapDirective **
 //
 // Default mapping based on schema definition:

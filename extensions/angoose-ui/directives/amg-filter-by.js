@@ -21,7 +21,7 @@ angular.module('angoose.ui.directives').directive("deformFilterBy", function($ui
         }
         $scope.searchable = searchable ;
         if(!searchable) return;
-        if(!$scope.dmeta) throw "deform-filter-by must be used in deform-listing scope"
+        if(!$scope.dmeta) throw "ang-filter-by must be used in ang-list scope"
         
         if($ui.isCustomRef( $scope.fieldSchema)){
             filterField = $ui.getCustomRefKeyfieldPath($scope.fieldSchema);

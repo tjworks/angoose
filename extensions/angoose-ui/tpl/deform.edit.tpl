@@ -19,7 +19,7 @@
 						<div ng-repeat="path in groupPaths.sorted_paths" ng-init="pathData = groupPaths[path]"> 
 	 						<!-- single instance sub schema -->
 	 						
-							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance" template="" directive="" label="" controller=""></deform>
+							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance" template="" directive="" label="" controller=""></deform-field>
 	 					</div>  
 					</fieldset>
 					<div class="form-actions">
