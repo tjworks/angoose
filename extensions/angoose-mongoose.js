@@ -70,6 +70,7 @@ function postResolveTarget(next, invocation){
        var pristineObject = pristineInstance.toObject();
        var schema = modelClass.schema;
        Object.keys(schema.paths).forEach(function(path){
+           if (/^_/.test(path)) return;
            //var pathSchema = schema.paths[path];
            //var ref = schemaUtil.getReference(pathSchema);
            var newVal = toolbox.getter(invocation.instance, path);
