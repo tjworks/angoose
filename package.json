@@ -30,7 +30,13 @@
     "jasmine-custom-message": "~0.1.2",
     "node-mocks-http": "*",
     "grunt-contrib-watch": "~0.5.3",
-    "mocha": "*"
+    "mocha": "*",
+    "karma": "*",
+    "karma-jasmine": "*",
+    "karma-ng-scenario": "*",
+    "grunt-karma": "~0.6.2",
+    "phantomjs": "*",
+    "karma-mocha": "~0.1.1"
   },
   "dependencies": {
     "underscore": "*",

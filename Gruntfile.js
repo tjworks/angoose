@@ -3,6 +3,48 @@ module.exports = function(grunt) {
     // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    karma: {
+        options: {
+            basePath: './',
+            frameworks: ['jasmine'],
+            autoWatch: true,
+            browsers: ['PhantomJS'],
+            junitReporter: {
+              outputFile: 'build/karma-unit.xml',
+              suite: 'unit'
+            }, 
+            singleRun:false,
+            preprocessors:{
+              //'**/*.tpl':['html2js'],
+              //'**/*.tpl.html':['html2js']
+            },
+            //runnerPort:9999,
+            reporters: 'dots',
+            client: {
+              mocha: {
+                ui: 'bdd'
+              }
+            }
+        },
+        e2e: {
+            background:false,
+            frameworks: ['ng-scenario'],
+            autoWatch: false,
+            browsers: ['Chrome'],
+            singleRun: true,
+            proxies: {
+              '/': 'http://localhost:8000/'
+            },
+            urlRoot: '/__karma/',
+            logLevel: 'trace',
+            junitReporter: {
+              outputFile: 'build/karma/unit.xml',
+              suite: 'e2e'
+            }
+        },
+        unit: {
+        }
+    },
     watch: {
         testall:{
             files: ["lib/**/*.js", "test/**/*.js"],
@@ -34,6 +76,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-karma');
 
     grunt.registerTask('combine',['concat', 'import-modules'] );
   
@@ -48,6 +91,17 @@ module.exports = function(grunt) {
         pattern && grunt.config.set("jasmine_node.match" ,  ".*" + pattern + ".*");
         grunt.task.run('jasmine_node');
     });
+    
+    grunt.registerTask("ctest", "Client side unit test", function(argPattern){
+      var pattern = grunt.option("file") || argPattern || "";
+      grunt.log.writeln("running angular unit test:", (pattern||""));
+      grunt.config.set("karma.options.files", collectKarmaFiles(pattern));
+      
+      // start angoose, this will cause angoose to generate the client file
+      require("./test/lib/angular-test-server");
+      
+      grunt.task.run("karma:unit");
+  });
     
     grunt.registerTask("server", "Run test server on port 9988", function(argPattern){
         // change NODE_ENV to unittest 
@@ -67,8 +121,34 @@ module.exports = function(grunt) {
     })
 };
 
-
 process.on('uncaughtException',function(e) {
-    var sys = require("sys");
-    sys.log(" Unhandled Error in Grunt -----> : " + e.stack);
+    console.log(" Unhandled Error in Grunt -----> : ", e,   e.stack);
 });
+
+
+function collectKarmaFiles(grepPattern){
+        // collect the karma test files
+    var root = process.cwd();
+        
+        var files = [   "./test/lib/angular/angular.js", 
+                        "./test/lib/angular/angular-resource.js", 
+                        "./test/lib/angular/angular-sanitize.js", 
+                        "./test/lib/angular/angular-route.js",
+                        "./test/lib/angular/angular-mocks.js",
+                        "./build/generated-client.js"
+                    ];
+        // "/lib/angular-file-upload.js", 
+        //"/lib/angular/ui/angular-ui.js", 
+        //"/lib/bootstrap/ui-bootstrap-tpls-0.6.0.js", 
+        //"/lib/select2/select2.js", 
+        //"/lib/select2/select2-angular.js", 
+        //"/lib/bootstrap/bootstrap-datepicker-inline.js", 
+        //"/lib/bootstrap/bootstrap-timepicker-inline.js", 
+    
+      if(grepPattern)
+        files.push( "./test/ui/**/*"+ grepPattern+"*.js");
+      else
+        files.push("./test/ui/**/*.js");
+      console.log("Karma files", files);
+      return files;    
+}

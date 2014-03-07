@@ -32,7 +32,8 @@ function concatTemplates(){
          templates[filename] = tmp;
     });
     angoose.getLogger('angoose').debug("preprocessing templates: ", Object.keys(templates).length);
-    return  "function $angooseTemplateCache(name){  var templates= "+ JSON.stringify(templates) +";  return name? templates[name]:templates; } ";
+    return  $angooseTemplateCache.toString().replace("{/**TEMPLATES*/}", JSON.stringify(templates));
+    // "function $angooseTemplateCache(name){  var templates= "+ JSON.stringify(templates) +";  return name? templates[name]:templates; } ";
 }
 
 function concatFilesInDirectory( dirname){
@@ -55,4 +56,17 @@ function readFile(filename, relativeName){
         output+=fs.readFileSync(filename, 'ascii');
         output+="\n\n";
         return output; 
+}
+
+//@todo: properly implement it according to angular $templateCache
+function $angooseTemplateCache(name, content){
+
+    $angooseTemplateCache.templates = $angooseTemplateCache.templates || {/**TEMPLATES*/}; // this will be replaced
+    if(!name) return;
+    if(content){
+        $angooseTemplateCache.templates[name]  = content;
+    } 
+    else {
+        return $angooseTemplateCache.templates[name];
+    }
 }

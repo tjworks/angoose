@@ -100,7 +100,6 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
          }
          var postLink = function($scope, $element, $attrs){
             enterscope($scope, "postlink ang listing");
-            console.log( $scope.dmeta)
             var spec =   $scope.dmeta.spec;
             
             $scope.$watch("dmeta.spec", function(newVal, oldVal){

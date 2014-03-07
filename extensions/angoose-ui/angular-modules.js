@@ -1,5 +1,5 @@
-
-angular.module('angoose.ui',[
+console.log("defining angoose.ui module");
+angular.module('angoose.ui',['angoose.client',
                 'angoose.ui.services', 
                 'angoose.ui.directives', 
                 'angoose.ui.controllers', 

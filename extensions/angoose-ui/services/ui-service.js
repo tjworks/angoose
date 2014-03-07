@@ -28,14 +28,16 @@ var serviceProvider = function () {
                 return this.loadTemplate( fieldTemplate);
             }
             service.loadTemplate = function(templateName){
-                console.log("Loading   template", templateName)
+                console.log("Loading template", templateName)
                 var deferred = $q.defer();
                 var html = $angooseTemplateCache(templateName);
                 if(html){
                     deferred.resolve( angular.element(html));
                     return deferred.promise;
                 }
+                console.log("$http loading template", templateName);
                 return $http.get(templateName, {cache:  $templateCache }).then(function(response) {
+                    //console.log(response.data, "got template $http")
                   return angular.element(response.data);
                 }, function(response) {
                   throw new Error('Template not found: ' + templateName);
@@ -95,7 +97,7 @@ var serviceProvider = function () {
                 }
                 else if(url){
                     // second order
-                    console.log("Loading template", url);
+                    console.log("loadTemplate", url);
                     return  service.loadTemplate(url);
                 }
                 else{
