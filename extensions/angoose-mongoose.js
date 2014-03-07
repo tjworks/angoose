@@ -72,6 +72,7 @@ function postResolveTarget(next, invocation){
        Object.keys(schema.paths).forEach(function(path){
            //var pathSchema = schema.paths[path];
            //var ref = schemaUtil.getReference(pathSchema);
+           if (/^_/.test(path)) return;
            var newVal = toolbox.getter(invocation.instance, path);
            var oldVal  =  toolbox.getter(pristineObject, path); 
            if(!_.isEqual(oldVal, newVal) &&  newVal !==  undefined ){ /**@todo: empty value from client side doesn't mean set to empty, need to implement the $dirty, modified' */
