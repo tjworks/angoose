@@ -12,6 +12,8 @@ Angoose depends on following frameworks and assumes you have basic familarities 
 * angular (optional, for non-angular app, jQuery is required)
 
 
+#### Angoose Demo 
+
 If you would like to see Angoose in action, there is a demo site you can checkout. Go to:
 
   https://github.com/tjworks/angoose-demo
@@ -21,9 +23,12 @@ All you need to do is clone, npm install, and run.
 
 ## 2. Get Started
 =================
+
 Following are the steps to integrate angoose with your existing project
 
 #### 1. npm install angoose
+
+Or add `angoose` to your dependencies in your package.json file.
 
 #### 2. configure angoose
 Assuming you already have an express server/app file, you just need to add following line to the app.js, after the app.configure() block:
