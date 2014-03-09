@@ -11,30 +11,24 @@ Angoose depends on following frameworks and assumes you have basic familarities 
 * express 
 * angular (optional, for non-angular app, jQuery is required)
 
+
+#### Angoose Demo 
+
+If you would like to see Angoose in action, there is a demo site you can checkout. Go to:
+
+  https://github.com/tjworks/angoose-demo
+  
+All you need to do is clone, npm install, and run. 
+
+
 ## 2. Get Started
 =================
-You can try out Angoose in two ways. 
 
-### 2.1  Install Angoose as an app
-Angoose comes with a tiny demo app "Todo", an implementation of [TodoMVC](http://todomvc.com/). 
-
-- `git clone https://github.com/tjworks/angoose.git`
-- `npm install`
-- Make suer you have Mongo installed and running 
-- Start demo app: `node test/server`
-- Browse to [http://localhost:9988](http://localhost:9988)
-
-Files used in demo app:
-
-- `models/Todo.js` Todo model module
-- `test/server.js` Server side node app
-- `public/index.html` Todo html/template file
-- `public/todo-angular-app` Client side Angular app, including controller funciton
-
-
-### 2.2 Angoose as a module
+Following are the steps to integrate angoose with your existing project
 
 #### 1. npm install angoose
+
+Or add `angoose` to your dependencies in your package.json file.
 
 #### 2. configure angoose
 Assuming you already have an express server/app file, you just need to add following line to the app.js, after the app.configure() block:
@@ -54,7 +48,7 @@ Assuming you already have an express server/app file, you just need to add follo
 
 Here we assume your Mongoose model files are defined under `models` sub directory relative to the current dir where you start your app. 
 
-Restart your server. 
+Restart node.js 
 
 
 #### 3. In your HTML file where angular library is included, add after angular script tag:
@@ -69,7 +63,7 @@ Restart your server.
 
 #### 4. In your main angular app, add `angoose-client` to your app module dependencies. For example:
 
-    var myapp = angular.module('myapp', ['ngRoute', 'ui.bootstrap', 'angoose.client']);
+    var myapp = angular.module('myapp', ['ngRoute',   'angoose.client']);
 
 #### 5. You are ready to go!
 
@@ -304,17 +298,13 @@ as long as the code execution was originated by Angoose RMI handler. This is mad
 For each Angoose RMI invocation request, an unique Context object is created when Angoose starts handling. The context contains the request
 and response objects, as well as session and authenticated user info(TBD). The context can then be accessed by all the subsequent code paths, including in async callback functions.
 
-To obtain the context, you may use one of following method:
+To obtain the context, you may simple call:
 
-- `angoose.getContext()`
-- Declare  `$context` as one of the arguments on your method, the context will be injected by Angoose.   
+     angoose.getContext()
+ 
+Some of the common usage with the getContext() method:
 
-See [Context](http://tjworks.github.io/angoose/docs/Context.html) document for detailed API.  
+    angoose.getContext().getRequest():  returns the Express request object
+    angoose.getContext().getRequest().session Get Express request session.
 
-
-## 6. References
-=====================
-  
-- [Angoose](http://tjworks.github.io/angoose/docs/angoose.html)
-- [Context](http://tjworks.github.io/angoose/docs/Context.html)
-
+ 
