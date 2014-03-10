@@ -1,17 +1,16 @@
-angular.module('angoose.ui.directives').directive('deformSortable', function($ui){
+angular.module('angoose.ui.directives').directive('deformSortable', function($ui, angoose){
     var directive = {
         restrict:'AE',
         scope:true 
     };
     directive.compile = function(element, attrs){
-        console.log(" in deformSotable compiling");
         element.html( '<span ng-click="doSort()">' + element.html() + '</span>'  );
         return  function($scope,$element, $attrs ){
-            enterscope($scope, "sortable!! "+ $attrs.path);
+            enterscope($scope, "ang-sortable ",  $attrs.path);
             var sortBy = $attrs.deformSortable;
             if(!sortBy) throw "deform-sortable directive requires a value to be specified as the sorting field."
             var schema = $ui.getPathSchema($scope.dmeta.modelClass, sortBy);
-            console.log("schema is", schema);
+            //console.log("schema is", schema);
             if(schema && schema.options && schema.options.sortable === false) return;
             //if(!schema || !schema.options || !schema.options.sortable) return;
             if(!$scope.dmeta) throw "deform-sortable must be used in deform-listing scope"

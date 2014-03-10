@@ -1,7 +1,7 @@
 (function(){
 angular.module('angoose.ui.directives').directive('deformField', angField).directive('angField', angField);
 
-function angField($compile, $templateCache, $interpolate, $injector, $controller, $ui) {
+function angField($compile, $templateCache, $interpolate, $injector, $controller, $ui, angoose) {
   
 
   // Find the "input" element in the template.  It will be one of input, select or textarea.
@@ -99,7 +99,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
         
         var directive = customDirective || mapDirective(scope.path, schema, modelSchema)
         var template = customTemplate || mapTemplate(scope.path, schema, modelSchema);
-        console.log("Field ", scope.path,  "template", template );
+        angoose.logger.trace("Field ", scope.path,  "template", template );
         var labelContent =  attrs.label || schema.options.label ||scope.path;
         
         var childScope = scope.$new();
@@ -116,7 +116,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
             $compile(directiveElement)(childScope);
         }
         
-        console.log("Created child scope for deform-field ", scope.path,  childScope.$id, "using directive: ",directive)
+        angoose.logger.trace("Created child scope for deform-field ", scope.path,  childScope.$id, "using directive: ",directive)
         if(directive){
             handleDirective( directive, childScope);
         }      
@@ -137,7 +137,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
     
               // Update the $fieldErrors array when the validity of the field changes
               childScope.$watch('$field.$dirty && $field.$error', function(errorList) {
-                  console.log("Got error", errorList);
+                  //angoose.logger.debug("Got error", errorList);
                 childScope.$fieldErrors = [];
                 angular.forEach(errorList, function(invalid, key) {
                   if ( invalid ) {
@@ -176,8 +176,11 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
                 // filed controller
                 //var fieldController = customController || "dfController"+ camelcase(template);
                 var fieldController = customController || "dfc-"+template;
-                console.log("Invoking custom controller", fieldController);
-                try{  $controller(fieldController, {$scope: childScope, $schema: schema, inputElement: inputElement, templateElement: templateElement}) }
+                
+                try{  
+                    $controller(fieldController, {$scope: childScope, $schema: schema, inputElement: inputElement, templateElement: templateElement}) 
+                    angoose.logger.trace("Invoked custom controller", fieldController);
+                }
                 catch(err){
                     //console.error("fieldControoler error", err)
                 }
@@ -257,7 +260,7 @@ function mapTemplate(path, pathSchema, modelSchema){
         }
     }
     
-    console.log("Path ", path, " Type ", pathSchema , " template: ", template)
+    angoose.logger.trace("Path ", path, " Type ", pathSchema , " template: ", template)
     return template;
 }
 

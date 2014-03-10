@@ -16,7 +16,7 @@ angular.module('angoose.ui.controllers').controller("dfc-selector", function($sc
         window.selscope = $scope;
         var scope = $scope;
         var pathSchema = $schema;  
-        console.log("selector pat schema is ", $schema)
+        //console.log("selector pat schema is ", $schema)
         if(!pathSchema) return;
         
         var refModelName = $ui.camelcase(  $ui.getReference(pathSchema) ); 

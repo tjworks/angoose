@@ -1,10 +1,10 @@
 ;angular.module('angoose.ui.services').config(['$routeProvider', function($routeProvider ) {
-    console.log("########## configuring angoose-ui routes", AngooseClient.config('url-prefix'));
+    AngooseClient.logger.debug("Configuring angoose forms routes", AngooseClient.config('url-prefix'));
     
     var prefix = '/deform';
     
     function addRoutes(prefix){
-        console.log("adding routes for prefix", prefix);
+        AngooseClient.logger.debug("adding routes for prefix", prefix);
         $routeProvider.
         when(prefix+"/:modelName/list-:customController", {template: resolveTemplate('list')}).
         when(prefix+"/:modelName/list", {template: resolveTemplate('list')}).

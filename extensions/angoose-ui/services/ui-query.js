@@ -1,10 +1,10 @@
 ;(function(){
 
 
-angular.module('angoose.ui.services').factory('AngooseQuery',function(  $q, $timeout){
+angular.module('angoose.ui.services').factory('AngooseQuery',function(angoose,  $q, $timeout){
     
     function AngooseQuery(scope){
-        console.log("Created Query object for scope", scope.$id);
+        angoose.logger.trace("Created Query object for scope", scope.$id);
         this.scope = scope;
         scope.dmeta = this;
         // some initial structure
@@ -13,7 +13,7 @@ angular.module('angoose.ui.services').factory('AngooseQuery',function(  $q, $tim
     // update the spec with new options.
     // new options will override the existing ones
     AngooseQuery.prototype.update = function(options){
-        console.log("Updating Query spec", options);
+        angoose.logger.trace("Updating Query spec", options);
         if(!options) return;
         //@todo: below is a mess
         var dmeta = this;

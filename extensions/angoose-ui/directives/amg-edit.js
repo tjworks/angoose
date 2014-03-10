@@ -73,7 +73,7 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert , $compi
     return directive;
 }
 function prepareInstance($scope, $injector, $routeParams,  $attrs){
-        console.log("prepare scope", $scope.$id, " parent id", $scope.$parent.$id)
+        //console.log("prepare scope", $scope.$id, " parent id", $scope.$parent.$id)
         var $ui = $injector.get("$ui");
         var modelName = $ui.resolveAttribute('modelName', $scope, $routeParams, $attrs)
         

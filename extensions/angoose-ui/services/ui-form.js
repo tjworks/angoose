@@ -1,17 +1,17 @@
 ;(function(){
 
 
-angular.module('angoose.ui.services').factory('AngooseForm',function(  $q, $timeout){
+angular.module('angoose.ui.services').factory('AngooseForm',function(  angoose, $q, $timeout){
     
     function AngooseForm(scope){
-        console.log("Created form object for scope", scope.$id);
+        angoose.logger.trace("Created form object for scope", scope.$id);
         this.scope = scope;
         scope.$form = this;
     }
     // update the spec with new options.
     // new options will override the existing ones
     AngooseForm.prototype.update = function(options){
-        console.log("Updating form spec", options);
+        angoose.logger.trace("Updating form spec", options);
         options = options || {};
         angular.extend(this, options);
         // this.modelName = options.modelName || this.modelName

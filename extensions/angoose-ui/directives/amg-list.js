@@ -1,13 +1,13 @@
 (function(){
 angular.module('angoose.ui.directives').directive("deformListing", angList ).directive("angList", angList);
 
-function angList( $templateCache, $routeParams, $compile, $location, $injector, MessageBox, $log ,$route, $ui, $controller){
+function angList( $templateCache, $routeParams, $compile, $location, $injector, MessageBox, $log ,$route, $ui, $controller, angoose){
     // this is the main controller for the sort-paging-filtering list
     var directive = {
         restrict:'AE'
     }; 
     directive.compile = function(element, attrs){
-        console.debug("In ang-list compile");
+        angoose.logger.trace("In ang-list compile");
         var preLink = function($scope, $element, $attrs){
             /** we do this in prelink because child directives needs the dmeta setup below */
             enterscope($scope, "ang-list  prelink",  $route.current);
@@ -103,7 +103,7 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             var spec =   $scope.dmeta.spec;
             
             $scope.$watch("dmeta.spec", function(newVal, oldVal){
-                console.log("Filter changed", newVal, oldVal);
+                angoose.logger.trace("Filter changed", newVal, oldVal);
                 // handles the search fields, we need to make a copy of the search filters so that it won't trigger the $watch
                 var mQuery = angular.extend({}, spec.filter);
                 if(spec.preset)
@@ -125,7 +125,7 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
                         mOptions.skip = (spec.page-1) * spec.pageSize
                 }
                     
-                console.log("Updating search: ", mQuery ,mOptions, $scope.dmeta.modelName);
+                angoose.logger.trace("Updating search: ", mQuery ,mOptions, $scope.dmeta.modelName);
                 $scope.instances = $scope.dmeta.modelClass.$query(mQuery, mSelection, mOptions )
                 $scope.dmeta.modelClass.count(mQuery).done(function(total){
                     //if(err) $log.error("Error getting total. Query: ", mQuery, " Error:", err);
@@ -194,6 +194,6 @@ function getDefaultSortField(modelClass){
 
 
 function enterscope(scope, name, arg1) {
-	console.debug("Entering scope ", name, scope.$id, arg1)
+	angoose.logger.trace("Entering scope ", name, scope.$id, arg1)
 	window['scope' + scope.$id] = scope;
 }

@@ -21,21 +21,21 @@ var serviceProvider = function () {
             filterPath:filterPath,
             resolveAttribute: resolveAttribute
     }
-    this.$get = function ($http, $templateCache, $q,$compile,  AngooseForm, AngooseQuery) {
+    this.$get = function ($http, $templateCache, $q,$compile,  AngooseForm, AngooseQuery, angoose) {
             service.loadFieldTemplate = function(fieldTemplate){
                 fieldTemplate = fieldTemplate.replace(".html", "");
                 fieldTemplate = 'deform.field.' + fieldTemplate+".tpl";
                 return this.loadTemplate( fieldTemplate);
             }
             service.loadTemplate = function(templateName){
-                console.log("Loading template", templateName)
+                angoose.logger.trace("Loading template", templateName)
                 var deferred = $q.defer();
                 var html = $angooseTemplateCache(templateName);
                 if(html){
                     deferred.resolve( angular.element(html));
                     return deferred.promise;
                 }
-                console.log("$http loading template", templateName);
+                angoose.logger.trace("$http loading template", templateName);
                 return $http.get(templateName, {cache:  $templateCache }).then(function(response) {
                     //console.log(response.data, "got template $http")
                   return angular.element(response.data);
@@ -86,13 +86,13 @@ var serviceProvider = function () {
                 
                 if(!inline && !template && !url){
                     // no template specified anywhere, use the default
-                    console.log("Using default template", defaultTemplateUrl);
+                    angoose.logger.trace("Using default template", defaultTemplateUrl);
                     url = defaultTemplateUrl;
                 }
                 var em = ''; 
                 if(template){
                     // template is specified as string content
-                    console.log("Compiling template content");
+                    angoose.logger.trace("Compiling template content");
                     em = angular.element(template);
                 }
                 else if(url){
@@ -102,16 +102,16 @@ var serviceProvider = function () {
                 }
                 else{
                     // inline doesn't need special handling
-                    console.log("Did not find configured template, using inline template" );
+                    angoose.logger.trace("Did not find configured template, using inline template" );
                     em = "";
                 }   
                 deferred.resolve(em); // nextTick?
                 return deferred.promise;
             };
             service.resolveAndCompile = function($scope, $element, $attrs, config, defaultTemplate){
-                console.log("Resolving template[default: ", defaultTemplate+"]");
+                angoose.logger.trace("Resolving template[default: ", defaultTemplate+"]");
                 service.resolveTemplate($element, $attrs, config, defaultTemplate).then(function(em){
-                    console.log("resolveTemplate completed[default: ", defaultTemplate+"]. Got content: ", !!em);
+                    angoose.logger.trace("resolveTemplate completed[default: ", defaultTemplate+"]. Got content: ", !!em);
                     if(em){
                         $element.html("<!-- CLEARED -->"); // first clear the inline template
                         $element.append(em);
@@ -138,7 +138,6 @@ var serviceProvider = function () {
 };    
     
 angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider).run(['$ui','$rootScope', function($ui, $rootScope){
-    console.log("settup $define");
     $rootScope.defineQuery = function(meta){
         return $ui.defineQuery(this, meta);
     };
