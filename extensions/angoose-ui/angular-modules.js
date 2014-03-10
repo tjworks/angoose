@@ -1,4 +1,4 @@
-console.log("defining angoose.ui module");
+AngooseClient.logger.info("Loading angoose-forms extension");
 angular.module('angoose.ui',['angoose.client',
                 'angoose.ui.services', 
                 'angoose.ui.directives', 

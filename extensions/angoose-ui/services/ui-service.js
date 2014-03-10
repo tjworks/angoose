@@ -138,7 +138,6 @@ var serviceProvider = function () {
 };    
     
 angular.module('angoose.ui.services').provider('$ui', serviceProvider).provider('$deform', serviceProvider).run(['$ui','$rootScope', function($ui, $rootScope){
-    console.log("settup $define");
     $rootScope.defineQuery = function(meta){
         return $ui.defineQuery(this, meta);
     };
