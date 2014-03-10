@@ -1,26 +1,34 @@
 ;angular.module('angoose.ui.services').config(['$routeProvider', function($routeProvider ) {
-    console.log("configuring angoose-ui routes");
+    console.log("########## configuring angoose-ui routes", AngooseClient.config('url-prefix'));
     
+    var prefix = '/deform';
     
+    function addRoutes(prefix){
+        console.log("adding routes for prefix", prefix);
+        $routeProvider.
+        when(prefix+"/:modelName/list-:customController", {template: resolveTemplate('list')}).
+        when(prefix+"/:modelName/list", {template: resolveTemplate('list')}).
+        when(prefix+"/:modelName/create", {template:resolveTemplate('edit')}).
+        when(prefix+"/:modelName/update/:modelId", {template:resolveTemplate('edit')}).
+        when(prefix+"/:modelName/edit/:modelId", {template:resolveTemplate('edit')}).
+        when(prefix+"/:modelName/view/:modelId", {template:resolveTemplate('view')});
+        
+        // list/create
+        $routeProvider.when(prefix+"/:modelName/list/:customCtrl", {template: fn('list') });
+        $routeProvider.when(prefix+"/:modelName/create/:customCtrl", {template: fn('create')});
+        $routeProvider.when(prefix+"/:modelName/update/:customCtrl/:modelId", {template: fn('edit')}); 
+        $routeProvider.when(prefix+"/:modelName/edit/:customCtrl/:modelId", {template: fn('edit')});
+        $routeProvider.when(prefix+"/:modelName/view/:customCtrl/:modelId", {template: fn('view')});
     
-    $routeProvider.
-    when("/deform/:modelName/list-:customController", {template: resolveTemplate('list')}).
-    when("/deform/:modelName/list", {template: resolveTemplate('list')}).
-    when("/deform/:modelName/create", {template:resolveTemplate('edit')}).
-    when("/deform/:modelName/update/:modelId", {template:resolveTemplate('edit')}).
-    when("/deform/:modelName/edit/:modelId", {template:resolveTemplate('edit')}).
-    when("/deform/:modelName/view/:modelId", {template:resolveTemplate('view')});
-    
-    // list/create
-    $routeProvider.when("/deform/:modelName/list/:customCtrl", {template: fn('list') });
-    $routeProvider.when("/deform/:modelName/create/:customCtrl", {template: fn('create')});
-    $routeProvider.when("/deform/:modelName/update/:customCtrl/:modelId", {template: fn('edit')}); 
-    $routeProvider.when("/deform/:modelName/edit/:customCtrl/:modelId", {template: fn('edit')});
-    $routeProvider.when("/deform/:modelName/view/:customCtrl/:modelId", {template: fn('view')});
-
+    }
+    addRoutes('/deform'); // deprecated
+    addRoutes('/angoose');
+    if('/angoose' !== AngooseClient.config('url-prefix'))
+        addRoutes(AngooseClient.config('url-prefix'));
+        
     function fn(actionType){
         return function customResolve(params){
-            console.log("--------- custom resolve", actionType, params);
+            //console.log("--------- custom resolve", actionType, params);
             
             var ctrl =decamelcase(params.modelName) +"-" +actionType+"-"+ params.customCtrl;
             return resolveTemplate(actionType, ctrl);
@@ -28,9 +36,7 @@
     }
 
     function resolveTemplate(name, customCtrl){
-        console.log("---------------- Resolving template for ",name)
-        
-        name = name == 'create' ? 'edit': name;
+        //console.log("---------------- Resolving template for ",name)
         
         var tmpName  = "deform."+ name+".tpl"
         var contents =  $angooseTemplateCache(tmpName);
@@ -49,7 +55,4 @@
         }
         return ret.toLowerCase();
     }
-
- 
-
 }]);

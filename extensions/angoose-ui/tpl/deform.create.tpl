@@ -7,7 +7,7 @@
 		<div class="box">
 			<div class="box-header">
 				<h2><i class="icon-list"></i><span class="break"></span>
-					Edit {{ $form.modelName }} </h2>
+					Create {{ $form.modelName }} </h2>
 			</div>
 			<div class="box-content">
 				<form class="deform-form form-horizontal span12" name="modelForm" ng-submit="saveForm()">
@@ -17,7 +17,7 @@
 						<div ng-repeat="path in groupPaths.sorted_paths" ng-init="pathData = groupPaths[path]"> 
 	 						<!-- single instance sub schema -->
 	 						
-							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance"  ></deform-field>
+							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance" ></deform-field>
 	 					</div>  
 					</fieldset>
 					<div class="form-actions">

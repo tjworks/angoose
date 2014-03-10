@@ -24,7 +24,7 @@
 					</fieldset>
 					<div class="form-actions">
 						<button class="btn btn-success"  type="submit">Save </button>
-						<a  class="btn btn-inverse " href="/deform/{{ dmeta.modelName }}/list">Cancel</a>
+						<a  class="btn btn-inverse " href="/angoose/{{ dmeta.modelName }}/list">Cancel</a>
 					</div>
 				</form>
 				<div class="clearfix"></div>

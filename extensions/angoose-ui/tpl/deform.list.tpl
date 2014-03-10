@@ -9,7 +9,7 @@
 		</div>
 		
       	<div class="box-icon">
-        	<a class="btn" href="/deform/{{ dmeta.modelName }}/create"><i class="icon-plus"></i> New {{ dmeta.modelName }}  </a>
+        	<a class="btn" href="/angoose/{{ dmeta.modelName }}/create"><i class="icon-plus"></i> New {{ dmeta.modelName }}  </a>
        	</div>
        	
     </div>
@@ -58,15 +58,15 @@
 
 
 <script type="text/ng-template" id="deform-list-action-view-edit">
-	<a class="btn"  href="/deform/{{ dmeta.modelName}}/view/{{instance._id}}">View</a> 
-	<a class="btn"  href="/deform/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>
+	<a class="btn"  href="/angoose/{{ dmeta.modelName}}/view/{{instance._id}}">View</a> 
+	<a class="btn"  href="/angoose/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>
 </script>
 <script type="text/ng-template" id="deform-list-action-edit-delete">
-	<a class="btn"  href="/deform/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>  
+	<a class="btn"  href="/angoose/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>  
 	<span class="btn"  ng-click="remove($index)" >Delete</span>
 </script>
 <script type="text/ng-template" id="deform-list-action-view-edit-delete">
-	<a class="btn"  href="/deform/{{ dmeta.modelName}}/view/{{instance._id}}">View</a> 
-	<a class="btn"  href="/deform/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>  
+	<a class="btn"  href="/angoose/{{ dmeta.modelName}}/view/{{instance._id}}">View</a> 
+	<a class="btn"  href="/angoose/{{ dmeta.modelName}}/update/{{instance._id}}">Edit</a>  
 	<span class="btn"  ng-click="remove($index)" >Delete</span>
 </script>

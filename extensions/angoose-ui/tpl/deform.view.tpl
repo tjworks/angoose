@@ -17,8 +17,8 @@
 	 					</div>  
 					</fieldset>
 					<div class="form-actions">
-						<a class="btn btn-success" href="/deform/{{ dmeta.modelName}}/update/{{ instance._id }}"  >   Edit {{ dmeta.modelName }}  </a>
-						<a class="btn btn-inverse" href="/deform/{{ dmeta.modelName}}/list"  > Return </a>
+						<a class="btn btn-success" href="/angoose/{{ dmeta.modelName}}/update/{{ instance._id }}"  >   Edit {{ dmeta.modelName }}  </a>
+						<a class="btn btn-inverse" href="/angoose/{{ dmeta.modelName}}/list"  > Return </a>
 					</div>
 				</form>
 				<div class="clearfix"></div>
