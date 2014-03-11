@@ -10,9 +10,28 @@ var plugin = {
     postResolveTarget: postResolveTarget,
     postInvoke: postInvoke,
     postPack: postPack,
-    postExportModule: decorateMongooseSchema
+    postExportModule: decorateMongooseSchema,
+    afterFormatError: formatError
 };
 module.exports = angoose.extension('MongooseExtension', plugin);
+
+function formatError(next, invocation){
+    var ex = invocation.packed.exception;
+    console.log("Intercepting error", ex);
+    // check if it's mongoose's model error
+    var errors = toolbox.getter(ex , 'cause.errors');
+    if( errors){
+        // format model error
+        var msg = '';
+        Object.keys(errors).forEach(function(key){
+            var errobj = errors[key];
+            var m = errobj.message+"";
+            msg = msg+m+" " 
+        });
+        ex.message = msg;
+    }
+    next();
+};
 
 function decorateMongooseSchema(  client, moduleName){
     var model = angoose.module(moduleName);

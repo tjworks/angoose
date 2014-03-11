@@ -10,7 +10,6 @@
     
  
 angular.module('angoose.ui.controllers').controller("dfc-selector", function($scope, $injector, $schema, $ui, inputElement, templateElement, $timeout){
-        console.log("In DFSelector Ctrl", $scope.path );
         enterscope($scope, "selector ctrl: "+ $scope.path);
         window.s2em = inputElement;
         window.selscope = $scope;
@@ -29,7 +28,6 @@ angular.module('angoose.ui.controllers').controller("dfc-selector", function($sc
 
         function format(objId){
             
-            console.log("FOrmatting", objId);
             var object =  optionCandidates[objId] || objId;
             //console.log("formating result", object)
             if(object && object.getDisplayName) return object.getDisplayName();
@@ -64,7 +62,7 @@ angular.module('angoose.ui.controllers').controller("dfc-selector", function($sc
                         optionCandidates[off._id] = off;
                         return off 
                     });
-                    console.log("Query result", data.length) 
+                    //console.log("Query result", data.length) 
                     query.callback({results:data, more:false});
                 });                       
             },
@@ -72,7 +70,7 @@ angular.module('angoose.ui.controllers').controller("dfc-selector", function($sc
         }
         function initSelection(em, callback){
             var values = em.val? em.val() : em
-            console.log("#### initSelection", values)
+            //console.log("#### initSelection", values)
             if(!values || (Array.isArray(values ) && values.length == 0))
                 return;
             var values = Array.isArray(values)  ? values: [values];
@@ -84,7 +82,7 @@ angular.module('angoose.ui.controllers').controller("dfc-selector", function($sc
                 else selectedObjects.push(optionCandidates[objId]);
             })
             if(lookupIDs.length>0){
-                console.log("lookup ids", lookupIDs)
+                //console.log("lookup ids", lookupIDs)
                 refModel.find({_id: {'$in': lookupIDs} }, {'meta.name':1, name:1, type:1}, function(err, results){  //@todo: generic name fields 
                     results && results.forEach(function(res){
                         optionCandidates[res._id] = res;
