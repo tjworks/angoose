@@ -28,8 +28,6 @@
         
     function fn(actionType){
         return function customResolve(params){
-            //console.log("--------- custom resolve", actionType, params);
-            
             var ctrl =decamelcase(params.modelName) +"-" +actionType+"-"+ params.customCtrl;
             return resolveTemplate(actionType, ctrl);
         }   
@@ -40,6 +38,7 @@
         
         var tmpName  = "deform."+ name+".tpl"
         var contents =  $angooseTemplateCache(tmpName);
+        name = 'create' == name ? 'edit':name;
         contents = "<div ang-" + name+   (customCtrl? " ng-controller='" + customCtrl+"'": "") +">"  + contents+ "</div>";
         return contents;
     }
