@@ -14,7 +14,7 @@
 					</a>
  					<div ng-repeat=" (subpath, subpathSchema) in subschema.paths" ng-show="item.__toggle" >
  						<span ng-if="subpath.indexOf('-')<0">
-							<deform-field ng-model="instance.{{subpath}}" path="subpath" field-schema="subpathSchema" model-chema="modelSchema" instance="item"  ></deform>
+							<deform-field  path="subpath" field-schema="subpathSchema" model-chema="modelSchema" instance="item"  ></deform>
 						</span>
  					</div>  
 					<div class="clearfix"></div>
