@@ -1,4 +1,3 @@
- 
 	<div class="row-fluid">
 		<h4>
 		</h4>
@@ -15,9 +14,9 @@
 						<legend ng-if="groupName">{{groupName | camelcase }}</legend>
 						
 						<div ng-repeat="path in groupPaths.sorted_paths" ng-init="pathData = groupPaths[path]"> 
-	 						<!-- single instance sub schema -->
+	 						<!-- single instance subschema -->
 	 						
-							<deform-field ng-model="instance.{{path}}" path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance"  ></deform-field>
+							<deform-field  path="path" field-schema="pathData" model-schema="$form.modelSchema" instance="instance"  ></deform-field>
 	 					</div>  
 					</fieldset>
 					<div class="form-actions">
