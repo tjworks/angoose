@@ -37,7 +37,6 @@ angular.module('angoose.ui.directives').directive("deformRender", function($cont
             if(path  == '$ACTION'){
                 var template = $ui.getter($scope.dmeta ,  'templates.action') || 'deform-list-action-edit-delete';
                 function compileTemplate(templateHtml){
-                    
                     templateHtml="<div>"+ templateHtml+"</div>"
                     var em = angular.element(templateHtml)
                     $element.append(em);
