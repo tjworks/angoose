@@ -46,7 +46,8 @@
     "log4js": "*",
     "hooks": "~0.3.2",
     "shimmer": "~1.0.0",
-    "traverse": "~0.6.6"
+    "traverse": "~0.6.6",
+    "uglify-js":"*"
   },
   "author": "tjworks",
   "license": "MIT",
