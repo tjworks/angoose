@@ -251,7 +251,7 @@ function mapTemplate(path, pathSchema, modelSchema){
     }
     if(getRef(pathSchema))
         template = "selector";
-    if(Array.isArray(opts.enum) && opts.enum.length>0){
+    if(Array.isArray(opts['enum']) && opts['enum'].length>0){
         template = "select";
     }
     if(Array.isArray(opts.type )){

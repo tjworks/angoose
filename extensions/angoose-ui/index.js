@@ -23,7 +23,6 @@ function appendUISource(client){
     client.source+="\n\n" + output;
 } 
 
-
 function concatTemplates(){
     // read default templates
     var templates = {};
@@ -48,7 +47,6 @@ function concatTemplates(){
     }
     angoose.getLogger('angoose').debug("preprocessing templates: ", Object.keys(templates).length);
     return  $angooseTemplateCache.toString().replace("{/**TEMPLATES*/}", JSON.stringify(templates));
-    // "function $angooseTemplateCache(name){  var templates= "+ JSON.stringify(templates) +";  return name? templates[name]:templates; } ";
 }
 
 function concatFilesInDirectory( dirname){

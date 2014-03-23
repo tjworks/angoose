@@ -6,7 +6,7 @@ angular.module('angoose.ui.directives').directive("angView", viewDirective).dire
 function viewDirective(){
       var directive = {
         restrict:'AE',
-        scope:true,
+        scope:true
     };
     
     directive.controller = function($scope, $element, $attrs, $routeParams, $injector ){
@@ -20,7 +20,7 @@ function viewDirective(){
 function editDirective( $location, $routeParams, $injector, $ui, $alert , $compile){
      var directive = {
         restrict:'AE',
-        scope:true,
+        scope:true
     };
     
     directive.compile = function(){

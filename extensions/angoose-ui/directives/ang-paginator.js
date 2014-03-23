@@ -3,7 +3,7 @@ angular.module('angoose.ui.directives').directive('deformPaginator', function(){
     // this sub directive handles the paging. It can only used inside the the spflist
     var directive = {
         restrict:'A',
-        template: paginatorTemplate(), 
+        template: paginatorTemplate() 
         //scope:true
     }
     directive.link = function($scope,$element, $attrs){
