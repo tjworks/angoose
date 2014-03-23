@@ -37,14 +37,18 @@ angular.module('angoose.ui.directives').directive("deformRender", function($cont
             if(path  == '$ACTION'){
                 var template = $ui.getter($scope.dmeta ,  'templates.action') || 'deform-list-action-edit-delete';
                 function compileTemplate(templateHtml){
+                    templateHtml="<div>"+ templateHtml+"</div>"
                     var em = angular.element(templateHtml)
                     $element.append(em);
                     $compile(em)($scope);
                 }
+               
                 if(template.indexOf("deform") !=0){
+                    console.log("template content itself");
                     return compileTemplate(template);
                 }
                 $http.get(template, {cache:$templateCache}).then(function(response) {
+                    console.log("Loading template", template, response.data)
                     compileTemplate(response.data);
                 }, function(response) {
                   throw new Error('Template not found: ' + template);

@@ -23,17 +23,30 @@ function appendUISource(client){
     client.source+="\n\n" + output;
 } 
 
-
 function concatTemplates(){
+    // read default templates
     var templates = {};
     var files = fs.readdirSync( path.resolve(__dirname, 'tpl') );
     files.forEach(function(filename){
          var tmp = readFile( path.resolve(__dirname, 'tpl', filename), "tpl/"+filename);
          templates[filename] = tmp;
     });
+    // read user defined templates
+    var userDir=angoose.config("angoose-ui-template-dir")
+    if(userDir){
+        try{
+            var userfiles = fs.readdirSync( path.resolve(process.cwd(), userDir));
+            userfiles.forEach(function(filename){
+                var tmp = readFile( path.resolve(process.cwd(), userDir,filename), userDir+"/"+filename);
+                templates[filename] = tmp;
+            });
+        }
+        catch(ex){
+            angoose.getLogger('angoose').error(ex);
+        }
+    }
     angoose.getLogger('angoose').debug("preprocessing templates: ", Object.keys(templates).length);
     return  $angooseTemplateCache.toString().replace("{/**TEMPLATES*/}", JSON.stringify(templates));
-    // "function $angooseTemplateCache(name){  var templates= "+ JSON.stringify(templates) +";  return name? templates[name]:templates; } ";
 }
 
 function concatFilesInDirectory( dirname){

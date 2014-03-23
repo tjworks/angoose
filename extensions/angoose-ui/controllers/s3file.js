@@ -9,7 +9,7 @@
 (function(){
 angular.module('angoose.ui.controllers'  ).controller("dfc-s3file", function($scope, $injector, $upload, $schema, angoose , $alert){
     enterscope($scope, "File upload");
-    var accept  = $schema.options.accept;
+    var accept  = $schema.options.accept || [];
     $scope.$validationMessages = {
         "validFileType": "Only these file types are accepted: "+ accept.join(", ")
     }
