@@ -68,6 +68,18 @@ function decorateMongooseSchema(  client, moduleName){
         if(item.validators) delete item.validators; /**@todo validators are not supported yet*/
     }); 
     schema.options = traverse( model.schema.options).clone();
+//    filtPaths(schema);
+}
+function filtPaths(schema){
+    traverse(schema).forEach(function(item){
+        if((this.parent&&this.parent.parent&&this.parent.parent.key=='paths')
+                ||(this.parent&& (this.parent.isRoot || this.parent.key == 'schema')))
+        {
+            if(_.indexOf(['moduleName','methods','statics','paths','enumValues','isRequired','schema','caster','path','options','instance'],this.key)<0){
+                this.remove();
+            }
+        }
+    })
 }
 
 function logger(){
