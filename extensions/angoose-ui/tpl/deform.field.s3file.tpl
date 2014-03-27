@@ -4,8 +4,8 @@
     <input type="file" ng-file-select="onFileUpload($files)" > <small>{{ fieldSchema.options && fieldSchema.options.description }}</small>
     <div class="file-preview"  >
     	<img src="{{ instance.get(path) }}" ng-if="instance.get(path).toLowerCase().indexOf('jpg')>0 || instance.get(path).toLowerCase().indexOf('png')>0 || instance.get(path).toLowerCase().indexOf('gif')>0">
-    	<audio controls ng-if="instance.get(path).toLowerCase().indexOf('ogg')>0 || instance.get(path).toLowerCase().indexOf('mp3')>0  ">
-		  <source src="{{ instance.get(path) }}" type="audio/ogg" ng-if="instance.get(path).toLowerCase().indexOf('ogg')>0  ">
+    	<audio controls ng-if="instance.get(path).toLowerCase().indexOf('oga')>0 || instance.get(path).toLowerCase().indexOf('mp3')>0  ">
+		  <source src="{{ instance.get(path) }}" type="audio/oga" ng-if="instance.get(path).toLowerCase().indexOf('oga')>0  ">
 		  <source src="{{ instance.get(path) }}" type="audio/mpeg" ng-if="instance.get(path).toLowerCase().indexOf('mp3')>0 ">
 		  Your browser does not support the audio tag.
 		</audio>
