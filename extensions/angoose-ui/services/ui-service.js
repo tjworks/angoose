@@ -19,7 +19,15 @@ var serviceProvider = function () {
             getCustomRefKeyfieldPath:getCustomRefKeyfieldPath,
             getCustomRefValue:getCustomRefValue,
             filterPath:filterPath,
-            resolveAttribute: resolveAttribute
+            resolveAttribute: resolveAttribute, 
+            getFieldSchema:getFieldSchema 
+    }
+    function getFieldSchema(scope){
+        if(scope.fieldSchema) return scope.fieldSchema;
+        if(!scope.path) return null;
+        var modelClass = scope.instance && scope.instance.constructor;
+        var modelSchema = scope.modelSchema || (modelClass && modelClass.schema);
+        return modelSchema && modelSchema.paths[scope.path];
     }
     this.$get = function ($http, $templateCache, $q,$compile,  AngooseForm, AngooseQuery, angoose) {
             service.loadFieldTemplate = function(fieldTemplate){

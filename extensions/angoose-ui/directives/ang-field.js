@@ -55,7 +55,8 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
       path:'=',
       modelSchema:'=',
       fieldSchema:'=',
-      readonly:'@'
+      readonly:'@',
+      itemIndex:'=' // for array index
     },
     //require:'?ngModel',
     priority: 100,        // We need this directive to happen before ng-model
@@ -81,6 +82,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
         if(scope.path && scope.path.indexOf("_") == 0) return;
         
         enterscope(scope, "deform-field "+ scope.path)
+        
         var customTemplate  =  attrs.template;
         var customController = attrs.controller;
         var customDirective = attrs.directive;
@@ -97,10 +99,11 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
         }
         schema.options = schema.options || {};    
         
-        var directive = customDirective || mapDirective(scope.path, schema, modelSchema)
+        var directive = customDirective || mapDirective(scope.path, schema, modelSchema, scope.itemIndex)
+        console.log("Directive is ",  scope.path,directive);
         var template = customTemplate || mapTemplate(scope.path, schema, modelSchema);
         angoose.logger.trace("Field ", scope.path,  "template", template );
-        var labelContent =  attrs.label || schema.options.label ||scope.path;
+        var labelContent =  attrs.label == undefined? ( schema.options.label ||scope.path) : attrs.label;
         
         var childScope = scope.$new();
         
@@ -132,7 +135,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
               // Generate an id for the field from the ng-model expression and the current scope
               // We replace dots with underscores to work with browsers and ngModel lookup on the FormController
               // We couldn't do this in the compile function as we need to be able to calculate the unique id from the scope
-              childScope.$fieldId = scope.path.replace('.', '_').toLowerCase() + '_' + childScope.$id;
+              childScope.$fieldId = (scope.path+ (scope.itemIndex || "") ).replace('.', '_').toLowerCase() + '_' + childScope.$id;
               childScope.$fieldLabel = labelContent;
     
               // Update the $fieldErrors array when the validity of the field changes
@@ -154,7 +157,8 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
                 var value = element.attr(original);
                 inputElement.attr(original, value);
               });
-              inputElement.attr("ng-model", "instance."+ scope.path);
+              var ngModelVal = "instance."+ scope.path + (scope.itemIndex == undefined? "": "["+ scope.itemIndex+ "]" );
+              inputElement.attr("ng-model", ngModelVal);
               //console.trace("NGMODEL #### ", inputElement.attr('ng-model'))
     
               // Wire up the input (id and name) and its label (for).
@@ -206,13 +210,22 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
 // - list of sub schemas: deform-sublist
 // - single subschema object: deform-subschema
  
-function mapDirective(path, pathSchema, modelSchema){
-    if(! pathSchema.schema)  return null;
-    
-    if(pathSchema.options && Array.isArray(pathSchema.options.type))
-        return "deform-sublist"
-    else
+function mapDirective(path, pathSchema, modelSchema, itemIndex){
+    if( itemIndex !== undefined) return null; // we're in a array
+    if(pathSchema && pathSchema.options && Array.isArray(pathSchema.options.type)){
+        if( pathSchema.schema)
+            return "deform-sublist"
+        
+        if(pathSchema.caster && (! pathSchema.caster.options || !pathSchema.caster.options.ref)){ // !pathSchema.options.ref filters out CustomRef, ugly!
+            /** array of simple types */
+           //console.log("Simple array type!!!",pathSchema, pathSchema.options.ref, pathSchema.options.type);
+           return "ang-array"
+        }
+        
+    }
+    else  if(  pathSchema.schema)
         return "deform-subschema"
+    return null;
 }    
 
 // ** mapTemplate **
@@ -257,6 +270,7 @@ function mapTemplate(path, pathSchema, modelSchema){
     if(Array.isArray(opts.type )){
         if(pathSchema.caster){
             /** array of simple types */
+           // console.log("Simple types", pathSchema)
         }
     }
     
