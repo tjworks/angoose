@@ -100,12 +100,17 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
         schema.options = schema.options || {};    
         
         var directive = customDirective || mapDirective(scope.path, schema, modelSchema, scope.itemIndex)
-        console.log("Directive is ",  scope.path,directive);
+        
         var template = customTemplate || mapTemplate(scope.path, schema, modelSchema);
         angoose.logger.trace("Field ", scope.path,  "template", template );
+        
         var labelContent =  attrs.label == undefined? ( schema.options.label ||scope.path) : attrs.label;
         
         var childScope = scope.$new();
+        // Generate an id for the field from the ng-model expression and the current scope
+        // We replace dots with underscores to work with browsers and ngModel lookup on the FormController
+        // We couldn't do this in the compile function as we need to be able to calculate the unique id from the scope
+        childScope.$fieldId = (scope.path+ (scope.itemIndex || "") ).replace('.', '_').toLowerCase() + '_' + childScope.$id;
         
         function handleDirective(directive, childScope){
             var html = '<directive-name path="path" model-schema="model-schema" field-schema="fieldSchema" instance="instance"></directive-name>';
@@ -132,10 +137,7 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
               
               // Attach a copy of the message map to the scope
               childScope.$validationMessages = angular.copy(validationMessages);
-              // Generate an id for the field from the ng-model expression and the current scope
-              // We replace dots with underscores to work with browsers and ngModel lookup on the FormController
-              // We couldn't do this in the compile function as we need to be able to calculate the unique id from the scope
-              childScope.$fieldId = (scope.path+ (scope.itemIndex || "") ).replace('.', '_').toLowerCase() + '_' + childScope.$id;
+              
               childScope.$fieldLabel = labelContent;
     
               // Update the $fieldErrors array when the validity of the field changes
@@ -186,7 +188,8 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
                     angoose.logger.trace("Invoked custom controller", fieldController);
                 }
                 catch(err){
-                    //console.error("fieldControoler error", err)
+                    if((err+"").indexOf("is not a function")<0)
+                        angoose.logger.error("fieldControoler error", err)
                 }
                 // We now compile and link our template here in the postLink function
                 // This allows the ng-model directive on our template's <input> element to access the ngFormController
@@ -194,9 +197,6 @@ function angField($compile, $templateCache, $interpolate, $injector, $controller
     
                 // Now that our template has been compiled and linked we can access the <input> element's ngModelController
                 childScope.$field = inputElement.controller('ngModel');
-                window.ngModelCtrl = childScope.$field
-                          
-    
             });
           } // end loadTemplate
       }; // end postLink

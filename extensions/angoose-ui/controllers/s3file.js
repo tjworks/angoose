@@ -7,12 +7,20 @@
  * 
  */
 (function(){
-angular.module('angoose.ui.controllers'  ).controller("dfc-s3file", function($scope, $injector, $upload, $schema, angoose , $alert){
+angular.module('angoose.ui.controllers'  ).controller("dfc-s3file", function($scope , $injector, $upload, $schema, angoose , $alert){
     enterscope($scope, "File upload");
     var accept  = $schema.options.accept || [];
     $scope.$validationMessages = {
         "validFileType": "Only these file types are accepted: "+ accept.join(", ")
     }
+   
+     $scope.$watch('$field.$modelValue', function(){
+            var vals = $scope.instance.get($scope.path);        
+            if($scope.itemIndex !== undefined && vals.length)
+                $scope.url = vals[$scope.itemIndex];
+            else 
+                $scope.url = Array.isArray(vals)?"":vals;
+    });
     $scope.onFileUpload = function($files){
         console.log("file uploaded", $files);
         var $file = $files[0];

@@ -17,8 +17,9 @@ angular.module('angoose.ui.directives').directive("angArray", function($ui){
                   console.error("No field schema found");
                   return;
               }
-              scope.fieldSchema.options = scope.fieldSchema.options || {};  
-              angular.extend(scope.fieldSchema.options, scope.fieldSchema.options.type[0]);
+              scope.fieldSchema.options = scope.fieldSchema.options || {};
+              if(scope.fieldSchema.caster && scope.fieldSchema.caster.options)   // REFACTOR
+                    angular.extend(scope.fieldSchema.options, scope.fieldSchema.caster.options);
               
               scope.items = scope.instance.get(scope.path) || [];
               scope.instance.set(scope.path, scope.items);
