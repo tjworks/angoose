@@ -52,7 +52,7 @@ function editDirective( $location, $routeParams, $injector, $ui, $alert , $compi
                     if(err) $alert.error(err+"");
                     else{
                         window.history.back();
-                        $alert.success("Successfully saved data", 10);
+                        $alert.success("Successfully saved data", 1000);
                         // MessageBox.success("Successfully saved data.", function(){
                           // //$location.path("/deform/" + $scope..modelName+"/list");  
                           // window.history.back();
