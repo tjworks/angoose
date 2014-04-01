@@ -262,10 +262,11 @@ function trim(str){
 }
 function formatSortable(sortable){
     if(!sortable || typeof(sortable)!=='string') return sortable;
+    if(sortable.indexOf(",")<0) return sortable;
     sortable = trim(sortable.toLowerCase()).replace(/null/i, '');
     var parts = sortable.split(",");
     if(parts.length != 2)
-        parts = sortable.split(" ");
+        return sortable;
     if(parts.length >1){
         return  camelcase(trim(parts[1])) +" "+ camelcase( trim(parts[0]));
     }
