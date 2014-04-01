@@ -43,8 +43,8 @@ angular.module('angoose.ui.controllers'  ).controller("dfc-s3file", function($sc
                     'acl': 'public-read',
                     'policy': key.policy,
                     'signature': key.signature,
-                    'success_action_status': '201'
-                    //'Content-Type': key.mime_type
+                    'success_action_status': '201',
+                    'Content-Type': key.mime_type
                 },
                 file: $file
             }).success(function(data) {
