@@ -6,12 +6,18 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
     var directive = {
         restrict:'AE'
     }; 
+    directive.controller = function($scope){
+        var query = $scope.defineQuery();
+        this.refresh = function(){
+            query.update(null, true);
+        }
+    };
+    
     directive.compile = function(element, attrs){
         angoose.logger.trace("In ang-list compile");
         var preLink = function($scope, $element, $attrs){
             /** we do this in prelink because child directives needs the dmeta setup below */
             enterscope($scope, "ang-list  prelink",  $route.current);
-            
             /**@todo: calling custom controller here is kinda not the right angular way, but we augment the $scope */
             // get the configured defaults
             // var ctrl = $ui.getConfig($location.path());
@@ -26,7 +32,8 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
             // $scope.dmeta = $scope.dmeta || {};
             // var dmeta = $scope.dmeta; 
             /** order or presedence: custom controller -> directive -> route params  */
-            dmeta.modelName =   dmeta.modelName || $attrs.modelName || $routeParams.modelName ; 
+            dmeta.modelName =   dmeta.modelName || $attrs.modelName || $routeParams.modelName ;
+                         
             try{
                 dmeta.modelClass = $injector.get($ui.camelcase( dmeta.modelName  ));    
             }
@@ -35,6 +42,12 @@ function angList( $templateCache, $routeParams, $compile, $location, $injector, 
                 MessageBox.error("Model "+ dmeta.modelName+" is not defined")
                 return;
             }
+            // publish it to the parent scope
+            var listName  =$attrs.angList   || $ui.apiCamelcase( dmeta.modelName  ) + "List";
+            if($scope.$parent) 
+                $scope.$parent[listName] = dmeta;
+            else
+                $scope[listName] = dmeta;
             
             dmeta.pageTitle = dmeta.pageTitle || $ui.camelcase(dmeta.modelName) + " List"
             dmeta.actionColumn = dmeta.actionColumn === undefined ? true: dmeta.actionColumn;

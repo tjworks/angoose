@@ -10,11 +10,15 @@ angular.module('angoose.ui.services').factory('AngooseQuery',function(angoose,  
         // some initial structure
         this.spec = { filter: {}}
     }
+    AngooseQuery.prototype.refresh = function(){
+        this.update(null, true);
+    }
     // update the spec with new options.
     // new options will override the existing ones
-    AngooseQuery.prototype.update = function(options){
+    AngooseQuery.prototype.update = function(options, forceRefresh){
         angoose.logger.trace("Updating Query spec", options);
-        if(!options) return;
+        if(!options && !forceRefresh) return;
+        options = options || {};
         //@todo: below is a mess
         var dmeta = this;
         dmeta.modelName = options.modelName || dmeta.modelName
@@ -36,7 +40,8 @@ angular.module('angoose.ui.services').factory('AngooseQuery',function(angoose,  
         
         dmeta.pageTitle = options.pageTitle || dmeta.pageTitle;
         dmeta.actionColumn = options.actionColumn ===undefined?  dmeta.actionColumn :options.actionColumn   ;
-         
+        
+        if(  forceRefresh) dmeta.spec.trigger = new Date(); // this     
         return this;
     }
     AngooseQuery.prototype.get =   getter;

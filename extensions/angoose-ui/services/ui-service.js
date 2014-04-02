@@ -11,6 +11,7 @@ var serviceProvider = function () {
             //initQuery:initQuery,
             //defineQuery:initQuery,
             isCustomRef:isCustomRef,
+            apiCamelcase:apiCamelcase,
             camelcase:camelcase,
             decamelcase:decamelcase,
             extractTemplate:extractTemplate,
@@ -236,6 +237,11 @@ function getCustomRefValue(instance, pathSchema){
     return name;
 }
 
+function apiCamelcase(name){
+    if(!name) return name;
+    var name = camelcase(name);
+    return name.substring(0,1).toLowerCase() + name.substring(1);
+}
 function camelcase(name){
     // converting client-user to ClientUser 
     if(!name) return name;
