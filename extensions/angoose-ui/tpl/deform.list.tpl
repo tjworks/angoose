@@ -8,7 +8,7 @@
 				<div deform-paginator  page-size="25"  ></div>
 		</div>
 		
-      	<div class="box-icon">
+      	<div class="box-icon"  ng-if=" dmeta.showAdd ">
         	<a class="btn" href="/angoose/{{ dmeta.modelName }}/create"><i class="icon-plus"></i> New {{ dmeta.modelName }}  </a>
        	</div>
        	

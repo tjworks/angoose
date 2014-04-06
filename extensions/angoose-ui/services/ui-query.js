@@ -7,6 +7,7 @@ angular.module('angoose.ui.services').factory('AngooseQuery',function(angoose,  
         angoose.logger.trace("Created Query object for scope", scope.$id);
         this.scope = scope;
         scope.dmeta = this;
+        this.showAdd = true;// default
         // some initial structure
         this.spec = { filter: {}}
     }
@@ -40,6 +41,8 @@ angular.module('angoose.ui.services').factory('AngooseQuery',function(angoose,  
         
         dmeta.pageTitle = options.pageTitle || dmeta.pageTitle;
         dmeta.actionColumn = options.actionColumn ===undefined?  dmeta.actionColumn :options.actionColumn   ;
+        
+        dmeta.showAdd = options.showAdd === undefined? dmeta.showAdd : options.showAdd; 
         
         if(  forceRefresh) dmeta.spec.trigger = new Date(); // this     
         return this;
