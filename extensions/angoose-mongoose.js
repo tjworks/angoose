@@ -61,11 +61,11 @@ function decorateMongooseSchema(  client, moduleName){
             var fn = item.options.type;
             item.options.type = fn.name || fn.toString();                
         }
-        else if(typeof(item) == 'function')
-            this.update( 'not-supported' );
-        if(item.requiredValidator) delete item.requiredValidator;
-        if(item.enumValidator) delete item.enumValidator;
-        if(item.validators) delete item.validators; /**@todo validators are not supported yet*/
+//        else if(typeof(item) == 'function')
+//            this.update( 'not-supported' );
+//        if(item.requiredValidator) delete item.requiredValidator;
+//        if(item.enumValidator) delete item.enumValidator;
+//        if(item.validators) delete item.validators; /**@todo validators are not supported yet*/
     }); 
     schema.options = traverse( model.schema.options).clone();
 //    filtPaths(schema);
