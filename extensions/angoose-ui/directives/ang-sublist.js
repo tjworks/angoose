@@ -19,6 +19,7 @@ angular.module('angoose.ui.directives').directive("deformSublist", function($ui)
               scope['sublist'+ scope.$id] = getter(scope, 'instance.'+ scope.path) || [];
               $ui.setter(scope, 'instance.'+ scope.path, scope['sublist'+ scope.$id] );
               scope.subschema =  $ui.getter(scope.fieldSchema, 'schema');
+              scope.subpaths = Object.keys(scope.subschema.paths); // the ng-repeat will be based on this so it preserves the original order in schema
               Object.keys(scope.subschema.paths).forEach(function(path){
                   if($ui.filterPath(path, scope.subschema.paths[path], scope.subschema)){
                     delete scope.subschema.paths[path];  
