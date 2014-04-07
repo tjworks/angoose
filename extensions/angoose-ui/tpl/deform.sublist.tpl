@@ -12,7 +12,7 @@
 						<i class="icon-expand-alt icon-large"   ng-show="!item.__toggle"></i> 
 						<i class="icon-collapse-alt icon-large" ng-show="item.__toggle"></i>
 					</a>
- 					<div ng-repeat=" (subpath, subpathSchema) in subschema.paths" ng-show="item.__toggle" >
+ 					<div ng-repeat="  subpath in subpaths" ng-show="item.__toggle"  ng-init="subpathSchema = subschema.paths[subpath]">
  						<span ng-if="subpath.indexOf('-')<0">
 							<deform-field  path="subpath" field-schema="subpathSchema" model-chema="modelSchema" instance="item"  ></deform>
 						</span>
