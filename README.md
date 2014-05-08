@@ -42,7 +42,7 @@ Assuming you already have an express server/app file, you just need to add follo
 
 	/** Angoose bootstraping */
     require("angoose").init(app, {
-       'module-dirs':/models,
+       'module-dirs':'/models',
        'mongo-opts': 'localhost:27017/test',
     });
 
