@@ -11,6 +11,13 @@
 		  <source ng-src="{{ dataUri }}" type="audio/mpeg" ng-if="fieldSchema.options.accept.join('').indexOf('mp')>=0">
 		  Your browser does not support the audio tag.
 		</audio>
+ 
+    <video controls ng-if="dataUri &&  fieldSchema.options.accept.join('').indexOf('video')>=0" width="320" height="240">
+      
+      <source ng-src="{{ dataUri }}" type="video/webm" ng-if="fieldSchema.options.accept.join('').indexOf('webm')>=0">
+      Your browser does not support the video tag.
+    </video>
+
 		<div>
 		<a href="{{  url }}" target="_blank">{{  url | shorten }}</a>
 		</div>

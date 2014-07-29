@@ -31,6 +31,7 @@ angular.module('angoose.ui.controllers'  ).controller(	"dfc-file", function($sco
         //console.log("file selected!", $files, "accept: ", accept, "type", $file.type);
 
         $scope.$field.$setValidity('validFileType', true );
+        	console.log("FILE TYPE", $file.type)
         if( accept  && accept.length && accept.indexOf($file.type) <0  ){
             $scope.$field.$setViewValue('');
             $scope.$field.$setValidity('validFileType', false );
@@ -54,7 +55,12 @@ angular.module('angoose.ui.controllers'  ).controller(	"dfc-file", function($sco
         	  console.log("Finished loading file");
         	  $scope.$field.$setViewValue(     vals) ;
         	  
-        	  $scope.dataUri = "data:image/jpg;base64,"+ base64EncArr(vals);
+        	  
+        	  if( accept  && accept.length && accept.indexOf("video") >=0  ){
+        	  		$scope.dataUri = "data:video/webm;base64,"+ base64EncArr(vals);
+        	  }
+        	  else
+        	  	$scope.dataUri = "data:image/jpg;base64,"+ base64EncArr(vals);
         	  $scope.$digest();
        
           };
