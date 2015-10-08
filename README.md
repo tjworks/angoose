@@ -61,7 +61,7 @@ Restart node.js
 
   
 
-#### 4. In your main angular app, add `angoose-client` to your app module dependencies. For example:
+#### 4. In your main angular app, add `angoose.client` to your app module dependencies. For example:
 
     var myapp = angular.module('myapp', ['ngRoute',   'angoose.client']);
 
