@@ -171,7 +171,7 @@ Note not all Mongoose model functionalities are exported yet. Following are a li
 **NOTE** 
 
 You must supply a callback for most of these Mongoose model methods. Mongoose `query` is NOT supported in the client side yet. On the server side, Mongoose allows you to call
-these methods without a callback function and it will return a `Qeury` instance to facilitate chaining. This may be changed in the future.  
+these methods without a callback function and it will return a `Query` instance to facilitate chaining. This may be changed in the future.  
 
 In addition, there are two sugar methods designed for Angular. They similute the `$resource.get()` and `$resource.query()` in angular, in the way the method returns immediately with
 a reference to the empty object/list. This way you don't need to use callback.  The empty object/list will be automatically populated(and view updated accordingly) once server side returns. Both of methods takes parameters similar
