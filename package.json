@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "underscore": "*",
-    "mongoose": "3.8.3",
+    "mongoose": "5.7.7",
     "q": "*",
     "express": "*",
     "log4js": "*",
